@@ -1,0 +1,117 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "hero-eyebrow-chip",
+        "value": "*",
+        "files": [
+          "privacy.html"
+        ],
+        "createdAt": "2026-09-22T11:46:26.829Z",
+        "reason": "Agent: label .label над единственным h1 страницы — тот же паттерн section-marker, что уже подавлен для index.html; структурно не может сработать дважды (один h1 на страницу)"
+      },
+      {
+        "rule": "marquee",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-09-22T13:03:09.304Z",
+        "reason": "Agent: пиненный бриф — docs/02-DESIGN-SYSTEM.md §8 явно разрешает 'Marquee логотипов клиентов', docs/04-REVISION-01.md R4.3 задаёт точные параметры (40s linear infinite, pause on hover — сам детектор просит именно это). Единственное использование на сайте."
+      },
+      {
+        "rule": "marquee",
+        "value": "*",
+        "files": [
+          "privacy.html"
+        ],
+        "createdAt": "2026-09-22T13:03:09.595Z",
+        "reason": "Agent: та же причина, что для index.html — общий CSS-файл sections.css, на privacy.html элемента .clients__track вообще нет"
+      },
+      {
+        "rule": "layout-transition",
+        "value": "*",
+        "files": [
+          "components.css"
+        ],
+        "createdAt": "2026-09-22T17:08:05.735Z",
+        "reason": "Agent: docs/05-REVISION-02.md R10 буквально прописывает transition padding для уплотнения капсулы при скролле — не scrub, срабатывает один раз на toggle .header--scrolled, не по кадрам. transform:scale исказил бы border-radius/border капсулы"
+      },
+      {
+        "rule": "layout-transition",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-09-22T17:08:13.800Z",
+        "reason": "Agent: то же самое правило .nav-capsule, что и в components.css — отчёт дублируется на HTML-файл, который подключает этот CSS"
+      },
+      {
+        "rule": "pulsing-dot",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-09-23T07:04:48.699Z",
+        "reason": "Agent: docs/07-REVISION-04.md R25 — осознанное исключение из запрета на pulse по прямому решению клиента, только для точек-маркеров городов на карте географии. Письменно зафиксировано в docs/02-DESIGN-SYSTEM.md §8 (запрет для всех остальных элементов остаётся в силе) и инлайн-комментарием в css/sections.css у самой анимации."
+      },
+      {
+        "rule": "pulsing-dot",
+        "value": "*",
+        "files": [
+          "privacy.html"
+        ],
+        "createdAt": "2026-09-23T07:04:48.958Z",
+        "reason": "Agent: та же причина, что у marquee-находок в config.json — общий css/sections.css с index.html, элемента .geography__marker-dot на privacy.html физически нет (это страница политики конфиденциальности, не карта географии). Проверено grep — 0 совпадений."
+      },
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "components.css",
+          "index.html"
+        ],
+        "createdAt": "2026-09-24T00:00:00.000Z",
+        "reason": "Agent: .request-modal__panel::before — верхняя (не боковая) кромка 3px, --grad-hot, второе разрешённое место применения этого градиента по 02-DESIGN-SYSTEM.md §5 («максимум ещё в одном месте», кроме hero-острова). Добавлено по прямому запросу пользователя (доп. промпт, вечер 23.09.2026, п.2: «мягкий градиентный акцент на панели»). Тонкая линия, не толстая заливка одного борта карточки — не тот паттерн, который правило нацелено ловить."
+      },
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "privacy.html"
+        ],
+        "createdAt": "2026-09-24T00:00:00.000Z",
+        "reason": "Agent: та же причина, что у marquee/pulsing-dot — общий css/components.css с index.html, элемента .request-modal__panel на privacy.html физически нет (проверено grep — 0 совпадений)."
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-09-24T00:30:00.000Z",
+        "reason": "Agent: .geography__stat (и одноимённый .stat в манифесте) — padding-top: var(--s-4) = 24px против border-top, втрое выше порога правила (8px). Перепроверено дважды прямым измерением getComputedStyle в браузере (24px оба раза), не на глаз. Тот же сквозной приём R12 (тонкая линия-разделитель + padding-top), используемый в нескольких блоках сайта без нареканий — здесь детектор, похоже, не резолвит var(--s-4) статически и трактует как 0."
+      },
+      {
+        "rule": "dark-glow",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-09-24T01:00:00.000Z",
+        "reason": "Agent: .geography__grid::after (мобильная замена десктопной .geography__deco-line) — box-shadow: 0 0 16px 2px var(--accent) на тёмном фоне. Та же 'светящаяся линия под картой/списком городов', что на десктопе (там свечение через SVG filter:blur на дублирующем толстом stroke) — по явному повторному запросу пользователя (правка, ночь 24.09.2026: 'декоративная светящаяся линия... на мобильном сейчас кривая... адаптируй... чтобы нигде не перекрывала'). Не случайный AI-клише-глянец, а тот же брендовый элемент, что уже согласован для десктопной версии, просто более простой техникой (box-shadow вместо второго blur-слоя SVG) под маленький decorативный элемент."
+      },
+      {
+        "rule": "dark-glow",
+        "value": "*",
+        "files": [
+          "privacy.html"
+        ],
+        "createdAt": "2026-09-24T01:00:00.000Z",
+        "reason": "Agent: та же причина, что у marquee/pulsing-dot/side-tab — общий css/sections.css с index.html, элемента .geography__grid (и всей секции География) на privacy.html физически нет (это страница политики конфиденциальности). Проверено grep — 0 совпадений."
+      }
+    ]
+  }
+}

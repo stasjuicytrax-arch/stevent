@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ST EVENT</title>
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/sections.css">
+</head>
+<body>
+
+  <!-- Курсор-точка — скрыта на тач (css/components.css), заполняется js/animations.js -->
+  <div class="cursor-dot" id="cursorDot" aria-hidden="true"></div>
+
+  <!-- 00 — Прелоадер -->
+  <div class="preloader" id="preloader">
+    <img class="preloader__logo" src="assets/brand/logo-st-white.png" alt="Логотип ST EVENT">
+    <p class="preloader__counter" id="preloaderCounter">0</p>
+  </div>
+
+  <header class="header" id="siteHeader">
+    <!-- grid 1fr auto 1fr — капсула центрируется по экрану при любой
+         ширине логотипа/правого блока (docs/05-REVISION-02.md, R17) -->
+    <div class="header__inner">
+      <!-- Логотип в шапке не нужен ни на десктопе, ни на мобильном —
+           пробовали вернуть для мобильного (правка, ночь 24.09.2026),
+           явно отклонено следующим заходом: "убери его полностью, там
+           его быть не должно". Левая колонка грида остаётся пустой —
+           центровка капсулы меню на десктопе (R17). -->
+
+      <div class="nav-capsule" id="navCapsule">
+        <span class="nav-capsule__highlight" id="navHighlight" aria-hidden="true"></span>
+        <nav class="header__nav">
+          <a href="#about" class="header__link">О НАС</a>
+          <a href="#services" class="header__link">УСЛУГИ</a>
+          <a href="#portfolio" class="header__link">ПОРТФОЛИО</a>
+          <a href="#contacts" class="header__link">КОНТАКТЫ</a>
+        </nav>
+      </div>
+
+      <!-- Кнопка «Обсудить проект» убрана из шапки целиком (правка, ночь
+           24.09.2026, п.2) — обсуждение проекта доступно только через
+           кнопку в hero. Правая колонка пустая, тем же приёмом, что и
+           левая (grid 1fr auto 1fr не требует контента в крайних
+           колонках, чтобы капсула осталась по центру). -->
+      <div class="header__right" id="headerRight"></div>
+
+      <button class="header__burger" id="burgerBtn" type="button" aria-label="Открыть меню" aria-expanded="false" aria-controls="mobileMenu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <nav class="mobile-menu__nav">
+      <a href="#about" class="mobile-menu__link">О НАС</a>
+      <a href="#services" class="mobile-menu__link">УСЛУГИ</a>
+      <a href="#portfolio" class="mobile-menu__link">ПОРТФОЛИО</a>
+      <a href="#contacts" class="mobile-menu__link">КОНТАКТЫ</a>
+    </nav>
+    <a href="#contacts" class="btn btn--primary mobile-menu__cta">
+      <span class="btn__text">ОБСУДИТЬ ПРОЕКТ</span>
+      <span class="btn__circle" aria-hidden="true">
+        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 11L11 5M11 5H6.5M11 5V9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+    </a>
+  </div>
+
+  <main>
+
+    <!-- 01 — Hero -->
+    <section class="hero" id="hero">
+      <div class="hero__island">
+        <div class="hero__media" id="heroMedia">
+          <img src="assets/common/hero-main.jpg" alt="Чёрно-белый кадр с мероприятия ST EVENT: гости танцуют, на сцене выступает артист с микрофоном" id="heroMediaImg">
+          <!-- WebGL-канвас с интерактивным искажением поверх фото —
+               итоговая ревизия, 23.09.2026, п.3. Появляется только если
+               js/hero-distortion.js успешно инициализировался (hover:hover
+               + pointer:fine + не reduced-motion) — иначе остаётся просто
+               img выше, без деградации функциональности. -->
+          <canvas class="hero__distortion-canvas" id="heroDistortionCanvas" aria-hidden="true"></canvas>
+        </div>
+        <div class="hero__overlay" aria-hidden="true"></div>
+
+        <div class="hero__content">
+          <!-- Маркер "01 — ГЛАВНАЯ" убран: hero не секция контента, нумерация
+               ему не нужна (docs/05-REVISION-02.md, R11) -->
+          <!-- impeccable detect: hero-eyebrow-chip — не AI-эйбрроу, а дословный
+               бренд-дескриптор из docs/01-CONTENT.md §1, единственный h1 на сайте -->
+          <p class="label">событие // искусство // видео</p>
+          <h1 class="hero__title">ST EVENT</h1>
+          <p class="hero__subtitle" data-reveal="lines">Организуем эффективные события с 2008 года. Пермь.</p>
+          <a href="#contacts" class="btn btn--primary hero__cta">
+            <span class="btn__text">ОБСУДИТЬ ПРОЕКТ</span>
+            <span class="btn__circle" aria-hidden="true">
+              <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 11L11 5M11 5H6.5M11 5V9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </a>
+        </div>
+
+        <div class="index-row">
+          <div class="index-row__item">
+            <span class="index-row__num">#01</span>
+            <span class="index-row__label">СОБЫТИЯ</span>
+          </div>
+          <div class="index-row__item">
+            <span class="index-row__num">#02</span>
+            <span class="index-row__label">БТЛ</span>
+          </div>
+          <div class="index-row__item">
+            <span class="index-row__num">#03</span>
+            <span class="index-row__label">ДИЗАЙН</span>
+          </div>
+          <div class="index-row__item">
+            <span class="index-row__num">#04</span>
+            <span class="index-row__label">ТЕХНИЧЕСКОЕ ОБЕСПЕЧЕНИЕ</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 — Манифест -->
+    <section class="manifest" id="about">
+      <div class="container">
+        <h2 class="section-marker">
+          <span class="section-marker__num">02</span>
+          <span class="section-marker__text"> — О НАС</span>
+        </h2>
+
+        <!-- TODO: клиент просил добавить фото в этот блок (ревизия, вечер
+             23.09.2026, п.3) + parallax-эффект фото относительно текста.
+             Единственный файл, подписанный как «фото команды»
+             (assets/common/about-team.jpg), при визуальной проверке
+             оказался фасадом стороннего объекта PLAYPARK — не команда
+             ST EVENT (см. docs/01-CONTENT.md §8.1). Подставлять его или
+             любое другое фото нельзя (правило «ничего не выдумывать»).
+             Нужно реальное фото команды/агентства от клиента. -->
+        <div class="manifest__grid">
+          <div class="manifest__lead">
+            <p class="manifest__statement" data-reveal="lines">Мы организуем эффективные события</p>
+            <p class="manifest__continuation" data-reveal="lines">которые нацелены на решение бизнес-задач наших клиентов и 100% уложимся в ваш бюджет. Сплотим команду и направим на достижение целей.</p>
+          </div>
+
+          <!-- Колонка счётчиков переверстана вертикально с разделителями
+               (R12) и добавлена 4-я цифра — итоговая ревизия, 23.09.2026,
+               п.5: при 3 счётчиках в flex-wrap-ряду справа от текста
+               оставалась пустая зона выше 30% ширины контейнера
+               (04-REVISION-01.md, R7). «8 кейсов в портфолио» — реальное
+               число из docs/01-CONTENT.md §3, не выдумано, просто раньше
+               не было использовано как счётчик. -->
+          <!-- Значки у счётчиков — тот же приём (контурный inline-SVG,
+               stroke не заливка), что у иконок услуг; сюда просились
+               отдельно и пункт про пустоту этого блока, и пункт про
+               иконки ещё в одном месте сайта (ревизия №6, п.4 и п.6) -->
+          <div class="manifest__stats">
+            <div class="stat" data-reveal="block">
+              <span class="stat__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span class="stat__number">18</span>
+              <span class="stat__label">лет опыта</span>
+            </div>
+            <div class="stat" data-reveal="block">
+              <span class="stat__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 20.5s-7.5-4.6-9.5-9.3C1.2 8 2.8 4.8 6 4.2c2-.4 3.7.5 6 2.8 2.3-2.3 4-3.2 6-2.8 3.2.6 4.8 3.8 3.5 7-2 4.7-9.5 9.3-9.5 9.3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span class="stat__number">96%</span>
+              <span class="stat__label">постоянных клиентов</span>
+            </div>
+            <div class="stat" data-reveal="block">
+              <span class="stat__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="9" cy="8" r="3" stroke="currentColor" stroke-width="1.5"/>
+                  <circle cx="17.5" cy="9.5" r="2.3" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6M15 14.5c2.8.2 5 2.3 5 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span class="stat__number">2000+</span>
+              <span class="stat__label">гостей на крупнейшем проекте</span>
+            </div>
+            <div class="stat" data-reveal="block">
+              <span class="stat__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="3" y="8" width="18" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M8 8V6a2 2 0 012-2h4a2 2 0 012 2v2" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M3 13h18" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+              </span>
+              <span class="stat__number">8</span>
+              <span class="stat__label">кейсов в портфолио</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 — Услуги -->
+    <section class="services" id="services">
+      <div class="container">
+        <h2 class="section-marker">
+          <span class="section-marker__num">03</span>
+          <span class="section-marker__text"> — УСЛУГИ</span>
+        </h2>
+
+        <div class="accordion">
+          <div class="accordion__item is-open" data-reveal="block">
+            <button class="accordion__trigger" type="button" aria-expanded="true" aria-controls="service-panel-1" id="service-trigger-1">
+              <span class="accordion__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 3v4M12 17v4M3 12h4M17 12h4M6.5 6.5l2.5 2.5M15 15l2.5 2.5M17.5 6.5L15 9M9 15l-2.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span class="accordion__num">01</span>
+              <span class="accordion__name">СОБЫТИЯ</span>
+            </button>
+            <div class="accordion__side">
+              <span class="accordion__count">3 направления</span>
+              <span class="accordion__chevron" aria-hidden="true">
+                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+            </div>
+            <div class="accordion__panel" id="service-panel-1" role="region" aria-labelledby="service-trigger-1">
+              <div class="accordion__panel-inner">
+                <ul class="accordion__list">
+                  <li>Организация промоакций: лифтинг, семплинг, дегустации</li>
+                  <li>Медиапланирование</li>
+                  <li>Trade Promotion</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion__item" data-reveal="block">
+            <button class="accordion__trigger" type="button" aria-expanded="false" aria-controls="service-panel-2" id="service-trigger-2">
+              <span class="accordion__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M3 10v4h3l10 5V5L6 10H3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                  <path d="M19 9a4 4 0 0 1 0 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  <path d="M7 14l1.3 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span class="accordion__num">02</span>
+              <span class="accordion__name">БТЛ</span>
+            </button>
+            <div class="accordion__side">
+              <span class="accordion__count">5 направлений</span>
+              <span class="accordion__chevron" aria-hidden="true">
+                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+            </div>
+            <div class="accordion__panel" id="service-panel-2" role="region" aria-labelledby="service-trigger-2">
+              <div class="accordion__panel-inner">
+                <ul class="accordion__list">
+                  <li>Создание видео-контента</li>
+                  <li>Брендинг</li>
+                  <li>Web-дизайн</li>
+                  <li>Инфографика</li>
+                  <li>Разработка макетов</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion__item" data-reveal="block">
+            <button class="accordion__trigger" type="button" aria-expanded="false" aria-controls="service-panel-3" id="service-trigger-3">
+              <span class="accordion__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4 20l1-5L16 4l4 4L9 19l-5 1z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                  <path d="M13.5 6.5l4 4" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+              </span>
+              <span class="accordion__num">03</span>
+              <span class="accordion__name">ДИЗАЙН</span>
+            </button>
+            <div class="accordion__side">
+              <span class="accordion__count">2 направления</span>
+              <span class="accordion__chevron" aria-hidden="true">
+                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+            </div>
+            <div class="accordion__panel" id="service-panel-3" role="region" aria-labelledby="service-trigger-3">
+              <div class="accordion__panel-inner">
+                <ul class="accordion__list">
+                  <li>Полиграфической продукции</li>
+                  <li>Наружной рекламы</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion__item" data-reveal="block">
+            <button class="accordion__trigger" type="button" aria-expanded="false" aria-controls="service-panel-4" id="service-trigger-4">
+              <span class="accordion__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6 4v16M12 4v16M18 4v16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  <circle cx="6" cy="9" r="2" stroke="currentColor" stroke-width="1.5"/>
+                  <circle cx="12" cy="16" r="2" stroke="currentColor" stroke-width="1.5"/>
+                  <circle cx="18" cy="7" r="2" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+              </span>
+              <span class="accordion__num">04</span>
+              <span class="accordion__name">ТЕХНИЧЕСКОЕ ОБЕСПЕЧЕНИЕ</span>
+            </button>
+            <div class="accordion__side">
+              <span class="accordion__count">4 направления</span>
+              <span class="accordion__chevron" aria-hidden="true">
+                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+            </div>
+            <div class="accordion__panel" id="service-panel-4" role="region" aria-labelledby="service-trigger-4">
+              <div class="accordion__panel-inner">
+                <ul class="accordion__list">
+                  <li>Сценическое оборудование</li>
+                  <li>Световое оборудование</li>
+                  <li>Звуковое оборудование</li>
+                  <li>Видеопроекционное оборудование</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 — Почему мы (единственная светлая секция) -->
+    <section class="why-us" id="why-us">
+      <div class="container">
+        <h2 class="section-marker">
+          <span class="section-marker__num">04</span>
+          <span class="section-marker__text"> — ПОЧЕМУ МЫ</span>
+        </h2>
+
+        <!-- Значки — тот же приём (круглый бейдж, контурный inline-SVG),
+             что у аккордеона услуг (правка, ночь 24.09.2026, п.3). Опыт и
+             Лояльность переиспользуют те же иконки, что уже в манифесте
+             для тех же самых фактов (18 лет / 96%) — не новый набор, тот
+             же смысл. KPI — новый значок (мишень), под него в остальных
+             местах сайта подходящей иконки не было. -->
+        <div class="why-us__grid">
+          <div class="why-us__item" data-reveal="block">
+            <span class="why-us__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="why-us__num">01</span>
+            <h3 class="why-us__title">ОПЫТ</h3>
+            <p class="why-us__text">Мы работаем в этой сфере с 2008 года, следовательно мы хорошо знаем рынок event-индустрии.</p>
+          </div>
+          <div class="why-us__item" data-reveal="block">
+            <span class="why-us__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 20.5s-7.5-4.6-9.5-9.3C1.2 8 2.8 4.8 6 4.2c2-.4 3.7.5 6 2.8 2.3-2.3 4-3.2 6-2.8 3.2.6 4.8 3.8 3.5 7-2 4.7-9.5 9.3-9.5 9.3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="why-us__num">02</span>
+            <h3 class="why-us__title">ЛОЯЛЬНОСТЬ</h3>
+            <p class="why-us__text">96% заказчиков, которые обращаются к нам, остаются в числе постоянных клиентов.</p>
+          </div>
+          <div class="why-us__item" data-reveal="block">
+            <span class="why-us__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.5"/>
+                <circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.5"/>
+                <circle cx="12" cy="12" r="1" fill="currentColor"/>
+              </svg>
+            </span>
+            <span class="why-us__num">03</span>
+            <h3 class="why-us__title">KPI</h3>
+            <p class="why-us__text">При реализации event-проектов мы выделяем KPI.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 — Портфолио -->
+    <section class="portfolio" id="portfolio">
+      <div class="container">
+        <h2 class="section-marker">
+          <span class="section-marker__num">05</span>
+          <span class="section-marker__text"> — ПОРТФОЛИО</span>
+        </h2>
+
+        <div class="portfolio__grid" id="portfolioGrid" data-reveal-stagger="80">
+          <article class="case-card" data-case="bitva-robotov" role="button" tabindex="0" aria-haspopup="dialog" data-reveal="block">
+            <div class="case-card__media media">
+              <img src="assets/portfolio/bitva-robotov/cover.jpg" alt="Чемпионат по боям роботов в Сочи — обложка кейса «Битва роботов»">
+            </div>
+            <span class="case-card__badge" aria-hidden="true">
+              СМОТРЕТЬ
+              <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 11L11 5M11 5H6.5M11 5V9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <h3 class="case-card__title">БИТВА РОБОТОВ</h3>
+            <p class="case-card__meta">Сочи · более 2000 гостей</p>
+          </article>
+
+          <article class="case-card" data-case="kron" role="button" tabindex="0" aria-haspopup="dialog" data-reveal="block">
+            <div class="case-card__media media">
+              <img src="assets/portfolio/kron/cover.jpg" alt="Юбилей компании «КРОН» — обложка кейса">
+            </div>
+            <span class="case-card__badge" aria-hidden="true">
+              СМОТРЕТЬ
+              <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 11L11 5M11 5H6.5M11 5V9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <h3 class="case-card__title">КРОН</h3>
+            <p class="case-card__meta">Пермь · 140 гостей</p>
+          </article>
+
+          <article class="case-card" data-case="importservice" role="button" tabindex="0" aria-haspopup="dialog" data-reveal="block">
+            <div class="case-card__media media">
+              <img src="assets/portfolio/importservice/cover.jpg" alt="Юбилей компании «Импортсервис» — обложка кейса">
+            </div>
+            <span class="case-card__badge" aria-hidden="true">
+              СМОТРЕТЬ
+              <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 11L11 5M11 5H6.5M11 5V9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <h3 class="case-card__title">ИМПОРТСЕРВИС</h3>
+            <p class="case-card__meta">Пермь · 87 гостей</p>
+          </article>
+
+          <article class="case-card" data-case="unikorn" role="button" tabindex="0" aria-haspopup="dialog" data-reveal="block">
+            <div class="case-card__media media">
+              <img src="assets/portfolio/unikorn/cover.png" alt="Корпоративная регата компании «Юникорн» — обложка кейса">
+            </div>
+            <span class="case-card__badge" aria-hidden="true">
+              СМОТРЕТЬ
+              <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 11L11 5M11 5H6.5M11 5V9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <h3 class="case-card__title">ЮНИКОРН</h3>
+            <p class="case-card__meta">Пермь · 140 гостей</p>
+          </article>
+
+          <article class="case-card" data-case="vypusknoy" role="button" tabindex="0" aria-haspopup="dialog" data-reveal="block">
+            <div class="case-card__media media">
+              <img src="assets/portfolio/vypusknoy/cover.jpg" alt="Выпускной школы №22 — обложка кейса">
+            </div>
+            <span class="case-card__badge" aria-hidden="true">
+              СМОТРЕТЬ
+              <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 11L11 5M11 5H6.5M11 5V9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <h3 class="case-card__title">ВЫПУСКНОЙ ШКОЛА 22</h3>
+            <p class="case-card__meta">Пермь · 170 гостей</p>
+          </article>
+
+          <article class="case-card" data-case="ibiza" role="button" tabindex="0" aria-haspopup="dialog" data-reveal="block">
+            <div class="case-card__media media">
+              <img src="assets/portfolio/ibiza/cover.jpg" alt="День рождения в стиле Ibiza Party — обложка кейса">
+            </div>
+            <span class="case-card__badge" aria-hidden="true">
+              СМОТРЕТЬ
+              <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 11L11 5M11 5H6.5M11 5V9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <h3 class="case-card__title">IBIZA PARTY</h3>
+            <p class="case-card__meta">Пермь · 25 гостей</p>
+          </article>
+
+          <article class="case-card" data-case="hogvarts" role="button" tabindex="0" aria-haspopup="dialog" data-reveal="block">
+            <div class="case-card__media media">
+              <img src="assets/portfolio/hogvarts/cover.jpg" alt="Детский день рождения в стилистике Хогвартса — обложка кейса">
+            </div>
+            <span class="case-card__badge" aria-hidden="true">
+              СМОТРЕТЬ
+              <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 11L11 5M11 5H6.5M11 5V9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <h3 class="case-card__title">ХОГВАРТС</h3>
+            <p class="case-card__meta">Пермь · 50 гостей</p>
+          </article>
+
+          <article class="case-card" data-case="svadba" role="button" tabindex="0" aria-haspopup="dialog" data-reveal="block">
+            <div class="case-card__media media">
+              <img src="assets/portfolio/svadba/cover.jpg" alt="Свадьба Дарьи и Алексея — обложка кейса">
+            </div>
+            <span class="case-card__badge" aria-hidden="true">
+              СМОТРЕТЬ
+              <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 11L11 5M11 5H6.5M11 5V9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <h3 class="case-card__title">СВАДЬБА ДАРЬИ И АЛЕКСЕЯ</h3>
+            <p class="case-card__meta">Пермь · 56 гостей</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 — Галерея (веер карточек). Новая секция между Портфолио и
+         Клиентами (правка, ночь 24.09.2026). Обложки — те же 8 файлов
+         assets/portfolio/*/cover.*, что использует раздел «Портфолио»
+         (js/gallery.js CASES) — здесь не дублируются построчно, свой
+         компактный список слагов/имён держит js/fan-gallery.js, синхрон
+         с исходником по количеству и slug'ам, не по тексту заново. Веер
+         и вся логика переключения — js/fan-gallery.js (GSAP + чистый JS,
+         IIFE, без модулей, как и остальной сайт). -->
+    <section class="fan-gallery" id="fan-gallery">
+      <div class="container">
+        <h2 class="section-marker">
+          <span class="section-marker__num">06</span>
+          <span class="section-marker__text"> — ГАЛЕРЕЯ</span>
+        </h2>
+
+        <div class="fan-gallery__stage" id="fanStage">
+          <div class="fan-gallery__track" id="fanTrack" aria-live="polite"></div>
+        </div>
+
+        <div class="fan-gallery__controls">
+          <button class="fan-gallery__arrow" id="fanPrev" type="button" aria-label="Предыдущий кейс">
+            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div class="fan-gallery__dots" id="fanDots"></div>
+          <button class="fan-gallery__arrow" id="fanNext" type="button" aria-label="Следующий кейс">
+            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 — Клиенты -->
+    <section class="clients" id="clients">
+      <div class="container">
+        <div class="clients__row">
+          <h2 class="section-marker clients__marker">
+            <span class="section-marker__num">07</span>
+            <span class="section-marker__text"> — НАМ ДОВЕРЯЮТ</span>
+          </h2>
+
+          <div class="clients__marquee">
+            <div class="clients__track">
+              <div class="clients__group">
+                <img class="clients__logo" src="assets/clients/client-sibur.png" alt="Логотип СИБУР">
+                <img class="clients__logo" src="assets/clients/client-vtb.png" alt="Логотип ВТБ">
+                <img class="clients__logo" src="assets/clients/client-mts.png" alt="Логотип МТС">
+                <img class="clients__logo" src="assets/clients/client-promobot.png" alt="Логотип Promobot">
+                <img class="clients__logo" src="assets/clients/client-novomet.png" alt="Логотип Новомет">
+                <img class="clients__logo" src="assets/clients/client-zaza-group.png" alt="Логотип ZAZA Group">
+                <img class="clients__logo" src="assets/clients/client-ujin.png" alt="Логотип Ujin">
+                <img class="clients__logo" src="assets/clients/client-01.png" alt="Логотип клиента">
+                <img class="clients__logo" src="assets/clients/client-05.png" alt="Логотип клиента">
+                <img class="clients__logo" src="assets/clients/client-08.png" alt="Логотип клиента">
+                <img class="clients__logo" src="assets/clients/client-11.png" alt="Логотип клиента">
+                <img class="clients__logo" src="assets/clients/client-12.png" alt="Логотип клиента">
+              </div>
+              <div class="clients__group" aria-hidden="true">
+                <img class="clients__logo" src="assets/clients/client-sibur.png" alt="">
+                <img class="clients__logo" src="assets/clients/client-vtb.png" alt="">
+                <img class="clients__logo" src="assets/clients/client-mts.png" alt="">
+                <img class="clients__logo" src="assets/clients/client-promobot.png" alt="">
+                <img class="clients__logo" src="assets/clients/client-novomet.png" alt="">
+                <img class="clients__logo" src="assets/clients/client-zaza-group.png" alt="">
+                <img class="clients__logo" src="assets/clients/client-ujin.png" alt="">
+                <img class="clients__logo" src="assets/clients/client-01.png" alt="">
+                <img class="clients__logo" src="assets/clients/client-05.png" alt="">
+                <img class="clients__logo" src="assets/clients/client-08.png" alt="">
+                <img class="clients__logo" src="assets/clients/client-11.png" alt="">
+                <img class="clients__logo" src="assets/clients/client-12.png" alt="">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 08 — География. Точечная карта России, docs/05-REVISION-02.md R15.
+         Только подтверждённые кейсами города (Пермь, Сочи) — без
+         выдуманных пинов. Точки и проекция строятся в js/map.js и js/geo.js
+         на данных assets/data/russia-110m.js (Natural Earth 110m). -->
+    <section class="geography" id="geography">
+      <!-- Декоративная световая линия — фоновый слой на всю секцию
+           edge-to-edge (не внутри .container и не внутри карты — это
+           было ошибкой прошлой версии, п.1 текущей ревизии). Прямой
+           child секции, ниже контента по z-index: сам физически не
+           может наехать на текст, т.к. весь контент секции выше него
+           в стэкинге (.geography__inner ниже, п.1). Двойной stroke
+           (тонкий яркий + размытая толстая подложка var(--accent),
+           filter:blur()) и бегущий блик (два слоя stroke-dasharray/
+           dashoffset по кругу) — см. css/sections.css. Путь проложен
+           в нижней трети секции, чтобы не проходить под текстовым
+           блоком (проверено скриншотом всей секции, п.4). -->
+      <svg class="geography__deco-line" viewBox="0 0 1600 700" preserveAspectRatio="none" aria-hidden="true">
+        <path class="geography__deco-line-glow" d="M -50 560 C 250 480, 480 620, 780 560 S 1200 460, 1650 540" />
+        <path class="geography__deco-line-core" d="M -50 560 C 250 480, 480 620, 780 560 S 1200 460, 1650 540" />
+        <path class="geography__deco-line-run geography__deco-line-run--outer" d="M -50 560 C 250 480, 480 620, 780 560 S 1200 460, 1650 540" />
+        <path class="geography__deco-line-run geography__deco-line-run--inner" d="M -50 560 C 250 480, 480 620, 780 560 S 1200 460, 1650 540" />
+      </svg>
+
+      <div class="container geography__inner">
+        <h2 class="section-marker">
+          <span class="section-marker__num">08</span>
+          <span class="section-marker__text"> — ГЕОГРАФИЯ</span>
+        </h2>
+
+        <div class="geography__grid">
+          <div class="geography__left">
+            <!-- Текст изначально из docs/05-REVISION-02.md, R15; числа и
+                 склонение обновлены docs/06-REVISION-03.md, R21 — клиент
+                 прислал полный список городов (docs/01-CONTENT.md §6):
+                 6 городов, 12 проектов. Цифра выделена акцентом внутри
+                 фразы, порядок слов не менять. -->
+            <!-- Число и подпись — раздельные блочные строки, не связный
+                 текст в <p> — при узкой колонке (200-280px) и крупном
+                 дисплейном кегле "12 ПРОЕКТОВ" одной строкой переносилось
+                 некрасиво ("12" отдельно, "ПРОЕКТОВ" следующей строкой).
+                 Разбито на собственные строки — переноситься нечему
+                 (ревизия по Географии, ночь 24.09.2026, п.1). Третий
+                 счётчик — "С 2008" в строке числа (короткое, не рвётся),
+                 "ГОДА" отдельной подписью; слова те же, порядок тот же,
+                 просто перенесена граница строки. -->
+            <div class="geography__stats">
+              <p class="geography__stat">
+                <span class="geography__stat-num">6</span>
+                <span class="geography__stat-label">ГОРОДОВ</span>
+              </p>
+              <p class="geography__stat">
+                <span class="geography__stat-num">12</span>
+                <span class="geography__stat-label">ПРОЕКТОВ</span>
+              </p>
+              <p class="geography__stat">
+                <span class="geography__stat-num">С 2008</span>
+                <span class="geography__stat-label">ГОДА</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Маркеры городов не хардкодятся здесь — js/map.js строит их
+               из assets/data/cities.js, чтобы новый город из полного
+               списка (когда пришлёт клиент, R15) добавлялся только там.
+               Только глоу-точки, без подписей рядом (п.8а) — список
+               городов теперь под картой, даёт названия и числа. -->
+          <div class="geography__scene" id="geoScene">
+            <div class="geography__map" id="geoMap">
+              <canvas class="geography__canvas" id="geoCanvas" aria-hidden="true"></canvas>
+            </div>
+          </div>
+
+          <!-- Список городов — был тесно под счётчиками в одну колонку,
+               сливался с ними визуально; вынесен под карту на всю
+               ширину секции, горизонтальной сеткой (правка ночь
+               24.09.2026, п.2). Строится в js/map.js из того же массива
+               assets/data/cities.js, что и точки на карте — порядок
+               гарантированно совпадает. Нумерация #01–06 — тот же
+               приём, что в индексной строке hero. -->
+          <div class="geography__cities" id="geoCityList" aria-label="Города, в которых мы работали"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 09 — Контакты -->
+    <section class="contacts" id="contacts">
+      <div class="container">
+        <h2 class="section-marker">
+          <span class="section-marker__num">09</span>
+          <span class="section-marker__text"> — КОНТАКТЫ</span>
+        </h2>
+
+        <div class="contacts__grid">
+          <div class="contacts__info">
+            <!-- Значки — тот же приём (круглый бейдж, контурный inline-SVG),
+                 что у аккордеона услуг и модалки кейса -->
+            <div class="contacts__block">
+              <div class="contacts__block-head">
+                <span class="contacts__block-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6.6 10.8c1.4 2.8 3.8 5.2 6.6 6.6l2.2-2.2c.3-.3.7-.4 1.1-.3 1.2.4 2.5.6 3.8.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.6.6 3.8.1.4 0 .8-.3 1.1L6.6 10.8z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                <p class="label">Мы всегда на связи</p>
+              </div>
+              <a class="contacts__phone" href="tel:+73422774812">+7 (342) 277-48-12</a>
+              <a class="contacts__phone" href="tel:+79119121513">+7 (911) 912-15-13</a>
+            </div>
+
+            <div class="contacts__block">
+              <div class="contacts__block-head">
+                <span class="contacts__block-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6.6 10.8c1.4 2.8 3.8 5.2 6.6 6.6l2.2-2.2c.3-.3.7-.4 1.1-.3 1.2.4 2.5.6 3.8.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.6.6 3.8.1.4 0 .8-.3 1.1L6.6 10.8z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                <p class="label">Для новых клиентов</p>
+              </div>
+              <a class="contacts__phone" href="tel:+79991231508">+7 (999) 123-15-08</a>
+            </div>
+
+            <div class="contacts__block">
+              <div class="contacts__block-head">
+                <span class="contacts__block-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M4 7l8 6 8-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                <a class="contacts__link" href="mailto:st2000event@gmail.com">st2000event@gmail.com</a>
+              </div>
+              <div class="contacts__block-head">
+                <span class="contacts__block-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 21s7-6.1 7-12a7 7 0 10-14 0c0 5.9 7 12 7 12z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                    <circle cx="12" cy="9" r="2.3" stroke="currentColor" stroke-width="1.5"/>
+                  </svg>
+                </span>
+                <p class="contacts__address">Пермь, ул. Лодыгина, 9</p>
+              </div>
+            </div>
+
+            <div class="contacts__socials">
+              <a class="contacts__social" href="https://t.me/st_stevent" target="_blank" rel="noopener noreferrer">Telegram</a>
+              <a class="contacts__social" href="https://vk.com/prazdnikvperm" target="_blank" rel="noopener noreferrer">ВКонтакте</a>
+            </div>
+          </div>
+
+          <form class="contacts__form" id="contactForm" novalidate>
+            <div class="form-field">
+              <label class="form-field__label" for="formName">Ваше имя</label>
+              <input class="form-field__input" type="text" id="formName" name="name" autocomplete="name" required>
+              <p class="form-field__error" id="formNameError"></p>
+            </div>
+
+            <div class="form-field">
+              <label class="form-field__label" for="formPhone">Ваш телефон</label>
+              <input class="form-field__input" type="tel" id="formPhone" name="phone" autocomplete="tel" placeholder="+7 (___) ___-__-__" required>
+              <p class="form-field__error" id="formPhoneError"></p>
+            </div>
+
+            <div class="form-field">
+              <label class="form-field__label" for="formEmail">Ваш email <span class="form-field__optional">(необязательно)</span></label>
+              <input class="form-field__input" type="email" id="formEmail" name="email" autocomplete="email">
+              <p class="form-field__error" id="formEmailError"></p>
+            </div>
+
+            <div class="form-field">
+              <label class="form-field__label" for="formMessage">О чём мероприятие <span class="form-field__optional">(необязательно)</span></label>
+              <textarea class="form-field__input form-field__input--textarea" id="formMessage" name="message" rows="3"></textarea>
+            </div>
+
+            <label class="form-field__checkbox">
+              <input type="checkbox" id="formConsent" name="consent" required>
+              <span>Согласен на <a href="privacy.html" target="_blank" rel="noopener noreferrer">обработку персональных данных</a></span>
+            </label>
+
+            <button type="submit" class="btn btn--primary contacts__submit">
+              <span class="btn__text">Отправить</span>
+              <span class="btn__circle" aria-hidden="true">
+                <svg class="btn__icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M5 11L11 5M11 5H6.5M11 5V9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+            </button>
+
+            <p class="contacts__form-status" id="formStatus" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 10 — Футер -->
+  <footer class="footer">
+    <div class="footer__bg" aria-hidden="true">
+      <img src="assets/common/footer-bg.jpg" alt="">
+    </div>
+
+    <div class="footer__content container">
+      <div class="footer__brand">
+        <img class="footer__logo" src="assets/brand/logo-st-white.png" alt="Логотип ST EVENT">
+        <p class="footer__descriptor label">событие // искусство // видео</p>
+      </div>
+
+      <nav class="footer__nav">
+        <a href="#about">О НАС</a>
+        <a href="#services">УСЛУГИ</a>
+        <a href="#portfolio">ПОРТФОЛИО</a>
+        <a href="#contacts">КОНТАКТЫ</a>
+      </nav>
+
+      <div class="footer__contacts">
+        <a href="tel:+73422774812">+7 (342) 277-48-12</a>
+        <a href="mailto:st2000event@gmail.com">st2000event@gmail.com</a>
+        <p>Пермь, ул. Лодыгина, 9</p>
+      </div>
+
+      <div class="footer__socials">
+        <a class="footer__social" href="https://t.me/st_stevent" target="_blank" rel="noopener noreferrer" aria-label="Telegram">
+          <img src="assets/brand/icon-telegram.png" alt="">
+        </a>
+        <a class="footer__social" href="https://vk.com/prazdnikvperm" target="_blank" rel="noopener noreferrer" aria-label="ВКонтакте">
+          <img src="assets/brand/icon-vk.png" alt="">
+        </a>
+      </div>
+
+      <div class="footer__bottom">
+        <p class="footer__copyright">© 2026 ST EVENT</p>
+        <a class="footer__privacy" href="privacy.html">Политика конфиденциальности</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Модалка кейса -->
+  <div class="case-modal" id="caseModal" role="dialog" aria-modal="true" aria-labelledby="caseModalTitle" hidden>
+    <button class="case-modal__close" id="caseModalClose" type="button" aria-label="Закрыть кейс">
+      <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M3 3L13 13M13 3L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </button>
+
+    <div class="case-modal__cover media" id="caseModalCover">
+      <!-- impeccable detect: broken-image — src пуст намеренно, js/gallery.js
+           проставляет его в openModal() до modal.hidden = false -->
+      <img id="caseModalCoverImg" src="" alt="">
+      <div class="case-modal__cover-overlay" aria-hidden="true"></div>
+      <div class="case-modal__cover-content">
+        <h2 class="case-modal__title" id="caseModalTitle"></h2>
+        <p class="case-modal__meta" id="caseModalMeta"></p>
+      </div>
+    </div>
+
+    <div class="case-modal__body container">
+      <!-- Значки у заголовков блоков — тот же приём (круглый бейдж,
+           контурный inline-SVG), что у аккордеона услуг. Разметка
+           модалки одна на все кейсы (js/gallery.js подставляет текст
+           в id-поля ниже), поэтому значки применяются сразу ко всем
+           кейсам портфолио, без правки на каждый отдельно. KPI — тот
+           же значок-мишень, что уже в разделе «Почему мы». -->
+      <div class="case-modal__info">
+        <div class="case-modal__block">
+          <div class="case-modal__block-head">
+            <span class="case-modal__block-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 21V4M5 4h13l-3 4 3 4H5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <p class="label">Задача</p>
+          </div>
+          <div class="case-modal__text" id="caseModalTask"></div>
+        </div>
+        <div class="case-modal__block">
+          <div class="case-modal__block-head">
+            <span class="case-modal__block-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.5 10.9c.5.4.8 1 .8 1.6v.5h5.4v-.5c0-.6.3-1.2.8-1.6A6 6 0 0012 3z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <p class="label">Решение</p>
+          </div>
+          <div class="case-modal__text" id="caseModalSolution"></div>
+        </div>
+        <div class="case-modal__block">
+          <div class="case-modal__block-head">
+            <span class="case-modal__block-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.5"/>
+                <circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.5"/>
+                <circle cx="12" cy="12" r="1" fill="currentColor"/>
+              </svg>
+            </span>
+            <p class="label">KPI</p>
+          </div>
+          <div class="case-modal__text" id="caseModalKpi"></div>
+        </div>
+      </div>
+
+      <div class="case-modal__gallery" id="caseModalGallery"></div>
+    </div>
+  </div>
+
+  <!-- Лайтбокс галереи -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Просмотр фото кейса" hidden>
+    <button class="lightbox__close" id="lightboxClose" type="button" aria-label="Закрыть фото">
+      <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M3 3L13 13M13 3L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <button class="lightbox__arrow lightbox__arrow--prev" id="lightboxPrev" type="button" aria-label="Предыдущее фото">
+      <img src="assets/brand/arrow-left.svg" alt="">
+    </button>
+    <!-- impeccable detect: broken-image — src пуст намеренно, js/gallery.js
+         проставляет его в openLightbox() до lightbox.hidden = false -->
+    <img class="lightbox__image" id="lightboxImage" src="" alt="">
+    <button class="lightbox__arrow lightbox__arrow--next" id="lightboxNext" type="button" aria-label="Следующее фото">
+      <img src="assets/brand/arrow-right.svg" alt="">
+    </button>
+  </div>
+
+  <!-- Модалка заявки — docs/08-REVISION-05.md, R27. Поля дословно из
+       docs/03-TZ.md §08 (те же id-соглашения, что у формы в разделе
+       «Контакты» ниже — форма #contacts остаётся как есть, эта модалка
+       её не заменяет, только даёт короткий путь с кнопок CTA). -->
+  <div class="request-modal" id="requestModal" role="dialog" aria-modal="true" aria-labelledby="requestModalTitle" hidden>
+    <div class="request-modal__backdrop" id="requestModalBackdrop"></div>
+    <div class="request-modal__panel" id="requestModalPanel">
+      <button class="request-modal__close" id="requestModalClose" type="button" aria-label="Закрыть форму">
+        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M3 3L13 13M13 3L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <h2 class="request-modal__title" id="requestModalTitle">Обсудить проект</h2>
+
+      <form class="request-modal__form" id="requestForm" novalidate>
+        <div class="form-field form-field--float">
+          <div class="form-field__control">
+            <input class="form-field__input" type="text" id="reqName" name="name" autocomplete="name" placeholder=" " required>
+            <label class="form-field__label" for="reqName">Ваше имя</label>
+          </div>
+          <p class="form-field__error" id="reqNameError"></p>
+        </div>
+
+        <div class="form-field form-field--float">
+          <div class="form-field__control">
+            <input class="form-field__input" type="tel" id="reqPhone" name="phone" autocomplete="tel" placeholder=" " required>
+            <label class="form-field__label" for="reqPhone">Ваш телефон</label>
+          </div>
+          <p class="form-field__error" id="reqPhoneError"></p>
+        </div>
+
+        <div class="form-field form-field--float">
+          <div class="form-field__control">
+            <input class="form-field__input" type="email" id="reqEmail" name="email" autocomplete="email" placeholder=" ">
+            <label class="form-field__label" for="reqEmail">Ваш email <span class="form-field__optional">(необязательно)</span></label>
+          </div>
+          <p class="form-field__error" id="reqEmailError"></p>
+        </div>
+
+        <div class="form-field form-field--float">
+          <div class="form-field__control">
+            <textarea class="form-field__input form-field__input--textarea" id="reqMessage" name="message" rows="3" placeholder=" "></textarea>
+            <label class="form-field__label" for="reqMessage">О чём мероприятие <span class="form-field__optional">(необязательно)</span></label>
+          </div>
+        </div>
+
+        <label class="form-field__checkbox">
+          <input type="checkbox" id="reqConsent" name="consent" required>
+          <span>Согласен на <a href="privacy.html" target="_blank" rel="noopener noreferrer">обработку персональных данных</a></span>
+        </label>
+
+        <button type="submit" class="btn btn--primary request-modal__submit">
+          <span class="btn__text">ОТПРАВИТЬ</span>
+          <span class="btn__circle" aria-hidden="true">
+            <svg class="btn__icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M5 11L11 5M11 5H6.5M11 5V9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </button>
+
+        <p class="request-modal__status" id="reqStatus" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </div>
+
+  <script src="assets/vendor/gsap.min.js" defer></script>
+  <script src="assets/vendor/CustomEase.min.js" defer></script>
+  <script src="assets/vendor/ScrollTrigger.min.js" defer></script>
+  <script src="assets/vendor/lenis.min.js" defer></script>
+  <script src="assets/data/russia-110m.js" defer></script>
+  <script src="assets/data/cities.js" defer></script>
+  <script src="js/geo.js" defer></script>
+  <script src="js/main.js" defer></script>
+  <script src="js/gallery.js" defer></script>
+  <script src="js/form.js" defer></script>
+  <script src="js/request-modal.js" defer></script>
+  <script src="js/hero-distortion.js" defer></script>
+  <script src="js/map.js" defer></script>
+  <script src="js/fan-gallery.js" defer></script>
+  <script src="js/animations.js" defer></script>
+</body>
+</html>

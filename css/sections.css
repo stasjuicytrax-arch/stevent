@@ -1,0 +1,1838 @@
+/* Секции ST EVENT — docs/03-TZ.md, раздел 4 */
+
+/* === 01 — Hero === */
+
+.hero {
+  padding: var(--hero-island-inset);
+}
+
+.hero__island {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  /* justify-content: space-between убран (R22) — раньше он прижимал
+     .hero__content к верху острова (первый ребёнок при space-between
+     уезжает к своему краю, а не центрируется). Теперь .hero__content
+     сам растёт на flex: 1 и центрирует своё содержимое внутри —
+     .index-row естественно остаётся внизу как второй, не растущий item. */
+  min-height: calc(100vh - var(--hero-island-inset) * 2);
+  border-radius: var(--r-l);
+  overflow: hidden;
+}
+
+.hero__media {
+  position: absolute;
+  inset: 0;
+}
+
+/* docs/04-REVISION-01.md, R2: своя (не общая .media) грейскейл-обработка —
+   сильнее контраст и темнее, чем у сеточных фото, лица должны читаться */
+.hero__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.12) brightness(.85);
+}
+
+/* Канвас искажения — итоговая ревизия, 23.09.2026, п.3. Тот же фильтр,
+   что у img (CSS-фильтры применяются к canvas так же, как к img —
+   геометрию "cover" под разные пропорции экрана шейдер считает сам,
+   js/hero-distortion.js). Скрыт по умолчанию — .is-active добавляет
+   тот же скрипт после успешной WebGL-инициализации; на touch и
+   reduced-motion канвас остаётся display:none, видно обычный img. */
+.hero__distortion-canvas {
+  display: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: grayscale(1) contrast(1.12) brightness(.85);
+}
+
+.hero__media.is-distortion-active .hero__distortion-canvas {
+  display: block;
+}
+
+.hero__media.is-distortion-active img {
+  /* Остаётся в DOM (alt-текст, доступность, фолбэк при потере WebGL-
+     контекста), но не рендерится дважды поверх канваса */
+  visibility: hidden;
+}
+
+/* Только чёрное затемнение, никакого цвета — R2. Тёмный верх (под меню
+   и маркером) и низ (под кнопкой), светлее в середине, где лица. */
+.hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--bg) 72%, transparent),
+    color-mix(in srgb, var(--bg) 25%, transparent) 45%,
+    color-mix(in srgb, var(--bg) 80%, transparent)
+  );
+  /* Чисто декоративный слой (aria-hidden), но без этого правила он,
+     как и .hero__content, перехватывал mousemove по всей площади фото
+     раньше самого фото — вторая часть той же причины, по которой
+     искажение не реагировало на курсор в реальном браузере (правка,
+     ночь 24.09.2026) */
+  pointer-events: none;
+}
+
+.hero__marker {
+  position: relative;
+  z-index: 1;
+}
+
+/* Весь контент по центру острова — docs/06-REVISION-03.md, R18 добавил
+   горизонтальное центрирование, но не вертикальное. Первая попытка
+   R22 (flex: 1 на .hero__content внутри flex-колонки острова) даёт
+   центр НЕ острова, а «острова минус .index-row» — .index-row внизу
+   отъедает часть высоты у flex-бокса контента, сдвигая его
+   геометрический центр вверх (было -56.9px от истинного центра
+   острова на 1440×900, замерено). docs/07-REVISION-04.md R22 требует
+   центр именно острова ±8px — переключился на position: absolute;
+   inset: 0, независимо от .index-row в обычном потоке. */
+.hero__content {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: var(--s-4);
+  padding: var(--hero-content-pad);
+  /* Реальная причина, по которой искажение фото по курсору не работало
+     ни разу в настоящем браузере: этот блок — на весь остров
+     (inset:0), поверх фото (z-index:1), и перехватывал ВСЕ mousemove
+     по всей площади hero, включая пустые места вокруг текста — не
+     только сам заголовок/кнопку. .hero__media снизу никогда не получал
+     событие мыши, даже когда эффект казался инициализированным.
+     Подтверждено проверкой elementFromPoint() в разных точках hero —
+     topElement everywhere был .hero__content или его потомок, никогда
+     не .hero__media (правка, ночь 24.09.2026). pointer-events:none
+     пропускает события насквозь к фото; кнопке ниже это возвращено
+     явно, иначе она перестанет быть кликабельной. */
+  pointer-events: none;
+}
+
+.hero__title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--fs-display-xl);
+  line-height: var(--lh-display-xl);
+  letter-spacing: var(--ls-display-xl);
+  color: var(--text);
+}
+
+/* Буквенный reveal — docs/05-REVISION-02.md, R16.2. Каждая буква выезжает
+   из-под маски снизу (js/animations.js разбивает textContent на span'ы).
+   .hero__word держит буквы одного слова вместе — перенос строки может
+   случиться только между словами, не между буквами внутри слова. */
+.hero__word {
+  display: inline-block;
+}
+
+.hero__letter-mask {
+  display: inline-block;
+  overflow: hidden;
+  line-height: 1;
+  vertical-align: top;
+}
+
+.hero__letter {
+  display: inline-block;
+}
+
+.hero__subtitle {
+  max-width: 60ch;
+  font-size: var(--fs-body-l);
+  line-height: var(--lh-body-l);
+  color: var(--text-2);
+}
+
+.hero__cta {
+  /* align-self: flex-start убран — R18 центрирует весь hero__content,
+     кнопка должна следовать общему align-items:center, а не выбиваться */
+  margin-top: var(--s-2);
+  /* .hero__content теперь pointer-events:none (иначе перекрывал canvas
+     искажения) — кнопке нужно вернуть кликабельность явно */
+  pointer-events: auto;
+}
+
+/* На брейкпоинте, где капсула меню скрыта и вместо неё бургер (64px,
+   выше 56px-логотипа), формула --hero-content-pad + --s-5 давала всего
+   ~4.7px зазора до шапки вместо задуманных — бургер выше, чем учла
+   формула. Точечная добавка именно здесь, не трогая формулу для
+   десктопа (R18, замерено Playwright на 390/768px). */
+@media (max-width: 1023px) {
+  .hero__content {
+    padding-top: calc(var(--hero-content-pad) + var(--s-6));
+  }
+}
+
+@media (max-width: 639px) {
+  /* Заголовок одной строкой — было: --fs-display-xl это clamp(56px,
+     9vw, 132px), на узкой ширине упирался в пол 56px и не помещался в
+     колонку hero__content, поэтому "ST"/"EVENT" переносились на две
+     строки. Свой clamp с более низким полом + nowrap — гарантированно
+     одна строка при любой ширине телефона (правка, ночь 24.09.2026,
+     явный запрос "одной строкой, без переноса"). */
+  .hero__title {
+    order: 1;
+    font-size: clamp(30px, 11vw, 56px);
+    white-space: nowrap;
+  }
+
+  /* Теги "событие // искусство // видео" были НАД заголовком — теперь
+     сразу под ним. Порядок в разметке не трогаем (там он осмысленный
+     для доступности), переставляем только визуально через flex order;
+     на десктопе/планшете порядок остаётся как в разметке. */
+  .hero__content .label {
+    order: 2;
+  }
+
+  .hero__subtitle {
+    order: 3;
+    /* Было var(--fs-body-l) = 18px — заметно крупнее остального текста
+       на узком экране и с полным --s-4 зазором и сверху, и снизу от
+       gap самого .hero__content давало много пустого места перед
+       кнопкой. Кегль уменьшен, отрицательный margin-top подтягивает
+       строку ближе к тегам, не трогая общий gap между остальными
+       элементами (правка, ночь 24.09.2026). */
+    font-size: var(--fs-small);
+    margin-top: calc(-1 * var(--s-3));
+  }
+
+  .hero__cta {
+    order: 4;
+  }
+}
+
+/* === 02 — Манифест === */
+
+.manifest {
+  padding-block: var(--s-10);
+}
+
+.manifest__grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: var(--gutter);
+  align-items: start;
+  margin-top: var(--s-7);
+}
+
+.manifest__lead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+}
+
+/* display-l — только первая часть сообщения, 4 слова
+   (docs/02-DESIGN-SYSTEM.md §3: display-l только для фраз до 7 слов) */
+.manifest__statement {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--fs-display-l);
+  line-height: var(--lh-display-l);
+  letter-spacing: var(--ls-display-l);
+  color: var(--text);
+}
+
+/* Продолжение — body-l, ширина колонки не больше 60 символов */
+.manifest__continuation {
+  max-width: 60ch;
+  font-size: var(--fs-body-l);
+  line-height: var(--lh-body-l);
+  color: var(--text-2);
+}
+
+/* В ряд с вертикальными разделителями — счётчики сгруппированы с
+   «Почему мы» и футером как многоколоночный блок (R12) */
+/* Вертикальная колонка вместо flex-row wrap — итоговая ревизия,
+   23.09.2026, п.5: 3 счётчика в ряд переносились на 2 строки внутри
+   ~480px колонки, оставляя большую пустую зону под ними, вровень с
+   нижней половиной параграфа слева. Стек занимает высоту ближе к
+   тексту, плюс добавлена 4-я цифра (см. index.html). */
+.manifest__stats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+  justify-content: center;
+}
+
+/* === 03 — Услуги === */
+
+.services {
+  padding-block: var(--s-10);
+}
+
+/* impeccable detect: cramped-padding на .accordion (border-top) и
+   .accordion__item (border-bottom) — ложное срабатывание, детектор смотрит
+   только на прямого потомка и не видит padding-block: var(--s-5) = 32px
+   у вложенного .accordion__trigger, который и даёт реальный отступ от линий.
+   Пересмотрено по R17 (visual re-audit): Playwright подтвердил
+   getComputedStyle → padding-top/bottom триггера = 32px, скриншот
+   screenshots/audit-accordion.png — текст нигде не касается линий. */
+.accordion {
+  margin-top: var(--s-7);
+  border-top: 1px solid var(--line);
+}
+
+.accordion__item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: var(--gutter);
+  border-bottom: 1px solid var(--line);
+}
+
+/* Явное размещение: trigger занимает левую колонку на всю высоту строки,
+   .accordion__side и .accordion__panel стоят друг над другом в правой —
+   иначе третий дочерний элемент (.accordion__side) авто-перенёс бы
+   .accordion__panel на новую строку в колонку 1 */
+.accordion__trigger {
+  grid-column: 1;
+  grid-row: 1 / -1;
+  align-self: start;
+}
+
+.accordion__side {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.accordion__panel {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+/* Заливка слева направо на ховере закрытой строки — R13. absolute,
+   не участвует в grid-раскладке; content-элементы получают z-index:1,
+   чтобы остаться поверх (без отрицательного z-index — он спрятал бы
+   заливку за фон родителя вместо того, чтобы просто быть "под текстом") */
+.accordion__item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, .03);
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform var(--dur) var(--ease);
+  pointer-events: none;
+}
+
+.accordion__item:not(.is-open):hover::before {
+  transform: scaleX(1);
+}
+
+.accordion__trigger {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--s-5);
+  padding-block: var(--s-5);
+  background: none;
+  border: none;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Круглый бейдж со значком услуги — приём с references/4.jpg (у каждой
+   карточки услуг свой значок в круге), нарисовано инлайн-SVG контуром,
+   тем же приёмом (stroke, не заливка), что стрелка в кнопках
+   (ревизия, вечер 23.09.2026, доп. промпт п.1). */
+.accordion__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: var(--r-full);
+  border: 1px solid var(--line-strong);
+  color: var(--text-2);
+  transition: border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+
+.accordion__icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.accordion__item.is-open .accordion__icon,
+.accordion__item:not(.is-open):hover .accordion__icon {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.accordion__num {
+  font-family: var(--font-text);
+  font-weight: 600;
+  font-size: var(--fs-small);
+  color: var(--text-3);
+  transition: color var(--dur-fast) var(--ease);
+}
+
+.accordion__item:not(.is-open):hover .accordion__num {
+  color: var(--accent);
+}
+
+.accordion__name {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--fs-display-m);
+  line-height: var(--lh-display-m);
+  letter-spacing: var(--ls-display-m);
+  transition: transform var(--dur-fast) var(--ease);
+}
+
+.accordion__item:not(.is-open):hover .accordion__name {
+  transform: translateX(8px);
+}
+
+/* Правая колонка: счётчик + шеврон всегда видны (не дают строке
+   выглядеть пустой закрытой — R13), список раскрывается под ними */
+.accordion__side {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: var(--s-5);
+  /* теперь тоже кликабелен — правая треть строки открывала карточку
+     раньше только визуально (курсор давал ложную подсказку), реального
+     обработчика не было */
+  cursor: pointer;
+}
+
+.accordion__count {
+  font-family: var(--font-text);
+  font-size: var(--fs-small);
+  color: var(--text-3);
+}
+
+.accordion__chevron {
+  display: inline-flex;
+  color: var(--text-3);
+  transition: transform var(--dur) var(--ease);
+}
+
+.accordion__chevron svg {
+  width: 16px;
+  height: 16px;
+}
+
+.accordion__item.is-open .accordion__chevron {
+  transform: rotate(180deg);
+}
+
+/* Высота панели анимируется через grid-template-rows (0fr → 1fr) —
+   не требует JS-замера scrollHeight, работает на var(--dur)/var(--ease) */
+.accordion__panel {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--dur) var(--ease);
+}
+
+.accordion__item.is-open .accordion__panel {
+  grid-template-rows: 1fr;
+}
+
+.accordion__panel-inner {
+  overflow: hidden;
+}
+
+.accordion__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding-bottom: var(--s-5);
+  list-style: none;
+  color: var(--text-2);
+}
+
+/* Лесенкой при раскрытии, 60ms между строками — R13 */
+.accordion__list li {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.accordion__item.is-open .accordion__list li {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity var(--dur-slow) var(--ease), transform var(--dur-slow) var(--ease);
+}
+
+.accordion__list li:nth-child(1) { transition-delay: 0ms; }
+.accordion__list li:nth-child(2) { transition-delay: 60ms; }
+.accordion__list li:nth-child(3) { transition-delay: 120ms; }
+.accordion__list li:nth-child(4) { transition-delay: 180ms; }
+.accordion__list li:nth-child(5) { transition-delay: 240ms; }
+
+/* === 04 — Почему мы (единственная светлая секция) === */
+
+/* impeccable detect: cramped-padding на .why-us (bg на всех сторонах) —
+   ложное срабатывание: горизонтальный отступ даёт вложенный .container
+   (padding-inline: var(--pad-x), 20–72px), вертикальный — сама секция
+   через padding-top/bottom: calc(var(--s-10) + var(--s-9)) ниже.
+   Пересмотрено по R17 (visual re-audit): скриншот
+   screenshots/audit-why-us.png — воздух со всех сторон визуально большой. */
+.why-us {
+  position: relative;
+  background: var(--bg-light);
+  color: var(--text-light);
+  /* Срезанные по диагонали вход/выход секции — приём референса A */
+  clip-path: polygon(0 var(--s-9), 100% 0, 100% calc(100% - var(--s-9)), 0 100%);
+  padding-top: calc(var(--s-10) + var(--s-9));
+  padding-bottom: calc(var(--s-10) + var(--s-9));
+}
+
+.why-us .section-marker__num {
+  /* --accent на --bg-light = 2.96:1 (провал) — здесь только --accent-ink */
+  color: var(--accent-ink);
+}
+
+.why-us .section-marker__text {
+  color: color-mix(in srgb, var(--text-light) 58%, transparent);
+}
+
+/* --line (белая, 8%) невидима на светлом фоне — тёмный аналог по той же
+   формуле, только от --text-light вместо белого */
+.why-us .section-marker::before {
+  background: color-mix(in srgb, var(--text-light) 8%, transparent);
+}
+
+.why-us__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--gutter);
+  margin-top: var(--s-7);
+}
+
+/* impeccable detect: cramped-padding (border-top/left) на .why-us__item —
+   детектор не резолвит var(), реальный padding-left: var(--s-6) = 48px;
+   border-top у элемента вообще нет (только border-left между колонками,
+   первая колонка — без него по замыслу). Пересмотрено по R17
+   (visual re-audit): Playwright — gap до border-left = 49px на 2-й/3-й
+   колонке, скриншот screenshots/audit-why-us.png. */
+.why-us__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding-left: var(--s-6);
+  border-left: 1px solid color-mix(in srgb, var(--text-light) 8%, transparent);
+}
+
+.why-us__item:first-child {
+  padding-left: 0;
+  border-left: none;
+}
+
+/* Круглый бейдж со значком — тот же приём, что .accordion__icon (услуги),
+   адаптирован под светлую секцию: --text-light вместо --text-3, граница
+   потемнее вместо --line-strong (тот бы не читался на светлом фоне) */
+.why-us__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-full);
+  border: 1px solid color-mix(in srgb, var(--text-light) 20%, transparent);
+  color: color-mix(in srgb, var(--text-light) 55%, transparent);
+}
+
+.why-us__icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.why-us__num {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--fs-display-l);
+  line-height: var(--lh-display-l);
+  letter-spacing: var(--ls-display-l);
+  /* --accent на --bg-light = 2.96:1 (провал) — здесь только --accent-ink */
+  color: var(--accent-ink);
+}
+
+.why-us__title {
+  font-size: var(--fs-title);
+  color: var(--text-light);
+}
+
+.why-us__text {
+  max-width: 60ch;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: color-mix(in srgb, var(--text-light) 58%, transparent);
+}
+
+/* === 05 — Портфолио === */
+
+.portfolio {
+  padding-block: var(--s-10);
+}
+
+/* Обычная сетка, без пиннинга и горизонтального скролла — убрано по
+   docs/05-REVISION-02.md, R14 (заказчик хочет видеть все кейсы сразу).
+   3 колонки десктоп / 2 планшет / 1 мобильный — адаптивные оверрайды ниже
+   по файлу уже задавали 2/1, менялось только это число с 4 на 3. */
+.portfolio__grid {
+  display: grid;
+  /* minmax(0, 1fr) — без него колонки с более "широкими" по intrinsic-size
+     фото (разное разрешение исходников) продавливают grid, ширина и,
+     следовательно, aspect-ratio-высота карточек 4:5 расходятся между собой */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--gutter);
+  margin-top: var(--s-7);
+}
+
+.case-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  cursor: pointer;
+}
+
+/* focus-visible теперь общий для [tabindex] в base.css (impeccable audit,
+   P3) — .case-card (role="button" tabindex="0") уже под ним, отдельное
+   правило было бы дублем */
+
+.case-card__media {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--r-m);
+  overflow: hidden;
+}
+
+.case-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Увеличение фото в рамке на ховере — карточка сама не растёт (R14) */
+  transition: transform var(--dur-slow) var(--ease);
+}
+
+.case-card:hover .case-card__media img {
+  transform: scale(1.06);
+}
+
+/* Бейдж "СМОТРЕТЬ" в углу, проявляется на ховере — та же стрелка, что
+   в кнопке primary (R14) */
+.case-card__badge {
+  position: absolute;
+  top: var(--s-4);
+  right: var(--s-4);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-2) var(--s-4) var(--s-2) var(--s-5);
+  border-radius: var(--r-full);
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-text);
+  font-weight: 600;
+  font-size: var(--fs-small);
+  text-transform: uppercase;
+  letter-spacing: var(--ls-label);
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+  pointer-events: none;
+}
+
+.case-card__badge svg {
+  width: 14px;
+  height: 14px;
+}
+
+.case-card:hover .case-card__badge {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.case-card__title {
+  /* docs/02-DESIGN-SYSTEM.md §3: слово не режется — кегль уменьшается
+     через clamp() вместо переноса посреди слова */
+  font-size: var(--fs-card-title);
+  line-height: var(--lh-display-m);
+  letter-spacing: var(--ls-display-m);
+  color: var(--text);
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: manual;
+  transition: transform var(--dur) var(--ease);
+}
+
+.case-card:hover .case-card__title {
+  transform: translateX(12px);
+}
+
+.case-card__meta {
+  font-size: var(--fs-small);
+  color: var(--text-3);
+}
+
+/* === 06 — Галерея (веер карточек) === */
+/* Позиционирование карточек (translate/rotate/scale/z-index) считает
+   js/fan-gallery.js и применяет инлайн-стилями через GSAP — здесь
+   только размеры, форма самой карточки и статичные части (стрелки,
+   точки). --fan-card-w/h через clamp() — отвечают за адаптивность
+   РАЗМЕРА карточки, JS пересчитывает только РАССТОЯНИЯ между ними от
+   реальной ширины .fan-gallery__stage при ресайзе (правка, ночь
+   24.09.2026, доп. промпт про веер карточек). */
+
+.fan-gallery {
+  padding-block: var(--s-9);
+}
+
+.fan-gallery__stage {
+  /* Было clamp(110px, 15vw, 200px) — веер терялся мелким островком в
+     пустом блоке, увеличено ~в 1.7 раза на десктопе (доп. промпт,
+     ночь 24.09.2026: «карточки слишком мелкие»). Расстояние между
+     карточками (xStep) пересчитывает js/fan-gallery.js от той же
+     ширины сцены — см. константы MAX_X_STEP там же. */
+  --fan-card-w: clamp(160px, 21vw, 340px);
+  --fan-card-h: calc(var(--fan-card-w) * 1.3);
+  position: relative;
+  height: calc(var(--fan-card-h) + var(--s-9));
+  margin-top: var(--s-8);
+}
+
+.fan-gallery__track {
+  position: absolute;
+  inset: 0;
+}
+
+.fan-gallery__card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--fan-card-w);
+  height: var(--fan-card-h);
+  margin: calc(var(--fan-card-h) / -2) 0 0 calc(var(--fan-card-w) / -2);
+  border-radius: var(--r-m);
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--bg);
+  /* transform сам ставит JS (позиция в веере) — transition только на
+     тех же свойствах, чтобы смена активной карточки анимировалась */
+  transition: transform var(--dur-slow) var(--ease), opacity var(--dur-slow) var(--ease);
+  will-change: transform;
+}
+
+.fan-gallery__card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  /* Те же приёмы, что у остальных фото сайта (docs/02-DESIGN-SYSTEM.md
+     §7) — не цветные подложки, паттерн для B&W затемнения неактивных */
+  filter: grayscale(1) contrast(1.05);
+  transition: filter var(--dur) var(--ease);
+}
+
+.fan-gallery__card--active img {
+  filter: none;
+}
+
+/* Название кейса — снизу, тем же градиентом-скримом, что в портфолио,
+   видно только у активной (центральной) карточки, чтобы не шуметь по
+   всему вееру мелким текстом */
+.fan-gallery__card-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  padding: var(--s-3);
+  background: linear-gradient(to top, rgba(8, 8, 10, .75), transparent 55%);
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+
+.fan-gallery__card--active .fan-gallery__card-overlay {
+  opacity: 1;
+}
+
+.fan-gallery__card-name {
+  font-family: var(--font-text);
+  font-weight: 600;
+  font-size: var(--fs-small);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.fan-gallery__controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-5);
+  margin-top: var(--s-6);
+}
+
+.fan-gallery__arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--line-strong);
+  background: none;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+
+.fan-gallery__arrow svg {
+  width: 40%;
+  height: 40%;
+}
+
+.fan-gallery__arrow:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.fan-gallery__dots {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.fan-gallery__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--r-full);
+  border: none;
+  padding: 0;
+  background: var(--line-strong);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+
+.fan-gallery__dot:hover {
+  background: var(--text-2);
+}
+
+.fan-gallery__dot--active {
+  background: var(--accent);
+  transform: scale(1.4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fan-gallery__card {
+    transition: none;
+  }
+}
+
+@media (max-width: 639px) {
+  .fan-gallery__stage {
+    /* Было clamp(90px, 30vw, 130px) — увеличено пропорционально
+       десктопной версии, но менее агрессивно (узкий экран не должен
+       вызывать горизонтальный скролл — см. проверку hscroll) */
+    --fan-card-w: clamp(110px, 34vw, 170px);
+  }
+}
+
+/* === 07 — Клиенты === */
+
+.clients {
+  padding-block: var(--s-10);
+}
+
+.clients__row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-9);
+}
+
+.clients__marker {
+  flex-shrink: 0;
+}
+
+.clients__marquee {
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Трек = два идентичных .clients__group подряд, translateX(-50%) сдвигает
+   ровно на ширину одной группы — бесшовный луп (docs/04-REVISION-01.md, R4.3).
+   overflow:hidden — на обёртке .clients__marquee, не здесь (R4.4). */
+.clients__track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  animation: clients-marquee var(--marquee-dur) linear infinite;
+}
+
+.clients__track:hover {
+  animation-play-state: paused;
+}
+
+.clients__group {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: var(--s-8);
+  padding-right: var(--s-8);
+}
+
+@keyframes clients-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Высота фиксирована, ширина по aspect ratio — иначе лого растягивается
+   по ширине контейнера и обрезается (docs/04-REVISION-01.md, R4.1) */
+.clients__logo {
+  flex-shrink: 0;
+  height: var(--logo-h-client);
+  width: auto;
+  object-fit: contain;
+  filter: grayscale(1);
+  opacity: .45;
+  transition: opacity var(--dur-fast) var(--ease);
+}
+
+.clients__logo:hover {
+  opacity: 1;
+}
+
+/* === 08 — География === */
+/* Точечная карта России вместо типографики городов —
+   docs/05-REVISION-02.md, R15 (заменяет решение R6 из первой ревизии). */
+
+.geography {
+  position: relative;
+  padding-block: var(--s-10);
+}
+
+/* Весь контент секции — выше фоновой линии по стэкингу (п.1 текущей
+   ревизии): линия физически не может оказаться поверх текста, даже
+   если её путь проходит под ним геометрически. */
+.geography__inner {
+  position: relative;
+  z-index: 1;
+}
+
+.geography__grid {
+  position: relative;
+  /* Было var(--s-7) (64px) — недостаточно относительно top:96px у
+     sticky-заголовка секции: в момент, когда заголовок "залипает",
+     .geography__grid (посчитанный по натуральному потоку, не по
+     застрявшей позиции заголовка) успевал начаться раньше, чем
+     заголовок визуально заканчивался — реальное наложение "6 ГОРОДОВ"
+     на "08 — ГЕОГРАФИЯ", воспроизведено и проверено скроллом именно
+     к началу секции (срочный регресс, ночь 24.09.2026). */
+  margin-top: var(--s-9);
+  display: grid;
+  grid-template-columns: minmax(200px, 280px) 1fr;
+  gap: var(--s-8) var(--s-8);
+  /* Было var(--s-8) (96px) — список городов казался далёким от карты,
+     хотя логически с ней связан (правка, ночь 24.09.2026, п.4) */
+  row-gap: var(--s-5);
+  /* stretch, не start — левая колонка растягивается по высоте карты
+     (которая заметно выше стата), пустая нижняя часть колонки получает
+     собственный контент, а не голый фон (правка, ночь 24.09.2026, п.4) */
+  align-items: stretch;
+}
+
+/* Список городов — был тесно под счётчиками в левой колонке, сливался
+   с ней визуально; вынесен третьей строкой грида на всю ширину секции
+   под картой (правка ночь 24.09.2026, п.2), поднят ближе к карте
+   уменьшением row-gap выше (п.4 того же захода). */
+.geography__cities {
+  grid-column: 1 / -1;
+}
+
+.geography__left {
+  position: relative;
+  min-width: 0;
+  /* Была полупрозрачная подложка (color-mix, --bg 88%) за счётчиками —
+     на глаз почти сливалась с фоном секции, поэтому раньше не мешала,
+     но именно она читалась как "лишняя плашка" за счётчиком "6" после
+     того, как заголовок секции перестал наезжать на неё (перестал
+     маскировать проблему собой) — правка ночь 24.09.2026. Убрана
+     целиком, счётчикам подложка не нужна. */
+  padding: var(--s-4);
+}
+
+/* Фоновый слой на всю секцию edge-to-edge, а не внутри грида карты
+   (переделано — прошлая версия «внутри карты» была ошибкой, доп.
+   промпт, ночь 23.09.2026, п.1-2). z-index:0 ниже .geography__inner. */
+.geography__deco-line {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  /* Под текстовой колонкой (левые ~18-20% ширины секции) линия должна
+     быть тусклее, не такой яркой, как над открытой картой — маска по
+     яркости вдоль всей SVG, плавный переход к 32%, а не отдельный
+     css-класс на кусок пути (доп. промпт, п.2). Альфа маски = сила
+     видимости самой линии: .45 под текстом ≈ 45% от полной яркости. */
+  -webkit-mask-image: linear-gradient(
+    to right,
+    rgba(0, 0, 0, .45) 0%,
+    rgba(0, 0, 0, .45) 18%,
+    rgba(0, 0, 0, 1) 32%
+  );
+  mask-image: linear-gradient(
+    to right,
+    rgba(0, 0, 0, .45) 0%,
+    rgba(0, 0, 0, .45) 18%,
+    rgba(0, 0, 0, 1) 32%
+  );
+}
+
+.geography__deco-line path {
+  fill: none;
+}
+
+/* Отрисовка при появлении секции — glow и core «рисуются» вместе,
+   тот же приём stroke-dashoffset, что у initMarkerLines() */
+.geography__deco-line-glow,
+.geography__deco-line-core {
+  /* Путь стал длиннее (вся ширина секции, ~1700+ юнитов) — 900 не
+     хватало бы, чтобы полностью его скрыть до отрисовки */
+  stroke-dasharray: 2000;
+  stroke-dashoffset: 2000;
+  transition: stroke-dashoffset var(--dur-slow) var(--ease);
+}
+
+.geography__deco-line.is-drawn .geography__deco-line-glow,
+.geography__deco-line.is-drawn .geography__deco-line-core {
+  stroke-dashoffset: 0;
+}
+
+/* Подложка — размытый толстый дубль того же пути тем же цветом, даёт
+   свечение вокруг тонкой линии (доп. промпт, вечер 23.09.2026, п.1:
+   «реально световой, не hairline») */
+.geography__deco-line-glow {
+  stroke: var(--accent);
+  stroke-width: 5;
+  filter: blur(7px);
+  opacity: .3;
+}
+
+.geography__deco-line-core {
+  stroke: var(--accent);
+  stroke-width: 1;
+  opacity: .55;
+}
+
+/* Бегущий блик — короткий сегмент едет по кругу вдоль пути через
+   stroke-dasharray/dashoffset; внешний слой размыт и шире (мягкое
+   свечение вокруг блика), внутренний — узкий и яркий (само «ядро»
+   света). Оба скрыты до отрисовки основной линии (opacity), затем
+   бегут постоянно по кругу. */
+.geography__deco-line-run {
+  stroke: var(--accent);
+  stroke-linecap: round;
+  opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease);
+  animation: geo-line-run 3.6s linear infinite;
+}
+
+.geography__deco-line.is-drawn .geography__deco-line-run {
+  opacity: 1;
+}
+
+.geography__deco-line-run--outer {
+  stroke-width: 10;
+  stroke-dasharray: 4 2000;
+  filter: blur(6px);
+}
+
+.geography__deco-line-run--inner {
+  stroke-width: 2.5;
+  stroke-dasharray: 1.5 2002.5;
+}
+
+@keyframes geo-line-run {
+  from { stroke-dashoffset: 0; }
+  to { stroke-dashoffset: -2004; }
+}
+
+@media (max-width: 1023px) {
+  /* Первая попытка вернуть линию на мобильном (правка, ночь 24.09.2026)
+     сняла только маску, но не трогала сам SVG: он absolute+inset:0
+     внутри секции, а секция на мобильном в один столбец гораздо выше,
+     чем широкая (viewBox 1600×700). preserveAspectRatio="none"
+     растягивает путь НЕ пропорционально под контейнер — при аспекте
+     секции ~390×1380 линия растягивалась по вертикали почти в 8 раз
+     сильнее, чем по горизонтали, и вместо пологой дуги превращалась в
+     резкий зигзаг через всю секцию, пересекающий карточки городов по
+     диагонали (баг найден по свежему скриншоту — следующий заход).
+     Полноширинный SVG-путь для мобильной раскладки в принципе не
+     годится — секция каждый раз разной высоты (зависит от числа
+     городов), под неё нельзя один раз подогнать координаты. Вместо
+     этого — простой ровный акцент ПОСЛЕ сетки карточек, обычным
+     элементом потока (см. .geography__grid::after ниже), гарантированно
+     без пересечений: он не абсолютно спозиционирован поверх контента,
+     а идёт третьей строкой грида, после которой ничего нет. */
+  .geography__deco-line {
+    display: none;
+  }
+
+  .geography__grid::after {
+    content: '';
+    grid-column: 1;
+    justify-self: center;
+    width: 70%;
+    height: 2px;
+    margin-top: var(--s-4);
+    background: linear-gradient(to right, transparent, var(--accent) 25%, var(--accent) 75%, transparent);
+    box-shadow: 0 0 16px 2px var(--accent);
+    opacity: .55;
+  }
+}
+
+.geography__stats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+}
+
+/* Тонкая линия-разделитель между строками — тот же сквозной приём R12,
+   что у счётчиков манифеста/«Почему мы»/футера (финальная ревизия,
+   пункт 2г). border-top, не border-bottom — тогда первая строка чисто
+   исключается через :first-child, без лишнего псевдокласса на последней. */
+/* display:flex column — число и подпись раздельными блочными строками,
+   не связный текст. Одной строкой ("12 ПРОЕКТОВ") в узкой колонке
+   (200-280px) на крупном дисплейном кегле слова переносились некрасиво
+   ("12" отдельно, "ПРОЕКТОВ" следующей строкой) — раздельные строки
+   переноситься не могут в принципе, при любой ширине (правка ночь
+   24.09.2026, п.1). */
+.geography__stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--line);
+}
+
+.geography__stat:first-child {
+  padding-top: 0;
+  border-top: none;
+}
+
+.geography__stat-num {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--fs-display-m);
+  line-height: var(--lh-display-m);
+  letter-spacing: var(--ls-display-m);
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+.geography__stat-label {
+  font-family: var(--font-text);
+  font-weight: 600;
+  font-size: var(--fs-body);
+  letter-spacing: var(--ls-label);
+  color: var(--text-2);
+  text-transform: uppercase;
+}
+
+/* Сцена сама не наклонена — только .geography__map внутри неё (R15).
+   perspective на родителе .geography__map, а не отдельным свойством
+   .geography__scene, потому что сама 3D-плоскость и её наклон заданы
+   одним transform на .geography__map (буквальный снимок из ТЗ). */
+.geography__scene {
+  position: relative;
+  /* width:100% явно, не полагаться на stretch по умолчанию — с
+     aspect-ratio и min-height одновременно браузер в некоторых случаях
+     считает ширину из min-height через отношение сторон вместо того,
+     чтобы растянуть на всю колонку грида, из-за чего сцена вылезала
+     за контейнер на мобильном (найдено при проверке hscroll) */
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  min-height: 360px;
+  /* Обрезка именно здесь, не на секции — overflow:hidden на .geography
+     ломал position:sticky у .section-marker (браузер считал секцию
+     скролл-контейнером и якорил sticky-отступ от её начала) */
+  overflow: hidden;
+}
+
+.geography__map {
+  position: absolute;
+  inset: 0;
+  transform: perspective(var(--geo-perspective)) rotateX(var(--geo-tilt-x)) rotateZ(var(--geo-tilt-z));
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.geography__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Маркер города — точка на плоскости + столбик, встающий перпендикулярно
+   ей (rotateX(90deg) относительно уже наклонённого родителя, R15:
+   "вырастающий из плоскости карты вверх на 40px"). Позиция left/top
+   выставляется в js/map.js по спроецированным координатам города. */
+.geography__marker {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-style: preserve-3d;
+}
+
+/* Интерактивные кружочки с мягким миганием — docs/07-REVISION-04.md,
+   R25. Осознанное исключение из общего запрета на pulse
+   (docs/02-DESIGN-SYSTEM.md §8) по прямому решению клиента, только для
+   этого компонента — см. письменную оговорку там же. Мигание — только
+   opacity (не scale/transform), чтобы не конфликтовать с hover-масштабом
+   ниже: анимация и transition управляют разными свойствами, не спорят
+   за одно и то же кадр за кадром. */
+.geography__marker-dot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  transition: transform var(--dur-fast) var(--ease);
+  animation: geo-marker-pulse 2.6s ease-in-out infinite;
+}
+
+.geography__marker-dot:hover {
+  transform: scale(1.4);
+}
+
+/* Небольшой сдвиг фазы у разных городов — иначе все 6 точек мигают
+   идеально синхронно, что читается более механически/навязчиво, чем
+   мягкое случайное дыхание карты */
+.geography__marker:nth-of-type(2) .geography__marker-dot { animation-delay: .45s; }
+.geography__marker:nth-of-type(3) .geography__marker-dot { animation-delay: .9s; }
+.geography__marker:nth-of-type(4) .geography__marker-dot { animation-delay: 1.35s; }
+.geography__marker:nth-of-type(5) .geography__marker-dot { animation-delay: 1.8s; }
+.geography__marker:nth-of-type(6) .geography__marker-dot { animation-delay: 2.25s; }
+
+@keyframes geo-marker-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .5; }
+}
+
+/* Столбик (3D pole) и его остриё убраны — предыдущая ревизия, пункт 2а:
+   визуально это была стрелка-выноска от точки к подписи. Сами подписи
+   у точек тоже убраны целиком следующей ревизией, п.8а — весь текст
+   (название, число проектов) переехал в список слева. */
+
+/* Список городов под картой, горизонтальной сеткой — итоговая ревизия,
+   23.09.2026, п.8б, переверстано ночью 24.09.2026, п.2 (было тесной
+   колонкой под счётчиками, сливалось с ними). Строится в js/map.js,
+   buildCityList(), из того же массива, что и точки. Нумерация #01–06 —
+   тот же приём, что индексная строка hero. Разделители — border-left
+   между колонками, тот же приём R12, просто повёрнутый на 90°. */
+.geography__cities {
+  /* margin-top больше не нужен — расстояние до карты теперь задаёт
+     row-gap самого .geography__grid (правка, ночь 24.09.2026, п.4) */
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--s-5);
+}
+
+.geography__city-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  padding-left: var(--s-4);
+  border-left: 1px solid var(--line);
+}
+
+.geography__city-row:first-child {
+  padding-left: 0;
+  border-left: none;
+}
+
+.geography__city-num {
+  font-family: var(--font-text);
+  font-weight: 600;
+  font-size: var(--fs-small);
+  color: var(--accent);
+}
+
+.geography__city-name {
+  font-family: var(--font-text);
+  font-weight: 500;
+  font-size: var(--fs-body);
+  color: var(--text);
+}
+
+.geography__city-count {
+  font-family: var(--font-text);
+  font-size: var(--fs-small);
+  color: var(--text-2);
+  white-space: nowrap;
+}
+
+@media (max-width: 1023px) {
+  .geography__cities {
+    grid-template-columns: repeat(3, 1fr);
+    row-gap: var(--s-5);
+  }
+
+  /* На 3 колонки первый элемент каждой новой строки (4-й город) тоже
+     оказывается у левого края — ему тоже не нужен border-left */
+  .geography__city-row:nth-child(4) {
+    padding-left: 0;
+    border-left: none;
+  }
+}
+
+@media (max-width: 639px) {
+  .geography__cities {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .geography__city-row:nth-child(4) {
+    padding-left: var(--s-4);
+    border-left: 1px solid var(--line);
+  }
+
+  .geography__city-row:nth-child(odd) {
+    padding-left: 0;
+    border-left: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .geography__map {
+    /* Базовый наклон — не анимация, а статичная 3D-раскладка, остаётся.
+       Убирается только реактивный отклик на курсор (JS проверяет
+       matchMedia и не запускает rAF-твин наклона) и волна появления
+       точек (рисуются сразу в полной непрозрачности). */
+    transition: none;
+  }
+
+  .geography__marker-dot {
+    /* R25 — исключение из запрета на pulse не отменяет общее правило
+       "всё мгновенно" для reduced-motion */
+    animation: none;
+    opacity: 1;
+  }
+}
+
+@media (max-width: 1023px) {
+  .geography__grid {
+    grid-template-columns: 1fr;
+    /* Было var(--s-6) = 48px — вместе с собственным padding:var(--s-4)
+       у .geography__left (24px) давало 72px пустого пространства между
+       счётчиками и картой, заметно больше, чем везде на странице
+       (замерено — правка, ночь 24.09.2026). */
+    gap: var(--s-3);
+  }
+
+  .geography__stats {
+    /* Остаётся колонкой и на планшете/мобильном — фразы вроде «8 ПРОЕКТОВ»
+       на дисплейном кегле не помещаются в строку рядом друг с другом */
+    gap: var(--s-4);
+  }
+}
+
+/* === 09 — Контакты === */
+
+.contacts {
+  padding-block: var(--s-10);
+}
+
+.contacts__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gutter);
+  margin-top: var(--s-7);
+}
+
+.contacts__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-8);
+}
+
+.contacts__block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+.contacts__block-head {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+
+/* Тот же круглый бейдж, что .accordion__icon (услуги), .why-us__icon
+   (Почему мы) и .case-modal__block-icon (модалка кейса) — правка,
+   добавление иконок в раздел Контакты */
+.contacts__block-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: var(--r-full);
+  border: 1px solid var(--line-strong);
+  color: var(--text-2);
+}
+
+.contacts__block-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.contacts__phone,
+.contacts__link {
+  width: fit-content;
+  max-width: 100%;
+  /* Email — одно длинное слово без пробелов; на дисплейном кегле на
+     узкой мобильной ширине не помещался и вылезал за край экрана,
+     создавая горизонтальный скролл на всей странице (найдено и
+     воспроизведено замером document.documentElement.scrollWidth —
+     правка, ночь 24.09.2026). Телефон не переносится не задет — там
+     всегда есть пробелы, ломаться некуда. */
+  overflow-wrap: anywhere;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--fs-title);
+  color: var(--text);
+  transition: color var(--dur-fast) var(--ease);
+}
+
+.contacts__phone:hover,
+.contacts__link:hover {
+  color: var(--accent);
+}
+
+.contacts__address {
+  color: var(--text-2);
+  font-size: var(--fs-body);
+}
+
+.contacts__socials {
+  display: flex;
+  gap: var(--s-5);
+}
+
+.contacts__social {
+  font-size: var(--fs-small);
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: var(--ls-label);
+  transition: color var(--dur-fast) var(--ease);
+}
+
+.contacts__social:hover {
+  color: var(--accent);
+}
+
+/* Линия между колонкой контактов и формой — R12 */
+.contacts__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-6);
+  padding-left: var(--s-8);
+  border-left: 1px solid var(--line);
+}
+
+.contacts__submit {
+  align-self: flex-start;
+}
+
+.contacts__form-status {
+  min-height: 1em;
+  font-size: var(--fs-small);
+  color: var(--text-2);
+}
+
+.contacts__form.is-success .contacts__form-status {
+  color: var(--accent);
+}
+
+/* === 10 — Футер === */
+
+.footer {
+  position: relative;
+  overflow: hidden;
+}
+
+.footer__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.footer__bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* 12% → 8% яркости — фото спорило с логотипом (docs/04-REVISION-01.md, R5.2) */
+  filter: brightness(.08);
+}
+
+/* Сплошная подложка поверх фона — R5.3 */
+.footer__bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--bg) 86%, transparent);
+}
+
+.footer__content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  gap: var(--gutter);
+  padding-block: var(--s-9);
+}
+
+.footer__brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-3);
+}
+
+.footer__logo {
+  height: var(--logo-h-footer);
+  width: auto;
+}
+
+/* Вертикальные разделители между колонками футера — R12.
+   impeccable detect: cramped-padding — детектор не резолвит var(),
+   реальный padding-left: var(--gutter) = 24px. Пересмотрено по R17
+   (visual re-audit): скриншот screenshots/audit-footer-wide.png —
+   текст колонок чётко отстоит от вертикальных линий. */
+.footer__nav,
+.footer__contacts,
+.footer__socials {
+  border-left: 1px solid var(--line);
+  padding-left: var(--gutter);
+}
+
+.footer__nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+.footer__nav a {
+  font-size: var(--fs-small);
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: var(--ls-label);
+  transition: color var(--dur-fast) var(--ease);
+}
+
+.footer__nav a:hover {
+  color: var(--text);
+}
+
+.footer__contacts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+.footer__contacts a,
+.footer__contacts p {
+  font-size: var(--fs-small);
+  color: var(--text-2);
+}
+
+.footer__contacts a {
+  transition: color var(--dur-fast) var(--ease);
+}
+
+.footer__contacts a:hover {
+  color: var(--text);
+}
+
+.footer__socials {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-4);
+}
+
+.footer__social img {
+  width: var(--s-6);
+  height: var(--s-6);
+}
+
+.footer__bottom {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--s-8);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--line);
+  font-size: var(--fs-small);
+  color: var(--text-3);
+}
+
+.footer__privacy {
+  color: var(--text-3);
+  transition: color var(--dur-fast) var(--ease);
+}
+
+.footer__privacy:hover {
+  color: var(--accent);
+}
+
+/* === Страница «Политика конфиденциальности» === */
+
+.legal {
+  padding-block: var(--s-10);
+}
+
+.legal__back {
+  font-size: var(--fs-small);
+  color: var(--text-2);
+  transition: color var(--dur-fast) var(--ease);
+}
+
+.legal__back:hover {
+  color: var(--text);
+}
+
+.legal__title {
+  margin-top: var(--s-4);
+  font-size: var(--fs-display-l);
+  line-height: var(--lh-display-l);
+  letter-spacing: var(--ls-display-l);
+  color: var(--text);
+}
+
+.legal__updated {
+  margin-top: var(--s-3);
+  font-size: var(--fs-small);
+  color: var(--text-3);
+}
+
+.legal__body {
+  margin-top: var(--s-9);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-8);
+}
+
+.legal__section h2 {
+  font-size: var(--fs-title);
+  color: var(--text);
+}
+
+.legal__section p {
+  margin-top: var(--s-3);
+  max-width: 68ch;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text-2);
+}
+
+.legal__section ul {
+  margin-top: var(--s-3);
+  padding-left: var(--s-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  max-width: 68ch;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text-2);
+  list-style: disc;
+}
+
+.legal__section a {
+  color: var(--text);
+  text-decoration: underline;
+}
+
+.legal__section a:hover {
+  color: var(--accent);
+}
+
+/* ======================================================================
+   Часть 4 — Адаптив. Брейкпойнты docs/02-DESIGN-SYSTEM.md §10:
+   mobile <640px, tablet 640–1024px, desktop 1024–1440px, wide >1440px.
+   Бургер/десктоп-нав уже разведены на 1024px в components.css (R1).
+   Горизонтальный скролл портфолио (js/animations.js) сам выключается
+   ниже 1024px через ScrollTrigger.matchMedia — здесь просто должна
+   остаться нормальная сетка для этих ширин.
+   ====================================================================== */
+
+/* --- Планшет и уже: ≤1023px --- */
+@media (max-width: 1023px) {
+  /* Портфолио — 2 в ряд (без JS-скролла ниже 1024px и так грид, не флекс) */
+  .portfolio__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Аккордеон — всё в один столбец, иначе "список подпунктов справа"
+     превращается в две тесные полоски (видно на мобильном скриншоте
+     из R1–R7). Явные grid-column/row из десктопной раскладки (R13,
+     .accordion__side) тоже сбрасываются на auto-поток. */
+  .accordion__item {
+    grid-template-columns: 1fr;
+  }
+
+  .accordion__trigger,
+  .accordion__side,
+  .accordion__panel {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .accordion__trigger {
+    align-self: auto;
+  }
+
+  /* Футер — 2 колонки вместо 4: .footer__contacts переносится в начало
+     своей строки и больше не граничит с колонкой слева — линия убирается,
+     иначе повисает без соседа */
+  .footer__content {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .footer__contacts {
+    border-left: none;
+    padding-left: 0;
+  }
+
+  .footer__bottom {
+    grid-column: 1 / -1;
+  }
+}
+
+/* --- Мобильный: ≤639px --- */
+@media (max-width: 639px) {
+  /* Манифест, контакты — асимметричные 2-колоночные блоки складываются
+     в один столбец (R7.3: пустая колонка шире 30% запрещена — на узком
+     экране вторая колонка либо во всю ширину, либо друг под другом) */
+  /* minmax(0, 1fr), не голый 1fr — иначе колонка не сжимается меньше
+     min-content самого длинного слова и вылезает за контейнер
+     (найдено при проверке горизонтального скролла на mobile, доп.
+     промпт про references/4.jpg) */
+  .manifest__grid,
+  .contacts__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .contacts__form {
+    margin-top: var(--s-7);
+    padding-left: 0;
+    padding-top: var(--s-6);
+    border-left: none;
+    border-top: 1px solid var(--line);
+  }
+
+  /* flex-direction:column, border-top — уже дефолт после итоговой
+     ревизии п.5 (колонка счётчиков сама вертикальная теперь), здесь
+     остаётся только доп. отступ сверху — при схлопывании грида в один
+     столбец счётчики нужно явно отделить от текста над ними */
+  .manifest__stats {
+    margin-top: var(--s-6);
+  }
+
+  /* Значок услуги + стандартный gap (--s-5, 32px) на узком экране
+     отъедали место у длинных названий («ТЕХНИЧЕСКОЕ ОБЕСПЕЧЕНИЕ») —
+     текст обрезался за краем экрана (найдено при проверке значков,
+     доп. промпт про references/4.jpg, п.1) */
+  .accordion__trigger {
+    gap: var(--s-3);
+  }
+
+  .accordion__icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .accordion__icon svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  /* Почему мы — 3 колонки в одну, вертикальный разделитель меняется
+     на горизонтальный */
+  .why-us__grid {
+    grid-template-columns: 1fr;
+    row-gap: var(--s-7);
+  }
+
+  .why-us__item {
+    padding-left: 0;
+    padding-top: var(--s-6);
+    border-left: none;
+    border-top: 1px solid color-mix(in srgb, var(--text-light) 8%, transparent);
+  }
+
+  .why-us__item:first-child {
+    padding-top: 0;
+    border-top: none;
+  }
+
+  /* Портфолио — вертикальная лента по одной карточке (§10, mobile) */
+  .portfolio__grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Клиенты — маркер над лентой, не сбоку */
+  .clients__row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--s-5);
+  }
+
+  .clients__marquee {
+    width: 100%;
+  }
+
+  /* Футер — один столбец, вертикальные разделители меняются на
+     горизонтальные (везде граница только сверху, кроме первого) */
+  .footer__content {
+    grid-template-columns: 1fr;
+  }
+
+  .footer__nav,
+  .footer__contacts,
+  .footer__socials {
+    border-left: none;
+    padding-left: 0;
+    padding-top: var(--s-5);
+    border-top: 1px solid var(--line);
+  }
+
+  .footer__bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--s-2);
+  }
+}

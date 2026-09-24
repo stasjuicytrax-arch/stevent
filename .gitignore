@@ -1,0 +1,15 @@
+# Рабочие материалы разработки — не нужны в задеплоенном сайте
+screenshots/
+references/
+scripts/
+
+# Системные файлы ОС
+.DS_Store
+Thumbs.db
+
+# Локальные конфиги AI-инструментов этой машины — не часть сайта,
+# содержат абсолютные пути конкретного компьютера
+.claude/settings.local.json
+.codex/
+.agents/
+skills-lock.json

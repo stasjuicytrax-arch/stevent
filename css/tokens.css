@@ -1,0 +1,185 @@
+/* Токены дизайн-системы ST EVENT — docs/02-DESIGN-SYSTEM.md, разделы 2, 3, 4, 5, 8 */
+
+:root {
+  /* === 2. Палитра === */
+
+  /* База */
+  --bg: #08080A;
+  --surface: #111114;
+  --surface-hi: #1A1A1F;
+  --line: rgba(255, 255, 255, .08);
+  --line-strong: rgba(255, 255, 255, .16);
+
+  /* Текст */
+  --text: #FFFFFF;
+  --text-2: rgba(255, 255, 255, .58);
+  --text-3: rgba(255, 255, 255, .34);
+
+  /* Акцент */
+  --accent: #FF4D17;
+  /* Только для светлой секции («Почему мы»): --accent на --bg-light даёт
+     2.96:1 (провал), --accent-ink — 4.63:1 (посчитано по WCAG 2.1 на
+     объявленных hex, не по пикселям). На тёмном фоне не использовать —
+     там у него всего 3.85:1, хуже обычного --accent (6.03:1). */
+  --accent-ink: #CC3300;
+  --accent-hot: #E8261C;
+  --accent-soft: rgba(255, 77, 23, .12);
+  --grad-hot: linear-gradient(135deg, #FF6A2B 0%, #FF4D17 45%, #E8261C 100%);
+
+  /* Светлая инверсия — для ОДНОЙ секции */
+  --bg-light: #F2F2EF;
+  --text-light: #0A0A0C;
+
+  /* === 3. Типографика === */
+
+  --font-display: 'Unbounded', system-ui, sans-serif;
+  --font-text: 'Onest', system-ui, sans-serif;
+
+  /* Шкала (desktop → mobile) */
+  --fs-display-xl: clamp(56px, 9vw, 132px);
+  --lh-display-xl: 0.94;
+  --ls-display-xl: -0.025em;
+
+  --fs-display-l: clamp(40px, 6vw, 88px);
+  --lh-display-l: 0.98;
+  --ls-display-l: -0.02em;
+
+  --fs-display-m: clamp(28px, 3.4vw, 44px);
+  --lh-display-m: 1.05;
+  --ls-display-m: -0.015em;
+
+  --fs-title: clamp(20px, 2vw, 26px);
+  --lh-title: 1.2;
+  --ls-title: -0.01em;
+
+  --fs-body-l: 18px;
+  --lh-body-l: 1.55;
+
+  --fs-body: 16px;
+  --lh-body: 1.6;
+
+  --fs-small: 14px;
+  --lh-small: 1.5;
+
+  --fs-label: 12px;
+  --lh-label: 1.2;
+  --ls-label: 0.14em;
+
+  /* === 4. Сетка и пространство === */
+
+  --container: 1440px;
+  --container-narrow: 880px;
+  --gutter: 24px;
+  --pad-x: clamp(20px, 4vw, 72px);
+
+  /* Вертикальный ритм — база 8px */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 16px;
+  --s-4: 24px;
+  --s-5: 32px;
+  --s-6: 48px;
+  --s-7: 64px;
+  --s-8: 96px;
+  --s-9: 120px;
+  /* 160px → 120px десктоп (docs/04-REVISION-01.md, R7.2 — 160px был
+     рассчитан на более плотный контент, чем есть на сайте) */
+  --s-10: 120px;
+
+  /* === 5. Радиусы, границы, поверхности === */
+
+  --r-xs: 4px;
+  --r-m: 16px;
+  --r-l: 24px;
+  --r-full: 999px;
+
+  /* === 8. Движение === */
+
+  --ease: cubic-bezier(.22, 1, .36, 1);
+  --dur-fast: 200ms;
+  --dur: 420ms;
+  --dur-slow: 800ms;
+
+  /* === 6. Числа компонентов ===
+     Не входят в общую шкалу разделов 2–5/8, но заданы дизайн-системой
+     буквально (раздел 6, кнопка primary) — вынесены в токены, чтобы
+     компоненты не хардкодили размеры. */
+
+  --btn-h: 56px;
+  --btn-pad-text: 28px;
+  --btn-pad-circle: var(--s-2); /* 8px */
+
+  /* Кегль названия карточки портфолио (4 колонки, узкий столбец).
+     display-m (44px) не влезает — самое длинное слово «ИМПОРТСЕРВИС»
+     помещается в колонку 313px (1440px viewport) только до ~28.7px
+     (промерено реальным рендером). Правило раздела 3: слово не режется,
+     кегль уменьшается через clamp(). */
+  --fs-card-title: clamp(20px, 2.2vw, 28px);
+
+  /* Высоты логотипов — docs/04-REVISION-01.md, R1.4 / R4.1 / R5.1.
+     --logo-h-header убран: логотип шапки не нужен ни на десктопе, ни
+     на мобильном (пробовали вернуть для мобильного, явно отклонено
+     следующим заходом — правка, ночь 24.09.2026). */
+  --logo-h-client: 40px;
+  --logo-h-footer: 56px;
+
+  /* Единая левая опорная вертикаль шапки и hero-контента —
+     docs/05-REVISION-02.md, R17: "один левый край". Раньше это были два
+     independent clamp() (отступ острова + паддинг hero__content), из-за
+     которых логотип шапки стоял на 57.6px, а заголовок hero — на 104px
+     (1440px viewport). --hero-island-inset и --hero-content-pad — те же
+     значения, что были инлайн в .hero/.hero__content, просто вынесены
+     в токены, чтобы .header__inner могла ссылаться на ту же сумму. */
+  --hero-island-inset: clamp(var(--s-4), 3vw, var(--s-5));
+  --hero-content-pad: clamp(var(--s-6), 5vw, var(--s-9));
+  --content-x: calc(var(--hero-island-inset) + var(--hero-content-pad));
+
+  /* Капсула меню — точные числа из docs/05-REVISION-02.md, R17.
+     Высота (48px) и промежуток между пунктами (4px) совпали с уже
+     существующими --s-6/--s-1 — переиспользованы, не задублированы. */
+  --nav-capsule-h: var(--s-6);
+  --nav-capsule-pad: 6px;
+  --nav-item-pad-y: 10px;
+  --nav-item-pad-x: 18px;
+  --nav-item-gap: var(--s-1);
+
+  /* Скорость бесконечной ленты клиентов — docs/04-REVISION-01.md, R4.3.
+     Категория отдельная от --dur*: это декоративный луп в секундах,
+     а не переход интерфейса. */
+  --marquee-dur: 40s;
+
+  /* Высота градиентной подложки шапки — docs/04-REVISION-01.md, R1.2.
+     Совпадала со старым --s-10 (160px) случайно; после R7.2 --s-10 стал
+     120px, а это число осталось прежним — фиксирую отдельно. */
+  --header-scrim-h: 160px;
+
+  /* Точечная карта России — docs/05-REVISION-02.md, R15. Числа буквальные
+     из ТЗ (наклон, шаг сетки). --geo-tilt-delay и --geo-wave-dur — та же
+     категория исключений, что --marquee-dur: физическая инерция
+     взаимодействия и одноразовая волна появления, а не переход состояния
+     интерфейса, поэтому не входят в --dur*. --geo-marker-h (высота
+     3D-столбика маркера) убран — столбики заменены на плоские кружки,
+     финальная ревизия, пункт 2а. */
+  --geo-perspective: 1400px;
+  --geo-tilt-x: 52deg;
+  --geo-tilt-z: -8deg;
+  --geo-tilt-reactive: 4deg;
+  --geo-tilt-delay: 300ms;
+  --geo-wave-dur: 1.2s;
+  --geo-dot-step: 8px;
+  --geo-dot-d: 2.5px;
+}
+
+/* Отступ между секциями — планшет/мобильный (docs/04-REVISION-01.md, R7.2;
+   брейкпойнты из docs/02-DESIGN-SYSTEM.md §10) */
+@media (max-width: 1023px) {
+  :root {
+    --s-10: 80px;
+  }
+}
+
+@media (max-width: 639px) {
+  :root {
+    --s-10: 56px;
+  }
+}
