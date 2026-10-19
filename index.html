@@ -134,10 +134,10 @@
           <span class="section-marker__text"> — О НАС</span>
         </h2>
 
-        <!-- Раздел «О нас» по ТЗ 2026 (docs/12-REVISION-09.md).
-             TODO: фото Катерины Исаковой и Стаса Торопова — в ТЗ
-             «вставить фотку», файлов пока нет. Когда придут — положить
-             в assets/common/ и добавить <img> в .founder перед именем. -->
+        <!-- Раздел «О нас» по ТЗ 2026 (docs/12-REVISION-09.md). Портреты
+             основателей прислал заказчик 19.10.2026 — фоны у фото разные
+             (светлый у Стаса, тёмный у Катерины), поэтому общий .media:
+             ч/б в покое, цвет на ховере, как у фото портфолио. -->
         <div class="manifest__grid">
           <div class="manifest__lead">
             <p class="label">Основатели ST EVENT</p>
@@ -147,10 +147,16 @@
 
           <div class="founders">
             <div class="founder" data-reveal="block">
+              <div class="founder__photo media">
+                <img src="assets/common/founder-isakova.jpg" alt="Катерина Исакова, продюсер и организатор мероприятий ST EVENT" loading="lazy">
+              </div>
               <p class="founder__name">Катерина Исакова</p>
               <p class="founder__role">Продюсер и организатор мероприятий</p>
             </div>
             <div class="founder" data-reveal="block">
+              <div class="founder__photo media">
+                <img src="assets/common/founder-toropov.jpg" alt="Стас Торопов, продюсер, организатор мероприятий и ведущий ST EVENT" loading="lazy">
+              </div>
               <p class="founder__name">Стас Торопов</p>
               <p class="founder__role">Продюсер, организатор мероприятий, ведущий</p>
             </div>
