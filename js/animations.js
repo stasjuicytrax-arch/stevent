@@ -197,8 +197,40 @@
 
     gsap.set(island, { scale: 0.96, transformOrigin: '50% 50%' });
 
+    // «Наезд» камеры на сцену — единственный авторский момент hero
+    // вместо убранного искажения (19.10.2026): фото медленно оседает
+    // с 1.14 до 1, дольше разворота острова, чтобы кадр «дышал»
+    var img = document.getElementById('heroMediaImg');
+    if (img) gsap.set(img, { scale: 1.14, transformOrigin: '50% 55%' });
+
     onPreloaderDone(function () {
       gsap.to(island, { scale: 1, duration: DUR_SLOW, ease: EASE });
+      if (img) gsap.to(img, { scale: 1, duration: DUR_SLOW * 3, ease: 'expo.out' });
+    });
+  }
+
+  // Мягкий параллакс фото за курсором — только мышь. Сдвиг слоя
+  // .hero__media (не img — у img свой scale из initHeroReveal), запас
+  // под сдвиг заложен в CSS через отрицательный inset.
+  function initHeroParallax() {
+    var hero = document.querySelector('.hero__island');
+    var media = document.getElementById('heroMedia');
+    if (!hero || !media) return;
+
+    var SHIFT = 16; // px, меньше запаса inset у .hero__media (24px)
+    var toX = gsap.quickTo(media, 'x', { duration: DUR_SLOW * 1.5, ease: 'power3.out' });
+    var toY = gsap.quickTo(media, 'y', { duration: DUR_SLOW * 1.5, ease: 'power3.out' });
+
+    hero.addEventListener('mousemove', function (event) {
+      var rect = hero.getBoundingClientRect();
+      var nx = (event.clientX - rect.left) / rect.width - 0.5;
+      var ny = (event.clientY - rect.top) / rect.height - 0.5;
+      toX(-nx * SHIFT * 2);
+      toY(-ny * SHIFT * 2);
+    });
+    hero.addEventListener('mouseleave', function () {
+      toX(0);
+      toY(0);
     });
   }
 
@@ -572,5 +604,6 @@
     initMagneticNavLinks();
     initCursorDot();
     if (isFinePointer) initNavCapsule();
+    if (isFinePointer) initHeroParallax();
   });
 })();

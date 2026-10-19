@@ -20,61 +20,45 @@
   overflow: hidden;
 }
 
+/* Слой фото чуть больше острова (inset < 0) — запас под параллакс за
+   курсором, чтобы при сдвиге не открывались края (js/animations.js,
+   initHeroParallax). overflow:hidden у .hero__island обрезает запас. */
 .hero__media {
   position: absolute;
-  inset: 0;
+  inset: calc(-1 * var(--s-4));
 }
 
-/* docs/04-REVISION-01.md, R2: своя (не общая .media) грейскейл-обработка —
-   сильнее контраст и темнее, чем у сеточных фото, лица должны читаться */
+/* Цветное фото вместо грейскейла R2 (заказчик сменил фото на красную
+   сцену СП-Крон, 19.10.2026): лёгкая приглушка насыщенности, чтобы
+   красный свет сцены не спорил с акцентной кнопкой */
 .hero__media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: grayscale(1) contrast(1.12) brightness(.85);
+  object-position: 50% 55%;
+  filter: saturate(.9) contrast(1.08) brightness(1.08);
 }
 
-/* Канвас искажения — итоговая ревизия, 23.09.2026, п.3. Тот же фильтр,
-   что у img (CSS-фильтры применяются к canvas так же, как к img —
-   геометрию "cover" под разные пропорции экрана шейдер считает сам,
-   js/hero-distortion.js). Скрыт по умолчанию — .is-active добавляет
-   тот же скрипт после успешной WebGL-инициализации; на touch и
-   reduced-motion канвас остаётся display:none, видно обычный img. */
-.hero__distortion-canvas {
-  display: none;
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  filter: grayscale(1) contrast(1.12) brightness(.85);
-}
-
-.hero__media.is-distortion-active .hero__distortion-canvas {
-  display: block;
-}
-
-.hero__media.is-distortion-active img {
-  /* Остаётся в DOM (alt-текст, доступность, фолбэк при потере WebGL-
-     контекста), но не рендерится дважды поверх канваса */
-  visibility: hidden;
-}
-
-/* Только чёрное затемнение, никакого цвета — R2. Тёмный верх (под меню
-   и маркером) и низ (под кнопкой), светлее в середине, где лица. */
+/* Затемнение: верх под меню, низ под плашками и кнопками, плюс мягкое
+   пятно по центру под заголовком — экраны сцены за ним самые яркие
+   места кадра, без пятна белый текст на оранжевом терял контраст */
 .hero__overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to bottom,
-    color-mix(in srgb, var(--bg) 72%, transparent),
-    color-mix(in srgb, var(--bg) 25%, transparent) 45%,
-    color-mix(in srgb, var(--bg) 80%, transparent)
-  );
-  /* Чисто декоративный слой (aria-hidden), но без этого правила он,
-     как и .hero__content, перехватывал mousemove по всей площади фото
-     раньше самого фото — вторая часть той же причины, по которой
-     искажение не реагировало на курсор в реальном браузере (правка,
-     ночь 24.09.2026) */
+  background:
+    radial-gradient(
+      ellipse 55% 40% at 50% 48%,
+      color-mix(in srgb, var(--bg) 40%, transparent),
+      transparent
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--bg) 55%, transparent),
+      transparent 38%,
+      color-mix(in srgb, var(--bg) 20%, transparent) 62%,
+      color-mix(in srgb, var(--bg) 85%, transparent)
+    );
+  /* Декоративный слой не должен перехватывать mousemove у параллакса */
   pointer-events: none;
 }
 
@@ -153,7 +137,9 @@
   max-width: 60ch;
   font-size: var(--fs-body-l);
   line-height: var(--lh-body-l);
-  color: var(--text-2);
+  /* --text, не --text-2: под подзаголовком яркие силуэты сцены,
+     полупрозрачный серый на них терял контраст (19.10.2026) */
+  color: var(--text);
 }
 
 .hero__actions {
@@ -192,14 +178,6 @@
     font-size: clamp(26px, 7.5vw, 40px);
   }
 
-  /* Теги "событие // искусство // видео" были НАД заголовком — теперь
-     сразу под ним. Порядок в разметке не трогаем (там он осмысленный
-     для доступности), переставляем только визуально через flex order;
-     на десктопе/планшете порядок остаётся как в разметке. */
-  .hero__content .label {
-    order: 2;
-  }
-
   .hero__subtitle {
     order: 3;
     /* Было var(--fs-body-l) = 18px — заметно крупнее остального текста
@@ -209,11 +187,31 @@
        строку ближе к тегам, не трогая общий gap между остальными
        элементами (правка, ночь 24.09.2026). */
     font-size: var(--fs-small);
-    margin-top: calc(-1 * var(--s-3));
+    /* отрицательный margin-top снят вместе с надписью над заголовком
+       (19.10.2026) — подтягивать подзаголовок больше не к чему */
   }
 
   /* Кнопки стопкой во всю ширину колонки, текст одной строкой —
      иначе «ОБСУДИТЬ МЕРОПРИЯТИЕ» переносилось и кнопка вырастала вдвое */
+  /* На узком экране кадр обрезается к центру — светящиеся экраны сцены
+     ложатся ровно под заголовок и подзаголовок. Пятно затемнения
+     шире и плотнее, чем на десктопе, иначе текст не читается */
+  .hero__overlay {
+    background:
+      radial-gradient(
+        ellipse 90% 45% at 50% 48%,
+        color-mix(in srgb, var(--bg) 72%, transparent),
+        transparent
+      ),
+      linear-gradient(
+        to bottom,
+        color-mix(in srgb, var(--bg) 55%, transparent),
+        color-mix(in srgb, var(--bg) 20%, transparent) 30%,
+        color-mix(in srgb, var(--bg) 30%, transparent) 62%,
+        color-mix(in srgb, var(--bg) 88%, transparent)
+      );
+  }
+
   .hero__actions {
     order: 4;
     flex-direction: column;

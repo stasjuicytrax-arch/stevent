@@ -78,26 +78,21 @@
     <!-- 01 — Hero -->
     <section class="hero" id="hero">
       <div class="hero__island">
+        <!-- Фото — СП-Крон, барабанное шоу (assets/portfolio/kron/kron-14.jpg,
+             выбрано заказчиком 19.10.2026). Цветное, без искажения по
+             курсору: эффект на canvas убран целиком по просьбе заказчика
+             («дешёвый, пиксельный»). Движение — один «наезд» камеры при
+             загрузке и мягкий параллакс за курсором, js/animations.js. -->
         <div class="hero__media" id="heroMedia">
-          <img src="assets/common/hero-main.jpg" alt="Чёрно-белый кадр с мероприятия ST EVENT: гости танцуют, на сцене выступает артист с микрофоном" id="heroMediaImg">
-          <!-- WebGL-канвас с интерактивным искажением поверх фото —
-               итоговая ревизия, 23.09.2026, п.3. Появляется только если
-               js/hero-distortion.js успешно инициализировался (hover:hover
-               + pointer:fine + не reduced-motion) — иначе остаётся просто
-               img выше, без деградации функциональности. -->
-          <canvas class="hero__distortion-canvas" id="heroDistortionCanvas" aria-hidden="true"></canvas>
+          <img src="assets/common/hero-stage.jpg" alt="Барабанное шоу на сцене корпоративного юбилея: силуэты музыкантов на фоне светящихся экранов и красного света, гости за столами" id="heroMediaImg">
         </div>
         <div class="hero__overlay" aria-hidden="true"></div>
 
         <div class="hero__content">
           <!-- Маркер "01 — ГЛАВНАЯ" убран: hero не секция контента, нумерация
-               ему не нужна (docs/05-REVISION-02.md, R11) -->
-          <!-- impeccable detect: hero-eyebrow-chip — не AI-эйбрроу, а дословный
-               бренд-дескриптор из docs/01-CONTENT.md §1, единственный h1 на сайте -->
-          <!-- Тексты — ТЗ 2026, «Титульная страница» (docs/12-REVISION-09.md).
-               TODO: в ТЗ «Поменять фото», но нового файла не прислали —
-               hero-main.jpg остаётся до получения фото от клиента. -->
-          <p class="label">ST EVENT</p>
+               ему не нужна (docs/05-REVISION-02.md, R11). Надпись над
+               заголовком тоже убрана — заголовок говорит сам. Тексты —
+               ТЗ 2026, «Титульная страница» (docs/12-REVISION-09.md). -->
           <h1 class="hero__title">События, которые работают на ваш бизнес.</h1>
           <p class="hero__subtitle" data-reveal="lines">Создаём корпоративы, юбилеи и деловые мероприятия, которые объединяют команду, впечатляют партнёров и подчеркивают масштаб вашей компании.</p>
           <div class="hero__actions">
@@ -1055,7 +1050,6 @@
   <script src="js/gallery.js" defer></script>
   <script src="js/form.js" defer></script>
   <script src="js/request-modal.js" defer></script>
-  <script src="js/hero-distortion.js" defer></script>
   <script src="js/map.js" defer></script>
   <script src="js/fan-gallery.js" defer></script>
   <script src="js/animations.js" defer></script>
