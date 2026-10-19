@@ -9,10 +9,12 @@
   'use strict';
 
   var CASES = [
+    { slug: 'generations', name: 'GenerationS', ext: 'jpg' },
+    { slug: 'promobot', name: 'Promobot Talks', ext: 'jpg' },
     { slug: 'bitva-robotov', name: 'Битва роботов', ext: 'jpg' },
-    { slug: 'kron', name: 'Крон', ext: 'jpg' },
+    { slug: 'kron', name: 'СП-Крон', ext: 'jpg' },
     { slug: 'importservice', name: 'Импортсервис', ext: 'jpg' },
-    { slug: 'unikorn', name: 'Юникорн', ext: 'png' },
+    { slug: 'unikorn', name: 'UJIN', ext: 'png' },
     { slug: 'vypusknoy', name: 'Выпускной школа 22', ext: 'jpg' },
     { slug: 'ibiza', name: 'Ibiza Party', ext: 'jpg' },
     { slug: 'hogvarts', name: 'Хогвартс', ext: 'jpg' },

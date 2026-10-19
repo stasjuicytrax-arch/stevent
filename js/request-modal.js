@@ -1,4 +1,4 @@
-// Модалка заявки — открывается с кнопки «ОБСУДИТЬ ПРОЕКТ» (hero)
+// Модалка заявки — открывается с кнопки «ОБСУДИТЬ МЕРОПРИЯТИЕ» (hero)
 // вместо скролла к #contacts. Пересобрана с нуля (правка, ночь
 // 24.09.2026): один класс .is-open переключает CSS-переход появления
 // (см. css/components.css) — без FLIP-морфинга и без built-in тайминга
@@ -10,7 +10,7 @@
   var modal, form, closeBtn, backdrop, titleEl;
   var formController = null;
   var lastFocusedEl = null;
-  var TITLE_DEFAULT = 'Обсудить проект';
+  var TITLE_DEFAULT = 'Обсудить мероприятие';
   var TITLE_SUCCESS = 'Спасибо, заявка отправлена!';
 
   function getFocusable(container) {
@@ -96,6 +96,9 @@
         openModal(btn);
       });
     });
+
+    // Для кнопки в конце кейса (js/gallery.js)
+    window.ST_openRequestModal = openModal;
 
     closeBtn.addEventListener('click', closeModal);
     backdrop.addEventListener('click', closeModal);

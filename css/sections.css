@@ -118,11 +118,15 @@
 }
 
 .hero__title {
+  /* ТЗ 2026: вместо «ST EVENT» — фраза из 5 слов, display-xl для неё
+     слишком крупный (§3: display-xl — для 1–2 слов), поэтому display-l
+     и ограничение ширины, чтобы строки ломались ровно */
+  max-width: 16ch;
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: var(--fs-display-xl);
-  line-height: var(--lh-display-xl);
-  letter-spacing: var(--ls-display-xl);
+  font-size: var(--fs-display-l);
+  line-height: var(--lh-display-l);
+  letter-spacing: var(--ls-display-l);
   color: var(--text);
 }
 
@@ -152,12 +156,14 @@
   color: var(--text-2);
 }
 
-.hero__cta {
-  /* align-self: flex-start убран — R18 центрирует весь hero__content,
-     кнопка должна следовать общему align-items:center, а не выбиваться */
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--s-3);
   margin-top: var(--s-2);
   /* .hero__content теперь pointer-events:none (иначе перекрывал canvas
-     искажения) — кнопке нужно вернуть кликабельность явно */
+     искажения) — кнопкам нужно вернуть кликабельность явно */
   pointer-events: auto;
 }
 
@@ -179,10 +185,11 @@
      строки. Свой clamp с более низким полом + nowrap — гарантированно
      одна строка при любой ширине телефона (правка, ночь 24.09.2026,
      явный запрос "одной строкой, без переноса"). */
+  /* nowrap снят (ТЗ 2026): теперь в заголовке фраза, а не «ST EVENT» —
+     одной строкой она не помещается, переносится по словам */
   .hero__title {
     order: 1;
-    font-size: clamp(30px, 11vw, 56px);
-    white-space: nowrap;
+    font-size: clamp(26px, 7.5vw, 40px);
   }
 
   /* Теги "событие // искусство // видео" были НАД заголовком — теперь
@@ -205,8 +212,27 @@
     margin-top: calc(-1 * var(--s-3));
   }
 
-  .hero__cta {
+  /* Кнопки стопкой во всю ширину колонки, текст одной строкой —
+     иначе «ОБСУДИТЬ МЕРОПРИЯТИЕ» переносилось и кнопка вырастала вдвое */
+  .hero__actions {
     order: 4;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: var(--s-2);
+  }
+
+  .hero__actions .btn {
+    justify-content: space-between;
+  }
+
+  .hero__actions .btn--ghost {
+    justify-content: center;
+  }
+
+  .hero__actions .btn__text {
+    font-size: var(--fs-small);
+    white-space: nowrap;
   }
 }
 
@@ -230,14 +256,15 @@
   gap: var(--s-5);
 }
 
-/* display-l — только первая часть сообщения, 4 слова
-   (docs/02-DESIGN-SYSTEM.md §3: display-l только для фраз до 7 слов) */
+/* display-m: фраза из ТЗ 2026 — 8 слов, а display-l допустим только
+   до 7 (docs/02-DESIGN-SYSTEM.md §3) */
 .manifest__statement {
+  max-width: 18ch;
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: var(--fs-display-l);
-  line-height: var(--lh-display-l);
-  letter-spacing: var(--ls-display-l);
+  font-size: var(--fs-display-m);
+  line-height: var(--lh-display-m);
+  letter-spacing: var(--ls-display-m);
   color: var(--text);
 }
 
@@ -246,6 +273,102 @@
   max-width: 60ch;
   font-size: var(--fs-body-l);
   line-height: var(--lh-body-l);
+  color: var(--text-2);
+}
+
+/* Основатели — имя и роль, тот же приём разделителей, что у .stat.
+   TODO: фото основателей (нет файлов, см. index.html) */
+.founders {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+  justify-content: center;
+}
+
+.founder {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--line);
+}
+
+.founder:first-child {
+  padding-top: 0;
+  border-top: none;
+}
+
+.founder__name {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--fs-title);
+  line-height: var(--lh-title);
+  letter-spacing: var(--ls-title);
+  color: var(--text);
+}
+
+.founder__role {
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text-2);
+}
+
+/* «Вы задаёте цель…» — три колонки с вертикальными разделителями,
+   тот же приём, что у .why-us__item */
+.goals {
+  margin-top: var(--s-9);
+}
+
+.goals__title {
+  max-width: 22ch;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--fs-display-m);
+  line-height: var(--lh-display-m);
+  letter-spacing: var(--ls-display-m);
+  color: var(--text);
+}
+
+.goals__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--gutter);
+  margin-top: var(--s-7);
+}
+
+.goal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding-left: var(--s-5);
+  border-left: 1px solid var(--line);
+}
+
+.goal:first-child {
+  padding-left: 0;
+  border-left: none;
+}
+
+.goal__label {
+  font-size: var(--fs-body);
+  color: var(--text);
+}
+
+/* Карточка без цифры («Обеспечиваем качество») — заголовок в той же
+   позиции, что число у соседей, но кеглем title: фраза, не число */
+.goal__heading {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--fs-title);
+  line-height: var(--lh-title);
+  letter-spacing: var(--ls-title);
+  color: var(--accent);
+}
+
+.goal__text {
+  max-width: 44ch;
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
   color: var(--text-2);
 }
 
@@ -402,13 +525,28 @@
   position: relative;
   z-index: 1;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  /* ТЗ 2026: короткое описание направления видно всегда — над строкой
+     «N направлений + шеврон» */
+  flex-direction: column;
+  gap: var(--s-3);
   padding-block: var(--s-5);
   /* теперь тоже кликабелен — правая треть строки открывала карточку
      раньше только визуально (курсор давал ложную подсказку), реального
      обработчика не было */
   cursor: pointer;
+}
+
+.accordion__desc {
+  max-width: 52ch;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text-2);
+}
+
+.accordion__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .accordion__count {
@@ -454,6 +592,9 @@
   display: flex;
   flex-direction: column;
   gap: var(--s-3);
+  /* padding-left: 0 — список ровно под описанием направления (ТЗ 2026),
+     без дефолтного отступа <ul> */
+  padding-left: 0;
   padding-bottom: var(--s-5);
   list-style: none;
   color: var(--text-2);
@@ -476,6 +617,9 @@
 .accordion__list li:nth-child(3) { transition-delay: 120ms; }
 .accordion__list li:nth-child(4) { transition-delay: 180ms; }
 .accordion__list li:nth-child(5) { transition-delay: 240ms; }
+.accordion__list li:nth-child(6) { transition-delay: 300ms; }
+.accordion__list li:nth-child(7) { transition-delay: 360ms; }
+.accordion__list li:nth-child(8) { transition-delay: 420ms; }
 
 /* === 04 — Почему мы (единственная светлая секция) === */
 
@@ -594,7 +738,44 @@
      следовательно, aspect-ratio-высота карточек 4:5 расходятся между собой */
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--gutter);
+  margin-top: var(--s-6);
+}
+
+/* Фильтр «Для бизнеса / Частные события» — капсулы, тот же радиус и
+   подпись, что у бейджа карточки */
+.portfolio__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
   margin-top: var(--s-7);
+}
+
+.portfolio__filter {
+  padding: var(--s-2) var(--s-4);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-full);
+  background: none;
+  color: var(--text-2);
+  font-family: var(--font-text);
+  font-weight: 600;
+  font-size: var(--fs-small);
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease);
+}
+
+.portfolio__filter:hover {
+  color: var(--text);
+  border-color: var(--text-2);
+}
+
+.portfolio__filter.is-active {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
+}
+
+.case-card[hidden] {
+  display: none;
 }
 
 .case-card {
@@ -628,8 +809,9 @@
   transform: scale(1.06);
 }
 
-/* Бейдж "СМОТРЕТЬ" в углу, проявляется на ховере — та же стрелка, что
-   в кнопке primary (R14) */
+/* Бейдж "СМОТРЕТЬ ПРОЕКТ" в углу — та же стрелка, что в кнопке
+   primary (R14). ТЗ 2026: кнопка на каждом кейсе — теперь видна всегда
+   (на тач-экранах ховера нет), ховер только подсвечивает её акцентом */
 .case-card__badge {
   position: absolute;
   top: var(--s-4);
@@ -647,9 +829,7 @@
   font-size: var(--fs-small);
   text-transform: uppercase;
   letter-spacing: var(--ls-label);
-  opacity: 0;
-  transform: translateY(-8px);
-  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
   pointer-events: none;
 }
 
@@ -659,8 +839,8 @@
 }
 
 .case-card:hover .case-card__badge {
-  opacity: 1;
-  transform: translateY(0);
+  background: var(--accent);
+  color: var(--bg);
 }
 
 .case-card__title {
@@ -1701,7 +1881,14 @@
      из R1–R7). Явные grid-column/row из десктопной раскладки (R13,
      .accordion__side) тоже сбрасываются на auto-поток. */
   .accordion__item {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+    /* в одну колонку gutter + паддинги триггера и описания давали ~90px
+       пустоты между названием и описанием направления */
+    row-gap: 0;
+  }
+
+  .accordion__side {
+    padding-top: 0;
   }
 
   .accordion__trigger,
@@ -1758,8 +1945,27 @@
      ревизии п.5 (колонка счётчиков сама вертикальная теперь), здесь
      остаётся только доп. отступ сверху — при схлопывании грида в один
      столбец счётчики нужно явно отделить от текста над ними */
-  .manifest__stats {
+  .manifest__stats,
+  .founders {
     margin-top: var(--s-6);
+  }
+
+  /* Цели — 3 колонки в одну, разделитель становится горизонтальным */
+  .goals__grid {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--s-5);
+  }
+
+  .goal {
+    padding-left: 0;
+    padding-top: var(--s-5);
+    border-left: none;
+    border-top: 1px solid var(--line);
+  }
+
+  .goal:first-child {
+    padding-top: 0;
+    border-top: none;
   }
 
   /* Значок услуги + стандартный gap (--s-5, 32px) на узком экране
@@ -1768,6 +1974,10 @@
      доп. промпт про references/4.jpg, п.1) */
   .accordion__trigger {
     gap: var(--s-3);
+  }
+
+  .accordion__name {
+    font-size: var(--fs-accordion-name-m);
   }
 
   .accordion__icon {

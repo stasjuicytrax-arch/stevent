@@ -64,7 +64,7 @@
       <a href="#contacts" class="mobile-menu__link">КОНТАКТЫ</a>
     </nav>
     <a href="#contacts" class="btn btn--primary mobile-menu__cta">
-      <span class="btn__text">ОБСУДИТЬ ПРОЕКТ</span>
+      <span class="btn__text">ОБСУДИТЬ МЕРОПРИЯТИЕ</span>
       <span class="btn__circle" aria-hidden="true">
         <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M5 11L11 5M11 5H6.5M11 5V9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -94,36 +94,39 @@
                ему не нужна (docs/05-REVISION-02.md, R11) -->
           <!-- impeccable detect: hero-eyebrow-chip — не AI-эйбрроу, а дословный
                бренд-дескриптор из docs/01-CONTENT.md §1, единственный h1 на сайте -->
-          <p class="label">событие // искусство // видео</p>
-          <h1 class="hero__title">ST EVENT</h1>
-          <p class="hero__subtitle" data-reveal="lines">Организуем эффективные события с 2008 года. Пермь.</p>
-          <a href="#contacts" class="btn btn--primary hero__cta">
-            <span class="btn__text">ОБСУДИТЬ ПРОЕКТ</span>
-            <span class="btn__circle" aria-hidden="true">
-              <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M5 11L11 5M11 5H6.5M11 5V9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </span>
-          </a>
+          <!-- Тексты — ТЗ 2026, «Титульная страница» (docs/12-REVISION-09.md).
+               TODO: в ТЗ «Поменять фото», но нового файла не прислали —
+               hero-main.jpg остаётся до получения фото от клиента. -->
+          <p class="label">ST EVENT</p>
+          <h1 class="hero__title">События, которые работают на ваш бизнес.</h1>
+          <p class="hero__subtitle" data-reveal="lines">Создаём корпоративы, юбилеи и деловые мероприятия, которые объединяют команду, впечатляют партнёров и подчеркивают масштаб вашей компании.</p>
+          <div class="hero__actions">
+            <a href="#contacts" class="btn btn--primary hero__cta">
+              <span class="btn__text">ОБСУДИТЬ МЕРОПРИЯТИЕ</span>
+              <span class="btn__circle" aria-hidden="true">
+                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M5 11L11 5M11 5H6.5M11 5V9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+            </a>
+            <a href="#portfolio" class="btn btn--ghost hero__secondary">
+              <span class="btn__text">ПОСМОТРЕТЬ ПРОЕКТЫ</span>
+            </a>
+          </div>
         </div>
 
-        <div class="index-row">
-          <div class="index-row__item">
+        <!-- Две плашки «Корпоративный / Частный клиент» (ТЗ 2026, первая
+             страница) — ведут в портфолио и включают нужный фильтр
+             (js/main.js, initPortfolioFilter) -->
+        <div class="index-row index-row--audience">
+          <a href="#portfolio" class="index-row__item" data-filter-link="business">
             <span class="index-row__num">#01</span>
-            <span class="index-row__label">СОБЫТИЯ</span>
-          </div>
-          <div class="index-row__item">
+            <span class="index-row__label">КОРПОРАТИВНЫЙ КЛИЕНТ</span>
+          </a>
+          <a href="#portfolio" class="index-row__item" data-filter-link="private">
             <span class="index-row__num">#02</span>
-            <span class="index-row__label">БТЛ</span>
-          </div>
-          <div class="index-row__item">
-            <span class="index-row__num">#03</span>
-            <span class="index-row__label">ДИЗАЙН</span>
-          </div>
-          <div class="index-row__item">
-            <span class="index-row__num">#04</span>
-            <span class="index-row__label">ТЕХНИЧЕСКОЕ ОБЕСПЕЧЕНИЕ</span>
-          </div>
+            <span class="index-row__label">ЧАСТНЫЙ КЛИЕНТ</span>
+          </a>
         </div>
       </div>
     </section>
@@ -136,33 +139,37 @@
           <span class="section-marker__text"> — О НАС</span>
         </h2>
 
-        <!-- TODO: клиент просил добавить фото в этот блок (ревизия, вечер
-             23.09.2026, п.3) + parallax-эффект фото относительно текста.
-             Единственный файл, подписанный как «фото команды»
-             (assets/common/about-team.jpg), при визуальной проверке
-             оказался фасадом стороннего объекта PLAYPARK — не команда
-             ST EVENT (см. docs/01-CONTENT.md §8.1). Подставлять его или
-             любое другое фото нельзя (правило «ничего не выдумывать»).
-             Нужно реальное фото команды/агентства от клиента. -->
+        <!-- Раздел «О нас» по ТЗ 2026 (docs/12-REVISION-09.md).
+             TODO: фото Катерины Исаковой и Стаса Торопова — в ТЗ
+             «вставить фотку», файлов пока нет. Когда придут — положить
+             в assets/common/ и добавить <img> в .founder перед именем. -->
         <div class="manifest__grid">
           <div class="manifest__lead">
-            <p class="manifest__statement" data-reveal="lines">Мы организуем эффективные события</p>
-            <p class="manifest__continuation" data-reveal="lines">которые нацелены на решение бизнес-задач наших клиентов и 100% уложимся в ваш бюджет. Сплотим команду и направим на достижение целей.</p>
+            <p class="label">Основатели ST EVENT</p>
+            <p class="manifest__statement" data-reveal="lines">За каждым событием стоят люди. За вашим — мы.</p>
+            <p class="manifest__continuation" data-reveal="lines">Мы — Стас Торопов и Катерина Исакова. Команда с многолетней экспертизой в организации самых разных мероприятий, от камерных деловых приемов до многотысячных событий Всероссийского масштаба. Наши мероприятия не только дарят яркие впечатления, но и работают на достижение бизнес-целей наших клиентов.</p>
           </div>
 
-          <!-- Колонка счётчиков переверстана вертикально с разделителями
-               (R12) и добавлена 4-я цифра — итоговая ревизия, 23.09.2026,
-               п.5: при 3 счётчиках в flex-wrap-ряду справа от текста
-               оставалась пустая зона выше 30% ширины контейнера
-               (04-REVISION-01.md, R7). «8 кейсов в портфолио» — реальное
-               число из docs/01-CONTENT.md §3, не выдумано, просто раньше
-               не было использовано как счётчик. -->
-          <!-- Значки у счётчиков — тот же приём (контурный inline-SVG,
-               stroke не заливка), что у иконок услуг; сюда просились
-               отдельно и пункт про пустоту этого блока, и пункт про
-               иконки ещё в одном месте сайта (ревизия №6, п.4 и п.6) -->
-          <div class="manifest__stats">
-            <div class="stat" data-reveal="block">
+          <div class="founders">
+            <div class="founder" data-reveal="block">
+              <p class="founder__name">Катерина Исакова</p>
+              <p class="founder__role">Продюсер и организатор мероприятий</p>
+            </div>
+            <div class="founder" data-reveal="block">
+              <p class="founder__name">Стас Торопов</p>
+              <p class="founder__role">Продюсер, организатор мероприятий, ведущий</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- «Вы задаёте цель…» — пояснения из ТЗ («рядом или выпадает»)
+             стоят рядом с цифрой, без скрытия: так читаются сразу.
+             TODO: «____ событий организовали для компаний» — число в ТЗ
+             не заполнено, карточка не выводится до получения цифры. -->
+        <div class="goals">
+          <p class="goals__title" data-reveal="lines">Вы задаёте цель. Мы превращаем её в событие.</p>
+          <div class="goals__grid">
+            <div class="goal" data-reveal="block">
               <span class="stat__icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/>
@@ -170,18 +177,10 @@
                 </svg>
               </span>
               <span class="stat__number">18</span>
-              <span class="stat__label">лет опыта</span>
+              <span class="goal__label">лет организуем события для бизнеса</span>
+              <p class="goal__text">Знаем особенности всех площадок, работали как с начинающими артистами, так и звездами федерального масштаба, готовы ко всем форс-мажорам и их бесшовному разрешению.</p>
             </div>
-            <div class="stat" data-reveal="block">
-              <span class="stat__icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 20.5s-7.5-4.6-9.5-9.3C1.2 8 2.8 4.8 6 4.2c2-.4 3.7.5 6 2.8 2.3-2.3 4-3.2 6-2.8 3.2.6 4.8 3.8 3.5 7-2 4.7-9.5 9.3-9.5 9.3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-                </svg>
-              </span>
-              <span class="stat__number">96%</span>
-              <span class="stat__label">постоянных клиентов</span>
-            </div>
-            <div class="stat" data-reveal="block">
+            <div class="goal" data-reveal="block">
               <span class="stat__icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <circle cx="9" cy="8" r="3" stroke="currentColor" stroke-width="1.5"/>
@@ -189,19 +188,17 @@
                   <path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6M15 14.5c2.8.2 5 2.3 5 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                 </svg>
               </span>
-              <span class="stat__number">2000+</span>
-              <span class="stat__label">гостей на крупнейшем проекте</span>
+              <span class="stat__number">4000+</span>
+              <span class="goal__label">гостей на одном мероприятии</span>
             </div>
-            <div class="stat" data-reveal="block">
+            <div class="goal" data-reveal="block">
               <span class="stat__icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect x="3" y="8" width="18" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
-                  <path d="M8 8V6a2 2 0 012-2h4a2 2 0 012 2v2" stroke="currentColor" stroke-width="1.5"/>
-                  <path d="M3 13h18" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8-4.3-4.1 5.9-.9L12 3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
                 </svg>
               </span>
-              <span class="stat__number">8</span>
-              <span class="stat__label">кейсов в портфолио</span>
+              <span class="goal__heading">Обеспечиваем качество</span>
+              <p class="goal__text">Мы внимательно подбираем проектную команду, уделяем большое внимание опыту и компетенциям каждого сотрудника на событии.</p>
             </div>
           </div>
         </div>
@@ -216,6 +213,8 @@
           <span class="section-marker__text"> — УСЛУГИ</span>
         </h2>
 
+        <!-- Услуги по ТЗ 2026: название и короткое описание видны сразу,
+             список направлений раскрывается по нажатию -->
         <div class="accordion">
           <div class="accordion__item is-open" data-reveal="block">
             <button class="accordion__trigger" type="button" aria-expanded="true" aria-controls="service-panel-1" id="service-trigger-1">
@@ -225,22 +224,29 @@
                 </svg>
               </span>
               <span class="accordion__num">01</span>
-              <span class="accordion__name">СОБЫТИЯ</span>
+              <span class="accordion__name">ОРГАНИЗАЦИЯ МЕРОПРИЯТИЙ</span>
             </button>
             <div class="accordion__side">
-              <span class="accordion__count">3 направления</span>
-              <span class="accordion__chevron" aria-hidden="true">
-                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
+              <p class="accordion__desc">Создаём события под задачи вашего бизнеса и берём на себя весь процесс — от концепции и сметы до координации в день мероприятия.</p>
+              <div class="accordion__meta">
+                <span class="accordion__count">7 направлений</span>
+                <span class="accordion__chevron" aria-hidden="true">
+                  <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </div>
             </div>
             <div class="accordion__panel" id="service-panel-1" role="region" aria-labelledby="service-trigger-1">
               <div class="accordion__panel-inner">
                 <ul class="accordion__list">
-                  <li>Организация промоакций: лифтинг, семплинг, дегустации</li>
-                  <li>Медиапланирование</li>
-                  <li>Trade Promotion</li>
+                  <li>Корпоративные праздники и новогодние вечера</li>
+                  <li>Юбилеи компаний и профессиональные праздники</li>
+                  <li>Тимбилдинги и командные выезды</li>
+                  <li>Конференции, форумы и стратегические сессии</li>
+                  <li>Презентации продуктов и открытия объектов</li>
+                  <li>Мероприятия для клиентов, дилеров и партнёров</li>
+                  <li>Церемонии награждения и торжественные приемы</li>
                 </ul>
               </div>
             </div>
@@ -250,30 +256,35 @@
             <button class="accordion__trigger" type="button" aria-expanded="false" aria-controls="service-panel-2" id="service-trigger-2">
               <span class="accordion__icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M3 10v4h3l10 5V5L6 10H3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-                  <path d="M19 9a4 4 0 0 1 0 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                  <path d="M7 14l1.3 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  <path d="M4 20l1-5L16 4l4 4L9 19l-5 1z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                  <path d="M13.5 6.5l4 4" stroke="currentColor" stroke-width="1.5"/>
                 </svg>
               </span>
               <span class="accordion__num">02</span>
-              <span class="accordion__name">БТЛ</span>
+              <span class="accordion__name">ДИЗАЙН И КОНТЕНТ</span>
             </button>
             <div class="accordion__side">
-              <span class="accordion__count">5 направлений</span>
-              <span class="accordion__chevron" aria-hidden="true">
-                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
+              <p class="accordion__desc">Разрабатываем визуальный образ и наполнение события, чтобы каждая деталь передавала характер вашей компании.</p>
+              <div class="accordion__meta">
+                <span class="accordion__count">8 направлений</span>
+                <span class="accordion__chevron" aria-hidden="true">
+                  <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </div>
             </div>
             <div class="accordion__panel" id="service-panel-2" role="region" aria-labelledby="service-trigger-2">
               <div class="accordion__panel-inner">
                 <ul class="accordion__list">
-                  <li>Создание видео-контента</li>
-                  <li>Брендинг</li>
-                  <li>Web-дизайн</li>
-                  <li>Инфографика</li>
-                  <li>Разработка макетов</li>
+                  <li>Название, идея и фирменный стиль мероприятия</li>
+                  <li>Дизайн приглашений, презентаций и полиграфии</li>
+                  <li>Оформление сцены, фотозон и навигации</li>
+                  <li>Дизайн сувениров, подарков и наград</li>
+                  <li>Сценарии, тексты ведущего и выступлений</li>
+                  <li>Видеоролики, корпоративные фильмы и анимация</li>
+                  <li>Контент для экранов и интерактивов</li>
+                  <li>Фото- и видеосъёмка, итоговые ролики</li>
                 </ul>
               </div>
             </div>
@@ -283,59 +294,37 @@
             <button class="accordion__trigger" type="button" aria-expanded="false" aria-controls="service-panel-3" id="service-trigger-3">
               <span class="accordion__icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M4 20l1-5L16 4l4 4L9 19l-5 1z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-                  <path d="M13.5 6.5l4 4" stroke="currentColor" stroke-width="1.5"/>
-                </svg>
-              </span>
-              <span class="accordion__num">03</span>
-              <span class="accordion__name">ДИЗАЙН</span>
-            </button>
-            <div class="accordion__side">
-              <span class="accordion__count">2 направления</span>
-              <span class="accordion__chevron" aria-hidden="true">
-                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-            </div>
-            <div class="accordion__panel" id="service-panel-3" role="region" aria-labelledby="service-trigger-3">
-              <div class="accordion__panel-inner">
-                <ul class="accordion__list">
-                  <li>Полиграфической продукции</li>
-                  <li>Наружной рекламы</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          <div class="accordion__item" data-reveal="block">
-            <button class="accordion__trigger" type="button" aria-expanded="false" aria-controls="service-panel-4" id="service-trigger-4">
-              <span class="accordion__icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M6 4v16M12 4v16M18 4v16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                   <circle cx="6" cy="9" r="2" stroke="currentColor" stroke-width="1.5"/>
                   <circle cx="12" cy="16" r="2" stroke="currentColor" stroke-width="1.5"/>
                   <circle cx="18" cy="7" r="2" stroke="currentColor" stroke-width="1.5"/>
                 </svg>
               </span>
-              <span class="accordion__num">04</span>
+              <span class="accordion__num">03</span>
               <span class="accordion__name">ТЕХНИЧЕСКОЕ ОБЕСПЕЧЕНИЕ</span>
             </button>
             <div class="accordion__side">
-              <span class="accordion__count">4 направления</span>
-              <span class="accordion__chevron" aria-hidden="true">
-                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
+              <p class="accordion__desc">Подбираем оборудование под площадку и программу, отвечаем за монтаж и техническое сопровождение события.</p>
+              <div class="accordion__meta">
+                <span class="accordion__count">8 направлений</span>
+                <span class="accordion__chevron" aria-hidden="true">
+                  <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </div>
             </div>
-            <div class="accordion__panel" id="service-panel-4" role="region" aria-labelledby="service-trigger-4">
+            <div class="accordion__panel" id="service-panel-3" role="region" aria-labelledby="service-trigger-3">
               <div class="accordion__panel-inner">
                 <ul class="accordion__list">
-                  <li>Сценическое оборудование</li>
-                  <li>Световое оборудование</li>
-                  <li>Звуковое оборудование</li>
-                  <li>Видеопроекционное оборудование</li>
+                  <li>Звуковое оборудование и микрофоны</li>
+                  <li>Сценический и постановочный свет</li>
+                  <li>Светодиодные экраны, проекторы и видеопроекция</li>
+                  <li>Сцены, подиумы и сценические конструкции</li>
+                  <li>Онлайн-трансляции и видеоконференции</li>
+                  <li>Спецэффекты</li>
+                  <li>Работа звукорежиссеров, художников по свету и видеоинженеров</li>
+                  <li>Монтаж, настройка, репетиции и демонтаж</li>
                 </ul>
               </div>
             </div>
@@ -404,117 +393,157 @@
           <span class="section-marker__text"> — ПОРТФОЛИО</span>
         </h2>
 
+        <!-- Фильтр «Для бизнеса / Частные события» — ТЗ 2026, раздел
+             портфолио. Переключение — js/main.js, initPortfolioFilter.
+             На карточке: название, формат, масштаб.
+             TODO: кейсы из ТЗ без фото (Импортсервис «Новый год из
+             детства», UJIN и ГК «Самолёт», Корпорация ПСС, Эл Скада,
+             «Алые паруса», инструкторско-методический сбор, СИБУР ФЕСТ)
+             ждут фотографий — тексты лежат в docs/12-REVISION-09.md. -->
+        <div class="portfolio__filters" role="group" aria-label="Фильтр кейсов">
+          <button class="portfolio__filter is-active" type="button" data-filter="business" aria-pressed="true">Для бизнеса</button>
+          <button class="portfolio__filter" type="button" data-filter="private" aria-pressed="false">Частные события</button>
+        </div>
+
         <div class="portfolio__grid" id="portfolioGrid" data-reveal-stagger="80">
-          <article class="case-card" data-case="bitva-robotov" role="button" tabindex="0" aria-haspopup="dialog" data-reveal="block">
+          <article class="case-card" data-case="generations" data-type="business" role="button" tabindex="0" aria-haspopup="dialog" data-reveal="block">
+            <div class="case-card__media media">
+              <img src="assets/portfolio/generations/cover.jpg" alt="Церемония награждения GenerationS в Школе управления «Сколково» — обложка кейса">
+            </div>
+            <span class="case-card__badge" aria-hidden="true">
+              СМОТРЕТЬ ПРОЕКТ
+              <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 11L11 5M11 5H6.5M11 5V9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <h3 class="case-card__title">GENERATIONS</h3>
+            <p class="case-card__meta">Церемония награждения · 2000 человек</p>
+          </article>
+
+          <article class="case-card" data-case="promobot" data-type="business" role="button" tabindex="0" aria-haspopup="dialog" data-reveal="block">
+            <div class="case-card__media media">
+              <img src="assets/portfolio/promobot/cover.jpg" alt="Конференция Promobot Talks в технопарке Morion Digital — обложка кейса">
+            </div>
+            <span class="case-card__badge" aria-hidden="true">
+              СМОТРЕТЬ ПРОЕКТ
+              <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 11L11 5M11 5H6.5M11 5V9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <h3 class="case-card__title">PROMOBOT TALKS</h3>
+            <p class="case-card__meta">Международная конференция · 500 человек</p>
+          </article>
+
+          <article class="case-card" data-case="bitva-robotov" data-type="business" role="button" tabindex="0" aria-haspopup="dialog" data-reveal="block">
             <div class="case-card__media media">
               <img src="assets/portfolio/bitva-robotov/cover.jpg" alt="Чемпионат по боям роботов в Сочи — обложка кейса «Битва роботов»">
             </div>
             <span class="case-card__badge" aria-hidden="true">
-              СМОТРЕТЬ
+              СМОТРЕТЬ ПРОЕКТ
               <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M5 11L11 5M11 5H6.5M11 5V9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </span>
             <h3 class="case-card__title">БИТВА РОБОТОВ</h3>
-            <p class="case-card__meta">Сочи · более 2000 гостей</p>
+            <p class="case-card__meta">Чемпионат по боям роботов · более 2000 человек</p>
           </article>
 
-          <article class="case-card" data-case="kron" role="button" tabindex="0" aria-haspopup="dialog" data-reveal="block">
+          <article class="case-card" data-case="unikorn" data-type="business" role="button" tabindex="0" aria-haspopup="dialog" data-reveal="block">
             <div class="case-card__media media">
-              <img src="assets/portfolio/kron/cover.jpg" alt="Юбилей компании «КРОН» — обложка кейса">
+              <img src="assets/portfolio/unikorn/cover.png" alt="Корпоративная регата UJIN — обложка кейса">
             </div>
             <span class="case-card__badge" aria-hidden="true">
-              СМОТРЕТЬ
+              СМОТРЕТЬ ПРОЕКТ
               <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M5 11L11 5M11 5H6.5M11 5V9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </span>
-            <h3 class="case-card__title">КРОН</h3>
-            <p class="case-card__meta">Пермь · 140 гостей</p>
+            <h3 class="case-card__title">UJIN</h3>
+            <p class="case-card__meta">Корпоративная регата · 140 человек</p>
           </article>
 
-          <article class="case-card" data-case="importservice" role="button" tabindex="0" aria-haspopup="dialog" data-reveal="block">
+          <article class="case-card" data-case="kron" data-type="business" role="button" tabindex="0" aria-haspopup="dialog" data-reveal="block">
+            <div class="case-card__media media">
+              <img src="assets/portfolio/kron/cover.jpg" alt="Юбилей компании «СП-Крон» — обложка кейса">
+            </div>
+            <span class="case-card__badge" aria-hidden="true">
+              СМОТРЕТЬ ПРОЕКТ
+              <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 11L11 5M11 5H6.5M11 5V9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <h3 class="case-card__title">СП-КРОН</h3>
+            <p class="case-card__meta">Юбилей компании · 160 человек</p>
+          </article>
+
+          <article class="case-card" data-case="importservice" data-type="business" role="button" tabindex="0" aria-haspopup="dialog" data-reveal="block">
             <div class="case-card__media media">
               <img src="assets/portfolio/importservice/cover.jpg" alt="Юбилей компании «Импортсервис» — обложка кейса">
             </div>
             <span class="case-card__badge" aria-hidden="true">
-              СМОТРЕТЬ
+              СМОТРЕТЬ ПРОЕКТ
               <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M5 11L11 5M11 5H6.5M11 5V9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </span>
             <h3 class="case-card__title">ИМПОРТСЕРВИС</h3>
-            <p class="case-card__meta">Пермь · 87 гостей</p>
+            <p class="case-card__meta">Юбилей компании · 87 человек</p>
           </article>
 
-          <article class="case-card" data-case="unikorn" role="button" tabindex="0" aria-haspopup="dialog" data-reveal="block">
-            <div class="case-card__media media">
-              <img src="assets/portfolio/unikorn/cover.png" alt="Корпоративная регата компании «Юникорн» — обложка кейса">
-            </div>
-            <span class="case-card__badge" aria-hidden="true">
-              СМОТРЕТЬ
-              <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M5 11L11 5M11 5H6.5M11 5V9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </span>
-            <h3 class="case-card__title">ЮНИКОРН</h3>
-            <p class="case-card__meta">Пермь · 140 гостей</p>
-          </article>
-
-          <article class="case-card" data-case="vypusknoy" role="button" tabindex="0" aria-haspopup="dialog" data-reveal="block">
+          <article class="case-card" data-case="vypusknoy" data-type="private" role="button" tabindex="0" aria-haspopup="dialog" data-reveal="block" hidden>
             <div class="case-card__media media">
               <img src="assets/portfolio/vypusknoy/cover.jpg" alt="Выпускной школы №22 — обложка кейса">
             </div>
             <span class="case-card__badge" aria-hidden="true">
-              СМОТРЕТЬ
+              СМОТРЕТЬ ПРОЕКТ
               <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M5 11L11 5M11 5H6.5M11 5V9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </span>
             <h3 class="case-card__title">ВЫПУСКНОЙ ШКОЛА 22</h3>
-            <p class="case-card__meta">Пермь · 170 гостей</p>
+            <p class="case-card__meta">Выпускной · 170 человек</p>
           </article>
 
-          <article class="case-card" data-case="ibiza" role="button" tabindex="0" aria-haspopup="dialog" data-reveal="block">
+          <article class="case-card" data-case="ibiza" data-type="private" role="button" tabindex="0" aria-haspopup="dialog" data-reveal="block" hidden>
             <div class="case-card__media media">
               <img src="assets/portfolio/ibiza/cover.jpg" alt="День рождения в стиле Ibiza Party — обложка кейса">
             </div>
             <span class="case-card__badge" aria-hidden="true">
-              СМОТРЕТЬ
+              СМОТРЕТЬ ПРОЕКТ
               <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M5 11L11 5M11 5H6.5M11 5V9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </span>
             <h3 class="case-card__title">IBIZA PARTY</h3>
-            <p class="case-card__meta">Пермь · 25 гостей</p>
+            <p class="case-card__meta">День рождения · 25 человек</p>
           </article>
 
-          <article class="case-card" data-case="hogvarts" role="button" tabindex="0" aria-haspopup="dialog" data-reveal="block">
+          <article class="case-card" data-case="hogvarts" data-type="private" role="button" tabindex="0" aria-haspopup="dialog" data-reveal="block" hidden>
             <div class="case-card__media media">
               <img src="assets/portfolio/hogvarts/cover.jpg" alt="Детский день рождения в стилистике Хогвартса — обложка кейса">
             </div>
             <span class="case-card__badge" aria-hidden="true">
-              СМОТРЕТЬ
+              СМОТРЕТЬ ПРОЕКТ
               <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M5 11L11 5M11 5H6.5M11 5V9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </span>
             <h3 class="case-card__title">ХОГВАРТС</h3>
-            <p class="case-card__meta">Пермь · 50 гостей</p>
+            <p class="case-card__meta">Детский день рождения · 50 человек</p>
           </article>
 
-          <article class="case-card" data-case="svadba" role="button" tabindex="0" aria-haspopup="dialog" data-reveal="block">
+          <article class="case-card" data-case="svadba" data-type="private" role="button" tabindex="0" aria-haspopup="dialog" data-reveal="block" hidden>
             <div class="case-card__media media">
               <img src="assets/portfolio/svadba/cover.jpg" alt="Свадьба Дарьи и Алексея — обложка кейса">
             </div>
             <span class="case-card__badge" aria-hidden="true">
-              СМОТРЕТЬ
+              СМОТРЕТЬ ПРОЕКТ
               <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M5 11L11 5M11 5H6.5M11 5V9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </span>
             <h3 class="case-card__title">СВАДЬБА ДАРЬИ И АЛЕКСЕЯ</h3>
-            <p class="case-card__meta">Пермь · 56 гостей</p>
+            <p class="case-card__meta">Свадьба · 56 человек</p>
           </article>
         </div>
       </div>
@@ -862,6 +891,20 @@
            кейсам портфолио, без правки на каждый отдельно. KPI — тот
            же значок-мишень, что уже в разделе «Почему мы». -->
       <div class="case-modal__info">
+        <!-- «О проекте» и KPI есть не у всех кейсов — js/gallery.js
+             прячет блок, если в данных кейса его нет -->
+        <div class="case-modal__block" id="caseModalAboutBlock">
+          <div class="case-modal__block-head">
+            <span class="case-modal__block-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M12 11v5.5M12 7.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <p class="label">О проекте</p>
+          </div>
+          <div class="case-modal__text" id="caseModalAbout"></div>
+        </div>
         <div class="case-modal__block">
           <div class="case-modal__block-head">
             <span class="case-modal__block-icon" aria-hidden="true">
@@ -884,7 +927,7 @@
           </div>
           <div class="case-modal__text" id="caseModalSolution"></div>
         </div>
-        <div class="case-modal__block">
+        <div class="case-modal__block" id="caseModalKpiBlock">
           <div class="case-modal__block-head">
             <span class="case-modal__block-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -900,6 +943,20 @@
       </div>
 
       <div class="case-modal__gallery" id="caseModalGallery"></div>
+
+      <!-- Призыв в конце каждого кейса — ТЗ 2026, раздел портфолио -->
+      <div class="case-modal__cta">
+        <p class="case-modal__cta-title">Планируете событие для вашей компании?</p>
+        <p class="case-modal__cta-text">Расскажите о задаче, гостях и бюджете — обсудим, каким может быть ваше мероприятие.</p>
+        <a href="#contacts" class="btn btn--primary" id="caseModalCta">
+          <span class="btn__text">ОБСУДИТЬ МЕРОПРИЯТИЕ</span>
+          <span class="btn__circle" aria-hidden="true">
+            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M5 11L11 5M11 5H6.5M11 5V9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </a>
+      </div>
     </div>
   </div>
 
@@ -934,7 +991,7 @@
         </svg>
       </button>
 
-      <h2 class="request-modal__title" id="requestModalTitle">Обсудить проект</h2>
+      <h2 class="request-modal__title" id="requestModalTitle">Обсудить мероприятие</h2>
 
       <form class="request-modal__form" id="requestForm" novalidate>
         <div class="form-field form-field--float">

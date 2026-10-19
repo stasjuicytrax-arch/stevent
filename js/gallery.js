@@ -2,39 +2,96 @@
 (function () {
   'use strict';
 
-  // Тексты дословно из docs/01-CONTENT.md, раздел 4. Ничего не переписано.
+  // Тексты кейсов для бизнеса — ТЗ 2026 (docs/12-REVISION-09.md), частных
+  // — дословно из docs/01-CONTENT.md, раздел 4. Ничего не переписано.
+  // Блоки: { type: 'p', text } | { type: 'ps', items } | { type: 'list', items }.
+  // about и kpi — необязательные, без них блок в модалке скрывается.
   var CASES = [
+    {
+      slug: 'generations',
+      name: 'GENERATIONS',
+      location: 'Школа управления «Сколково», Москва',
+      guests: '2000 человек',
+      coverExt: 'jpg',
+      photoCount: 8,
+      photoExt: 'jpg',
+      about: { type: 'p', text: 'GenerationS — это корпоративный акселератор, который помогает технологическим стартапам развить свои проекты и получить обратную связь и поддержку от ведущих корпораций России. Среди партнеров акселератора — ВТБ, AIRBUS, УРАЛХИМ, Правительство Москвы и другие.' },
+      task: { type: 'p', text: 'За 20 дней разработать концепцию и в срок провести награждение участников и победителей.' },
+      solution: { type: 'p', text: 'Команда ST EVENT разработала и реализовала церемонию награждения участников, несмотря на срочное изменение концепции события.' }
+    },
+    {
+      slug: 'promobot',
+      name: 'PROMOBOT TALKS',
+      location: 'Технопарк Morion Digital, Пермь',
+      guests: '500 человек',
+      coverExt: 'jpg',
+      photoCount: 4,
+      photoExt: 'jpg',
+      about: { type: 'p', text: 'Международная научно-популярная конференция о роботах и современных технологиях от российского производителя роботов.' },
+      task: { type: 'p', text: 'Организовать митап на 500 человек с мультипотоковой онлайн-трансляцией в реальном времени. Обеспечить участие как российских спикеров, так и спикеров из Европы.' },
+      solution: { type: 'p', text: 'Команда ST EVENT вела организацию серии митапов, офлайн-координацию на площадке, а также обеспечивала онлайн-трансляцию. Для выступлений были привезены спикеры из Москвы, Чехии, и организована трансляция спикеров из Китая и Бразилии.' }
+    },
     {
       slug: 'bitva-robotov',
       name: 'БИТВА РОБОТОВ',
-      location: 'Сочи',
-      guests: 'более 2000 гостей',
+      location: 'Главный медиацентр, Олимпийский парк, Сочи',
+      guests: 'более 2000 человек',
       coverExt: 'jpg',
       photoCount: 17,
       photoExt: 'jpg',
-      task: 'Популяризация робототехники в России. Привлечение новых кадров в сферу IT.',
-      solution: {
-        type: 'p',
-        text: 'Зрелищное соревнование, где встречаются лучшие технологии и изобретатели со всего мира. Шоу мирового уровня. Edutainment — образование через развлечение. Выставка роботов со всего мира — международная площадка по обмену опытом в области робототехники.'
+      about: { type: 'p', text: 'Чемпионат по боям роботов проходил в рамках Всемирного фестиваля молодежи и студентов — ежедневно каждый из этапов чемпионата посещало более 2000 человек, также на площадке велась мультипотоковая трансляция в реальном времени. Чемпионат посетили Герман Греф, Сергей Кириенко, Максут Шадаев, Валерий Фальков, известные блогеры и журналисты со всего мира. Чемпионат проводится ежегодно в разных городах России.' },
+      task: {
+        type: 'list',
+        items: [
+          'Произвести застройку площадки, где будет предусмотрен безопасный ринг, зрительный зал, ремонтная зона для участников, гримерные помещения и пресс-центр.',
+          'Обеспечить трансфер участников и их роботов со всей России и из 20 стран мира.',
+          'Провести чемпионат и его трансляцию с ведением на двух языках, русском и английском.',
+          'Сделать событие зрелищным и интересным.'
+        ]
       },
-      kpi: { type: 'p', text: 'Чемпионат проводится в нескольких городах России.' }
+      solution: { type: 'p', text: 'Команда ST EVENT обеспечила застройку площадки: безопасный ринг, зрительный зал, ремонтную зону для участников, гримерные и пресс-центр. Организовала трансфер участников и их роботов из России и 20 стран мира, проведение чемпионата на двух языках и мультипотоковую онлайн-трансляцию. Техническую сложность проекта объединили со зрелищной подачей, чтобы каждый поединок был понятным и захватывающим для зрителей на площадке и онлайн.' }
+    },
+    {
+      // Папка и файлы остались unikorn — это тот же кейс, переименован
+      // по ТЗ 2026 в UJIN | КОРПОРАТИВНАЯ РЕГАТА
+      slug: 'unikorn',
+      name: 'UJIN | КОРПОРАТИВНАЯ РЕГАТА',
+      location: 'Пермь',
+      guests: '140 человек',
+      coverExt: 'png',
+      photoCount: 10,
+      photoExt: 'png',
+      photoExceptions: { 2: 'jpg', 3: 'jpg' },
+      task: { type: 'p', text: 'Организовать тимбилдинг для 140 сотрудников компании из Москвы и Перми из нескольких этапов: парусной регаты и командных игр.' },
+      solution: {
+        type: 'ps',
+        items: [
+          'На яхте стираются привычные ранги и звания. Тимлид, бухгалтер или партнер — все они находятся в ограниченном пространстве, в буквальном смысле, «в одной лодке», а задачи решаются совместно и сообща.',
+          'Во время прогулки под парусом сотрудники из разных городов знакомились, объединялись в большие команды и играли в игры по мотивам популярных YouTube-шоу.'
+        ]
+      }
     },
     {
       slug: 'kron',
-      name: 'КРОН',
+      name: 'СП-КРОН | ЮБИЛЕЙ КОМПАНИИ',
       location: 'Пермь',
-      guests: '140 гостей',
+      guests: '160 человек',
       coverExt: 'jpg',
       photoCount: 20,
       photoExt: 'jpg',
-      task: 'Организовать и вовлечь всех сотрудников компании и их семьи в мероприятие.',
-      solution: {
-        type: 'p',
-        text: 'Разработка и организация оптимальной концепции для взрослых и детей. Съёмка корпоративного фильма о компании в городах присутствия. Награждение лучших сотрудников.'
+      task: {
+        type: 'list',
+        items: [
+          'Разработать концепцию события, активности которые объединят и познакомят сотрудников между собой.',
+          'Организовать мероприятие, где каждый этап будет интересен и взрослым, и детям.',
+          'Снять корпоративный фильм о компании в городах ее присутствия.'
+        ]
       },
-      kpi: { type: 'p', text: '96% положительных отзывов от сотрудников и их семей.' }
+      solution: { type: 'p', text: 'Компания берется за решение масштабных задач, и руководство компании хотело познакомить с местом работы своих сотрудников и их семьи. Так родилась концепция «семейного» юбилея, где каждому участнику праздника будет весело.' }
     },
     {
+      // ТЗ 2026: «кейс, который есть сейчас на сайте, оставить, убрать
+      // только про KPI»
       slug: 'importservice',
       name: 'ИМПОРТСЕРВИС',
       location: 'Пермь',
@@ -42,34 +99,11 @@
       coverExt: 'jpg',
       photoCount: 12,
       photoExt: 'jpg',
-      task: 'Рассказать о масштабе и успехах компании и наградить сотрудников за значимые достижения.',
+      task: { type: 'p', text: 'Рассказать о масштабе и успехах компании и наградить сотрудников за значимые достижения.' },
       solution: {
         type: 'p',
         text: 'Разработка театрализованной церемонии награждения, в которой были затронуты корпоративные ценности компании. Разработка и проведение развлекательной части, отличной от предыдущих мероприятий.'
-      },
-      kpi: {
-        type: 'list',
-        items: [
-          '99% положительных отзывов от сотрудников компании.',
-          '37% повышение лояльности сотрудников к корпоративным ценностям.'
-        ]
       }
-    },
-    {
-      slug: 'unikorn',
-      name: 'ЮНИКОРН',
-      location: 'Пермь',
-      guests: '140 гостей',
-      coverExt: 'png',
-      photoCount: 10,
-      photoExt: 'png',
-      photoExceptions: { 2: 'jpg', 3: 'jpg' },
-      task: 'Организовать тимбилдинг и вовлечь всех сотрудников компании.',
-      solution: {
-        type: 'p',
-        text: 'Все гости мероприятия приняли участие в настоящей парусной регате, а также был организован турнир «NEОфисные игры».'
-      },
-      kpi: { type: 'p', text: '100% положительных отзывов от сотрудников компании.' }
     },
     {
       slug: 'vypusknoy',
@@ -79,7 +113,7 @@
       coverExt: 'jpg',
       photoCount: 41,
       photoExt: 'jpg',
-      task: 'Организовать для всей параллели нестандартный выпускной.',
+      task: { type: 'p', text: 'Организовать для всей параллели нестандартный выпускной.' },
       solution: {
         type: 'list',
         items: [
@@ -99,7 +133,7 @@
       coverExt: 'jpg',
       photoCount: 29,
       photoExt: 'jpg',
-      task: 'Организовать нестандартный день рождения, где гостями будут только девушки.',
+      task: { type: 'p', text: 'Организовать нестандартный день рождения, где гостями будут только девушки.' },
       solution: {
         type: 'p',
         text: 'Разработка квеста для гостей. Создание брендированного меню. Атмосфера легендарной Ibiza Party. Преимущественно мужской состав артистов на весь вечер. Приглашение известных московских артистов.'
@@ -114,7 +148,7 @@
       coverExt: 'jpg',
       photoCount: 49,
       photoExt: 'jpg',
-      task: 'Организация и проведение детского дня рождения в стилистике любимого фильма.',
+      task: { type: 'p', text: 'Организация и проведение детского дня рождения в стилистике любимого фильма.' },
       solution: {
         type: 'p',
         text: 'Разработка сценария и квест-игры по мотивам «Гарри Поттера». Привлечение профессиональных актёров. Застройка декораций из фильма. Иммерсивное погружение в концепцию мероприятия.'
@@ -129,7 +163,7 @@
       coverExt: 'jpg',
       photoCount: 11,
       photoExt: 'jpg',
-      task: 'Организовать свадьбу для современных айтишников.',
+      task: { type: 'p', text: 'Организовать свадьбу для современных айтишников.' },
       solution: {
         type: 'list',
         items: [
@@ -149,6 +183,7 @@
 
   var modal, modalClose, modalCover, modalCoverImg, modalTitle, modalMeta;
   var modalTask, modalSolution, modalKpi, modalGallery;
+  var modalAbout, modalAboutBlock, modalKpiBlock, modalCta;
   var lightbox, lightboxImage, lightboxClose, lightboxPrev, lightboxNext;
 
   var currentPhotos = [];
@@ -192,10 +227,19 @@
       });
       container.appendChild(ul);
     } else {
-      var p = document.createElement('p');
-      p.textContent = block.text;
-      container.appendChild(p);
+      var texts = block.type === 'ps' ? block.items : [block.text];
+      texts.forEach(function (text) {
+        var p = document.createElement('p');
+        p.textContent = text;
+        container.appendChild(p);
+      });
     }
+  }
+
+  // Необязательный блок модалки (О проекте, KPI) — скрыт, если данных нет
+  function renderOptionalBlock(blockEl, container, block) {
+    blockEl.hidden = !block;
+    if (block) renderTextBlock(container, block);
   }
 
   function getFocusable(container) {
@@ -334,9 +378,10 @@
     modalTitle.textContent = c.name;
     modalMeta.textContent = c.location + ' · ' + c.guests;
 
-    renderTextBlock(modalTask, { type: 'p', text: c.task });
+    renderOptionalBlock(modalAboutBlock, modalAbout, c.about);
+    renderTextBlock(modalTask, c.task);
     renderTextBlock(modalSolution, c.solution);
-    renderTextBlock(modalKpi, c.kpi);
+    renderOptionalBlock(modalKpiBlock, modalKpi, c.kpi);
     renderGallery(currentPhotos);
 
     modal.hidden = false;
@@ -426,6 +471,10 @@
     modalSolution = document.getElementById('caseModalSolution');
     modalKpi = document.getElementById('caseModalKpi');
     modalGallery = document.getElementById('caseModalGallery');
+    modalAbout = document.getElementById('caseModalAbout');
+    modalAboutBlock = document.getElementById('caseModalAboutBlock');
+    modalKpiBlock = document.getElementById('caseModalKpiBlock');
+    modalCta = document.getElementById('caseModalCta');
 
     lightbox = document.getElementById('lightbox');
     lightboxImage = document.getElementById('lightboxImage');
@@ -446,6 +495,18 @@
     });
 
     modalClose.addEventListener('click', closeModal);
+
+    // «Обсудить мероприятие» в конце кейса — закрываем кейс и открываем
+    // модалку заявки (js/request-modal.js); без неё — обычный якорь
+    if (modalCta) {
+      modalCta.addEventListener('click', function (event) {
+        if (!window.ST_openRequestModal) return;
+        event.preventDefault();
+        var returnEl = lastFocusedEl;
+        closeModal();
+        window.ST_openRequestModal(returnEl);
+      });
+    }
     modal.addEventListener('click', function (event) {
       if (event.target === modal) closeModal();
     });

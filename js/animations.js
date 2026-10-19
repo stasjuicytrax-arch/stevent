@@ -28,6 +28,15 @@
   var DUR_SLOW = 0.8; // --dur-slow
   var LINE_STAGGER = 0.06; // 60ms — docs/02-DESIGN-SYSTEM.md §8, п.1
 
+  // Прелоадер мог уже отработать до подписки (см. js/main.js) — тогда сразу
+  function onPreloaderDone(fn) {
+    if (window.ST_PRELOADER_DONE) {
+      fn();
+      return;
+    }
+    document.addEventListener('preloader:done', fn, { once: true });
+  }
+
   var isFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
   // js/gallery.js запускается раньше этого файла (порядок в index.html),
@@ -126,9 +135,9 @@
       };
 
       if (isInHero) {
-        document.addEventListener('preloader:done', function () {
+        onPreloaderDone(function () {
           gsap.delayedCall(DUR_SLOW * 0.6, tween);
-        }, { once: true });
+        });
       } else {
         ScrollTrigger.create({
           trigger: el,
@@ -188,9 +197,9 @@
 
     gsap.set(island, { scale: 0.96, transformOrigin: '50% 50%' });
 
-    document.addEventListener('preloader:done', function () {
+    onPreloaderDone(function () {
       gsap.to(island, { scale: 1, duration: DUR_SLOW, ease: EASE });
-    }, { once: true });
+    });
   }
 
   /* ---------- 4. Счётчики-одометр (R16.6) ----------
@@ -406,14 +415,14 @@
 
     gsap.set(letters, { y: '100%' });
 
-    document.addEventListener('preloader:done', function () {
+    onPreloaderDone(function () {
       gsap.to(letters, {
         y: '0%',
         duration: DUR_SLOW,
         ease: EASE,
         stagger: 0.04, // R16.2, буквально
       });
-    }, { once: true });
+    });
   }
 
   /* ---------- R16.3. Уход hero при скролле (scrub) ---------- */

@@ -75,6 +75,24 @@
   height: 40%;
 }
 
+/* Вторичная кнопка (ТЗ 2026: «Посмотреть проекты» — менее заметная
+   рядом с основной): та же высота и капсула, без заливки и круга */
+.btn--ghost {
+  padding-right: var(--btn-pad-text);
+  border: 1px solid var(--line-strong);
+  background: none;
+  transition: border-color var(--dur-fast) var(--ease);
+}
+
+.btn--ghost .btn__text {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.btn--ghost:hover {
+  border-color: var(--text);
+}
+
 /* === Шапка === */
 
 .header {
@@ -498,6 +516,26 @@
   color: var(--accent);
 }
 
+/* Две плашки «Корпоративный / Частный клиент» (ТЗ 2026) — ссылки
+   в портфолио с фильтром, поэтому крупнее и с ховером */
+.index-row--audience {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.index-row--audience .index-row__item {
+  text-decoration: none;
+  transition: background-color var(--dur) var(--ease);
+}
+
+.index-row--audience .index-row__item:hover {
+  background: color-mix(in srgb, var(--bg) 55%, transparent);
+}
+
+.index-row--audience .index-row__label {
+  font-size: var(--fs-body);
+  color: var(--text);
+}
+
 .index-row__label {
   font-family: var(--font-text);
   font-weight: 500;
@@ -699,6 +737,43 @@
   display: flex;
   flex-direction: column;
   gap: var(--s-3);
+}
+
+.case-modal__block[hidden] {
+  display: none;
+}
+
+/* Абзацы внутри блока (тип ps в js/gallery.js) */
+.case-modal__text p + p {
+  margin-top: var(--s-3);
+}
+
+/* Призыв в конце кейса — ТЗ 2026 */
+.case-modal__cta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-4);
+  max-width: var(--container-narrow);
+  margin-top: var(--s-9);
+  padding-top: var(--s-7);
+  border-top: 1px solid var(--line);
+}
+
+.case-modal__cta-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--fs-display-m);
+  line-height: var(--lh-display-m);
+  letter-spacing: var(--ls-display-m);
+  color: var(--text);
+}
+
+.case-modal__cta-text {
+  max-width: 60ch;
+  font-size: var(--fs-body-l);
+  line-height: var(--lh-body-l);
+  color: var(--text-2);
 }
 
 .case-modal__block-head {
@@ -1215,6 +1290,17 @@
 }
 
 @media (max-width: 639px) {
+  /* Плашки «Корпоративный / Частный клиент»: десктопный паддинг (от 48px
+     с каждой стороны) оставлял колонке ~75px — «КОРПОРАТИВНЫЙ»
+     наезжало на соседнюю плашку */
+  .index-row--audience .index-row__item {
+    padding: var(--s-4) var(--s-3);
+  }
+
+  .index-row--audience .index-row__label {
+    font-size: var(--fs-label);
+  }
+
   /* Галерея кейса — 2 колонки вместо 3, иначе плитки становятся крошечными */
   .case-modal__gallery {
     grid-template-columns: repeat(2, minmax(0, 1fr));

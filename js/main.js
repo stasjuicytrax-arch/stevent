@@ -3,12 +3,16 @@
   'use strict';
 
   // Прелоадер — счётчик 0→100, уход шторкой, один раз за сессию
+  // Флаг ST_PRELOADER_DONE — для подписчиков, которые подключаются позже
+  // события (повторный заход в сессии: событие уходит синхронно в
+  // DOMContentLoaded до js/animations.js, и hero оставался пустым)
   function initPreloader() {
     var preloader = document.getElementById('preloader');
     if (!preloader) return;
 
     if (sessionStorage.getItem('st-preloader-shown')) {
       preloader.remove();
+      window.ST_PRELOADER_DONE = true;
       document.dispatchEvent(new CustomEvent('preloader:done'));
       return;
     }
@@ -30,6 +34,7 @@
       finished = true;
       sessionStorage.setItem('st-preloader-shown', '1');
       preloader.classList.add('preloader--hidden');
+      window.ST_PRELOADER_DONE = true;
       document.dispatchEvent(new CustomEvent('preloader:done'));
       preloader.addEventListener('transitionend', removeFromDom, { once: true });
       // Подстраховка на случай, если transitionend не сработает (reduced-motion и т.п.)
@@ -184,10 +189,46 @@
     });
   }
 
+  // Фильтр портфолио «Для бизнеса / Частные события» (ТЗ 2026). Плашки
+  // «Корпоративный / Частный клиент» в hero ведут сюда же и включают
+  // свой фильтр (data-filter-link), прокрутку к #portfolio делает якорь.
+  function initPortfolioFilter() {
+    var buttons = document.querySelectorAll('.portfolio__filter');
+    var cards = document.querySelectorAll('.case-card[data-type]');
+    if (!buttons.length || !cards.length) return;
+
+    function applyFilter(type) {
+      buttons.forEach(function (btn) {
+        var active = btn.dataset.filter === type;
+        btn.classList.toggle('is-active', active);
+        btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+      cards.forEach(function (card) {
+        card.hidden = card.dataset.type !== type;
+      });
+      // ScrollTrigger.refresh() здесь намеренно не вызывается — см.
+      // комментарий в initAccordion: при активном Lenis он сбивал
+      // позиции всех триггеров (белая вспышка темы)
+    }
+
+    buttons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        applyFilter(btn.dataset.filter);
+      });
+    });
+
+    document.querySelectorAll('[data-filter-link]').forEach(function (link) {
+      link.addEventListener('click', function () {
+        applyFilter(link.dataset.filterLink);
+      });
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     initPreloader();
     initHeader();
     initBurger();
     initAccordion();
+    initPortfolioFilter();
   });
 })();
