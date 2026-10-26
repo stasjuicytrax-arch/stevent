@@ -1,234 +1,266 @@
-// Изоляция через IIFE — без import/export, ES-модули блокируются CORS на file://
+// Поведение интерфейса (без «показных» анимаций — те в js/animations.js).
+// IIFE, без import/export: ES-модули блокируются CORS на file://
 (function () {
   'use strict';
 
-  // Прелоадер — счётчик 0→100, уход шторкой, один раз за сессию
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var hasGsap = typeof gsap !== 'undefined';
+
+  /* ---------- Прелоадер: счётчик 2008 → 2026, лаймовая шторка ---------- */
+
   // Флаг ST_PRELOADER_DONE — для подписчиков, которые подключаются позже
-  // события (повторный заход в сессии: событие уходит синхронно в
-  // DOMContentLoaded до js/animations.js, и hero оставался пустым)
+  // события (повторный заход в сессии: событие уходит синхронно, ещё до
+  // js/animations.js)
+  function preloaderDone() {
+    window.ST_PRELOADER_DONE = true;
+    document.dispatchEvent(new CustomEvent('preloader:done'));
+  }
+
   function initPreloader() {
     var preloader = document.getElementById('preloader');
     if (!preloader) return;
 
-    if (sessionStorage.getItem('st-preloader-shown')) {
+    if (sessionStorage.getItem('st-preloader-shown') || reduceMotion) {
       preloader.remove();
-      window.ST_PRELOADER_DONE = true;
-      document.dispatchEvent(new CustomEvent('preloader:done'));
+      preloaderDone();
       return;
     }
 
     var counterEl = document.getElementById('preloaderCounter');
-    var duration = 1200;
+    var FROM = 2008;
+    var TO = 2026;
+    var duration = 1400;
     var start = performance.now();
     var finished = false;
-    var removed = false;
-
-    function removeFromDom() {
-      if (removed) return;
-      removed = true;
-      preloader.remove();
-    }
 
     function finish() {
       if (finished) return;
       finished = true;
+      counterEl.textContent = String(TO);
       sessionStorage.setItem('st-preloader-shown', '1');
-      preloader.classList.add('preloader--hidden');
-      window.ST_PRELOADER_DONE = true;
-      document.dispatchEvent(new CustomEvent('preloader:done'));
-      preloader.addEventListener('transitionend', removeFromDom, { once: true });
-      // Подстраховка на случай, если transitionend не сработает (reduced-motion и т.п.)
-      setTimeout(removeFromDom, 900);
+      // Короткая пауза на «2026», затем шторка уходит вверх
+      setTimeout(function () {
+        preloader.classList.add('preloader--hidden');
+        preloaderDone();
+        setTimeout(function () { preloader.remove(); }, 1200);
+      }, 260);
     }
 
     function tick(now) {
       if (finished) return;
-      var progress = Math.min((now - start) / duration, 1);
-      counterEl.textContent = String(Math.round(progress * 100));
-      if (progress < 1) {
-        requestAnimationFrame(tick);
-      } else {
-        finish();
-      }
+      var t = Math.min((now - start) / duration, 1);
+      var eased = 1 - Math.pow(1 - t, 3);
+      counterEl.textContent = String(Math.round(FROM + (TO - FROM) * eased));
+      if (t < 1) requestAnimationFrame(tick);
+      else finish();
     }
 
     requestAnimationFrame(tick);
-
-    // Предохранитель: если счётчик или загрузка застряли — шторка всё равно уезжает
-    setTimeout(finish, 3000);
+    setTimeout(finish, 3200); // предохранитель, если rAF застрял
   }
 
-  // Шапка всегда на месте — прятать при скролле вниз не нужно (правка,
-  // ночь 24.09.2026: раньше header--hidden сдвигала её за экран через
-  // translateY(-100%) в css/components.css, эффект читался как
-  // «улетает наверх»). header--scrolled остаётся — им уплотняется
-  // капсула меню при скролле больше 10px.
+  /* ---------- Шапка: прячется при скролле вниз, возвращается вверх ---------- */
+
   function initHeader() {
     var header = document.getElementById('siteHeader');
     if (!header) return;
+    var lastY = window.scrollY;
 
-    window.addEventListener(
-      'scroll',
-      function () {
-        header.classList.toggle('header--scrolled', window.scrollY > 10);
-      },
-      { passive: true }
-    );
+    window.addEventListener('scroll', function () {
+      var y = window.scrollY;
+      var menuOpen = document.body.classList.contains('menu-open');
+      header.classList.toggle('header--scrolled', y > 20);
+      if (!menuOpen) header.classList.toggle('header--hidden', y > lastY && y > 160);
+      lastY = y;
+    }, { passive: true });
   }
 
-  // Правый блок шапки — телефон, пока виден hero, кроссфейд на кнопку
-  // "ОБСУДИТЬ ПРОЕКТ", когда hero ушёл за верхний край (иначе кнопка
-  // дублирует кнопку в hero на первом экране). docs/05-REVISION-02.md,
-  // R9 (дедуп) + R17 (кроссфейд вместо простого скрытия).
-  // Мобильное меню — полноэкранный бургер
+  /* ---------- «Капля» в капсуле меню: перетекает к пункту ---------- */
+
+  function initNavDrop() {
+    var capsule = document.getElementById('navCapsule');
+    var drop = document.getElementById('navDrop');
+    if (!capsule || !drop) return;
+    var links = Array.prototype.slice.call(capsule.querySelectorAll('.nav-capsule__link'));
+    var active = null;
+
+    function moveTo(link, instant) {
+      if (!link) {
+        drop.classList.remove('is-visible');
+        return;
+      }
+      var cRect = capsule.getBoundingClientRect();
+      var lRect = link.getBoundingClientRect();
+      var x = lRect.left - cRect.left;
+      drop.classList.add('is-visible');
+      if (hasGsap && !reduceMotion && !instant) {
+        // Капля сначала вытягивается к цели, потом догоняет — «перетекание»
+        gsap.to(drop, { x: x, width: lRect.width, duration: 0.55, ease: 'elastic.out(1, 0.75)', overwrite: true });
+      } else {
+        drop.style.transform = 'translateX(' + x + 'px)';
+        drop.style.width = lRect.width + 'px';
+      }
+    }
+
+    links.forEach(function (link) {
+      link.addEventListener('mouseenter', function () { moveTo(link); });
+    });
+    capsule.addEventListener('mouseleave', function () { moveTo(active); });
+
+    // Активный пункт — по секции, которая сейчас в середине экрана
+    var sections = links.map(function (link) {
+      return document.querySelector(link.getAttribute('href'));
+    });
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        var i = sections.indexOf(entry.target);
+        active = links[i] || null;
+        links.forEach(function (l) { l.classList.toggle('is-active', l === active); });
+        moveTo(active);
+      });
+    }, { rootMargin: '-45% 0px -45% 0px' });
+    sections.forEach(function (section) { if (section) observer.observe(section); });
+
+    // Над hero активного пункта нет — капля прячется
+    var hero = document.getElementById('hero');
+    if (hero) {
+      new IntersectionObserver(function (entries) {
+        if (entries[0].isIntersecting && entries[0].intersectionRatio > 0.5) {
+          active = null;
+          links.forEach(function (l) { l.classList.remove('is-active'); });
+          moveTo(null);
+        }
+      }, { threshold: [0.5] }).observe(hero);
+    }
+  }
+
+  /* ---------- Мобильное меню ---------- */
+
   function initBurger() {
     var burger = document.getElementById('burgerBtn');
     var menu = document.getElementById('mobileMenu');
     if (!burger || !menu) return;
 
-    function closeMenu() {
-      menu.classList.remove('mobile-menu--open');
-      burger.setAttribute('aria-expanded', 'false');
+    var header = document.getElementById('siteHeader');
+
+    function setOpen(open) {
+      // Шапка могла уехать при скролле — кнопка закрытия должна быть видна
+      if (open && header) header.classList.remove('header--hidden');
+      menu.classList.toggle('mobile-menu--open', open);
+      document.body.classList.toggle('menu-open', open);
+      burger.setAttribute('aria-expanded', String(open));
+      burger.setAttribute('aria-label', open ? 'Закрыть меню' : 'Открыть меню');
     }
 
-    function toggleMenu() {
-      var isOpen = menu.classList.toggle('mobile-menu--open');
-      burger.setAttribute('aria-expanded', String(isOpen));
-    }
-
-    burger.addEventListener('click', toggleMenu);
-
-    menu.querySelectorAll('.mobile-menu__link').forEach(function (link) {
-      link.addEventListener('click', closeMenu);
+    burger.addEventListener('click', function () {
+      setOpen(!menu.classList.contains('mobile-menu--open'));
     });
-
+    menu.querySelectorAll('a').forEach(function (link) {
+      link.addEventListener('click', function () { setOpen(false); });
+    });
     document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape') closeMenu();
+      if (event.key === 'Escape') setOpen(false);
     });
   }
 
-  // Аккордеон услуг — открыта всегда ровно одна строка
-  function initAccordion() {
-    var items = document.querySelectorAll('.accordion__item');
-    if (!items.length) return;
+  /* ---------- Плавная прокрутка к якорям через Lenis ---------- */
 
-    var scrollTimer = null;
-
-    function openItem(item, trigger) {
-      if (item.classList.contains('is-open')) return;
-
-      items.forEach(function (other) {
-        other.classList.remove('is-open');
-        other.querySelector('.accordion__trigger').setAttribute('aria-expanded', 'false');
-      });
-
-      item.classList.add('is-open');
-      trigger.setAttribute('aria-expanded', 'true');
-
-      // Раскрытие сдвигает следующие пункты вниз и меняет общую высоту
-      // страницы — на узких вьюпортах хватало, чтобы очередной триггер
-      // уехал за нижний край экрана и следующий клик проходил мимо
-      // (docs/06-REVISION-03.md, R19). Через Lenis, а не голый
-      // scrollIntoView — напрямую конфликтует с его RAF-циклом.
-      //
-      // Откладываем до конца CSS-transition раскрытия (--dur=420ms) —
-      // иначе позиции считаются ДО того, как соседние панели
-      // схлопнулись/раскрылись. clearTimeout — повторный клик до
-      // истечения таймера отменяет ещё не выполненный устаревший расчёт.
-      clearTimeout(scrollTimer);
-      scrollTimer = setTimeout(function () {
-        // ScrollTrigger.refresh() ЗДЕСЬ убран — он и был причиной белой
-        // вспышки, не лекарством от неё. Проверено прицельно: вызов
-        // refresh() именно в этом месте (после смены высоты страницы от
-        // аккордеона, пока Lenis активен) сдвигал АБСОЛЮТНЫЕ пиксельные
-        // позиции ВСЕХ ScrollTrigger'ов на величину, равную текущему
-        // scrollY (напр. у триггера hero start:0 после refresh()
-        // становился start:-1674 при scrollY=1674 — GSAP читал текущий
-        // скролл как 0 внутри своего внутреннего пересчёта, хотя
-        // window.scrollY возвращал верное значение). Из-за этого прогресс
-        // scrub-перехода темы (R24) улетал за пределы [0,1], тема
-        // защёлкивалась в светлое состояние мгновенно — и был тот самый
-        // белый блик в разделе «Услуги». Без refresh() кэш триггеров
-        // просто остаётся немного неточным до следующего естественного
-        // resize/refresh — и это не вызывает видимых проблем (проверено).
-        //
-        // Скроллим, только если раскрытая строка реально не помещается
-        // в текущий вьюпорт целиком — раньше скроллило всегда, отсюда
-        // и лишний рывок страницы даже когда пункт и так был виден.
-        var rect = item.getBoundingClientRect();
-        var fitsInViewport = rect.top >= 0 && rect.bottom <= window.innerHeight;
-        if (fitsInViewport) return;
-
-        if (window.ST_LENIS) {
-          window.ST_LENIS.scrollTo(trigger, { offset: -100, duration: 0.6 });
-        } else if (typeof trigger.scrollIntoView === 'function') {
-          trigger.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }, 460);
-    }
-
-    items.forEach(function (item) {
-      var trigger = item.querySelector('.accordion__trigger');
-      var side = item.querySelector('.accordion__side');
-
-      // Кликабельна вся строка (номер+название в <button>, «N направлений»
-      // + шеврон в соседнем .accordion__side) — раньше слушатель висел
-      // только на .accordion__trigger, правая треть строки не открывала
-      // карточку. .accordion__trigger остаётся настоящей <button> для
-      // клавиатурной доступности (Tab + Enter/Space); .accordion__side —
-      // обычный div, слушатель нужен явно, клавиатурная активация ему
-      // не нужна — той же строки уже достаточно через кнопку.
-      trigger.addEventListener('click', function () {
-        openItem(item, trigger);
-      });
-      if (side) {
-        side.addEventListener('click', function () {
-          openItem(item, trigger);
-        });
-      }
+  function initAnchors() {
+    document.addEventListener('click', function (event) {
+      var link = event.target.closest('a[href^="#"]');
+      if (!link || event.defaultPrevented) return;
+      var id = link.getAttribute('href');
+      if (id.length < 2) return;
+      var target = document.querySelector(id);
+      if (!target || !window.ST_LENIS) return;
+      event.preventDefault();
+      window.ST_LENIS.scrollTo(target, { offset: 0, duration: 1.2 });
     });
   }
 
-  // Фильтр портфолио «Для бизнеса / Частные события» (ТЗ 2026). Плашки
-  // «Корпоративный / Частный клиент» в hero ведут сюда же и включают
-  // свой фильтр (data-filter-link), прокрутку к #portfolio делает якорь.
+  /* ---------- Услуги: раскрытие списка направлений (ТЗ 2026) ---------- */
+
+  function initServices() {
+    document.querySelectorAll('.service').forEach(function (item) {
+      var head = item.querySelector('.service__head');
+      head.addEventListener('click', function () {
+        var open = !item.classList.contains('is-open');
+        item.classList.toggle('is-open', open);
+        head.setAttribute('aria-expanded', String(open));
+      });
+    });
+  }
+
+  /* ---------- «Почему мы»: текст карточки раскрывается по клику ---------- */
+
+  function initWhyCards() {
+    document.querySelectorAll('.why-card').forEach(function (card) {
+      var face = card.querySelector('.why-card__face');
+      face.addEventListener('click', function () {
+        var open = !card.classList.contains('is-open');
+        card.classList.toggle('is-open', open);
+        face.setAttribute('aria-expanded', String(open));
+      });
+    });
+  }
+
+  /* ---------- Фильтр портфолио «Для бизнеса / Частные события» ---------- */
+
+  // Плашки «Корпоративный / Частный клиент» в hero ведут сюда же и
+  // включают свой фильтр (data-filter-link). Перестройка — GSAP Flip.
   function initPortfolioFilter() {
     var buttons = document.querySelectorAll('.portfolio__filter');
-    var cards = document.querySelectorAll('.case-card[data-type]');
+    var cards = Array.prototype.slice.call(document.querySelectorAll('.case-card[data-type]'));
     if (!buttons.length || !cards.length) return;
+    var current = 'business';
 
     function applyFilter(type) {
+      if (type === current) return;
+      current = type;
       buttons.forEach(function (btn) {
-        var active = btn.dataset.filter === type;
-        btn.classList.toggle('is-active', active);
-        btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+        var on = btn.dataset.filter === type;
+        btn.classList.toggle('is-active', on);
+        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
       });
+
+      var canFlip = hasGsap && typeof Flip !== 'undefined' && !reduceMotion;
+      var state = canFlip ? Flip.getState(cards) : null;
       cards.forEach(function (card) {
         card.hidden = card.dataset.type !== type;
       });
-      // ScrollTrigger.refresh() здесь намеренно не вызывается — см.
-      // комментарий в initAccordion: при активном Lenis он сбивал
-      // позиции всех триггеров (белая вспышка темы)
+      if (!canFlip) return;
+
+      Flip.from(state, {
+        duration: 0.8,
+        ease: 'power3.inOut',
+        stagger: 0.04,
+        absolute: true,
+        onEnter: function (els) {
+          return gsap.fromTo(els, { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.7, ease: 'expo.out', delay: 0.2 });
+        },
+        onLeave: function (els) {
+          return gsap.to(els, { opacity: 0, scale: 0.85, duration: 0.4, ease: 'power2.in' });
+        }
+      });
     }
 
     buttons.forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        applyFilter(btn.dataset.filter);
-      });
+      btn.addEventListener('click', function () { applyFilter(btn.dataset.filter); });
     });
-
     document.querySelectorAll('[data-filter-link]').forEach(function (link) {
-      link.addEventListener('click', function () {
-        applyFilter(link.dataset.filterLink);
-      });
+      link.addEventListener('click', function () { applyFilter(link.dataset.filterLink); });
     });
   }
 
   document.addEventListener('DOMContentLoaded', function () {
     initPreloader();
     initHeader();
+    initNavDrop();
     initBurger();
-    initAccordion();
+    initAnchors();
+    initServices();
+    initWhyCards();
     initPortfolioFilter();
   });
 })();

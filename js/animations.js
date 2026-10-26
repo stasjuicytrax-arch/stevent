@@ -1,34 +1,28 @@
-// GSAP + ScrollTrigger — строго по docs/02-DESIGN-SYSTEM.md §8.
-// Одна кривая (--ease), три длительности (--dur-fast/--dur/--dur-slow).
-// prefers-reduced-motion отключает всё целиком.
+// Движение сайта — docs/13-REDESIGN-LIME.md §6. GSAP 3.15 + ScrollTrigger +
+// SplitText + Flip + Lenis, всё локально. У каждой секции свой приём —
+// одинаковый reveal у соседних секций запрещён (§7).
+// prefers-reduced-motion: скрипт не выполняется вовсе — разметка и CSS
+// уже в конечном видимом состоянии, скрытые стартовые состояния ставит
+// только этот файл.
 (function () {
   'use strict';
 
-  if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
-    return; // vendor не загрузился — сайт остаётся рабочим и без анимаций
-  }
-
-  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduceMotion) {
-    return; // всё мгновенно, ничего не анимируем программно
-  }
+  if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   gsap.registerPlugin(ScrollTrigger);
+  if (typeof SplitText !== 'undefined') gsap.registerPlugin(SplitText);
+  if (typeof Flip !== 'undefined') gsap.registerPlugin(Flip);
 
-  var EASE = 'power2.out';
-  if (typeof CustomEase !== 'undefined') {
-    gsap.registerPlugin(CustomEase);
-    // Ровно --ease из tokens.css: cubic-bezier(.22, 1, .36, 1)
-    CustomEase.create('st-ease', '0.22, 1, 0.36, 1');
-    EASE = 'st-ease';
-  }
+  var EASE = 'expo.out';
+  var EASE_SNAP = 'power4.inOut';
+  var DUR = 1.1;
+  var fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  var mobile = window.matchMedia('(max-width: 767px)').matches;
 
-  var DUR_FAST = 0.2; // --dur-fast
-  var DUR = 0.42; // --dur
-  var DUR_SLOW = 0.8; // --dur-slow
-  var LINE_STAGGER = 0.06; // 60ms — docs/02-DESIGN-SYSTEM.md §8, п.1
+  // Для модалки кейса (js/gallery.js — FLIP обложки из карточки)
+  window.ST_MOTION = { ease: EASE, durFast: 0.25, dur: 0.6, durSlow: 1 };
 
-  // Прелоадер мог уже отработать до подписки (см. js/main.js) — тогда сразу
   function onPreloaderDone(fn) {
     if (window.ST_PRELOADER_DONE) {
       fn();
@@ -37,573 +31,478 @@
     document.addEventListener('preloader:done', fn, { once: true });
   }
 
-  var isFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-
-  // js/gallery.js запускается раньше этого файла (порядок в index.html),
-  // но реально использует эти значения только внутри openModal() — а её
-  // вызывают уже после того, как весь этот IIFE успел выполниться (все
-  // deferred-скрипты отрабатывают до первого DOMContentLoaded). Раннего
-  // return при отсутствии GSAP/reduced-motion достаточно — тогда
-  // window.ST_MOTION просто не появится, и gallery.js откатится
-  // к мгновенному открытию модалки (docs/05-REVISION-02.md, R16.9).
-  window.ST_MOTION = { ease: EASE, durFast: DUR_FAST, dur: DUR, durSlow: DUR_SLOW };
-
-  /* ---------- 1. Reveal текста по строкам ---------- */
-
-  function splitIntoLines(el) {
-    var text = el.textContent;
-    var words = text.trim().split(/\s+/);
-    el.textContent = '';
-
-    var wordEls = words.map(function (word, i) {
-      var span = document.createElement('span');
-      span.className = 'reveal-word';
-      span.style.display = 'inline-block';
-      span.textContent = word;
-      el.appendChild(span);
-      if (i < words.length - 1) el.appendChild(document.createTextNode(' '));
-      return span;
-    });
-
-    // Группируем слова по строкам через фактический offsetTop после рендера
-    var lines = [];
-    var currentTop = null;
-    var currentLine = [];
-    wordEls.forEach(function (span) {
-      var top = span.offsetTop;
-      if (currentTop === null || Math.abs(top - currentTop) > 1) {
-        if (currentLine.length) lines.push(currentLine);
-        currentLine = [span];
-        currentTop = top;
-      } else {
-        currentLine.push(span);
-      }
-    });
-    if (currentLine.length) lines.push(currentLine);
-
-    // Пересобираем: каждая строка — свой блок с overflow:hidden,
-    // внутри — обёртка, которую и анимируем (маска по строкам)
-    el.textContent = '';
-    var lineWrappers = lines.map(function (lineWords, idx) {
-      var lineBox = document.createElement('span');
-      lineBox.className = 'reveal-line';
-      lineBox.style.display = 'block';
-      lineBox.style.overflow = 'hidden';
-
-      var inner = document.createElement('span');
-      inner.className = 'reveal-line__inner';
-      inner.style.display = 'block';
-
-      lineWords.forEach(function (span, i) {
-        inner.appendChild(span);
-        if (i < lineWords.length - 1) inner.appendChild(document.createTextNode(' '));
-      });
-
-      lineBox.appendChild(inner);
-      el.appendChild(lineBox);
-      if (idx < lines.length - 1) el.appendChild(document.createTextNode(' '));
-      return inner;
-    });
-
-    return lineWrappers;
+  function $(sel, root) {
+    return (root || document).querySelector(sel);
   }
 
-  function initTextReveal() {
-    var targets = document.querySelectorAll('[data-reveal="lines"]');
-
-    targets.forEach(function (el) {
-      var lines;
-      try {
-        lines = splitIntoLines(el);
-      } catch (err) {
-        return; // не смогли разбить — оставляем текст как есть, не ломаем страницу
-      }
-      if (!lines.length) return;
-
-      gsap.set(lines, { y: 24, opacity: 0 });
-
-      var isInHero = !!el.closest('.hero');
-
-      var tween = function () {
-        gsap.to(lines, {
-          y: 0,
-          opacity: 1,
-          duration: DUR_SLOW,
-          ease: EASE,
-          stagger: LINE_STAGGER,
-        });
-      };
-
-      if (isInHero) {
-        onPreloaderDone(function () {
-          gsap.delayedCall(DUR_SLOW * 0.6, tween);
-        });
-      } else {
-        ScrollTrigger.create({
-          trigger: el,
-          start: 'top 85%',
-          once: true,
-          onEnter: tween,
-        });
-      }
-    });
+  function $$(sel, root) {
+    return Array.prototype.slice.call((root || document).querySelectorAll(sel));
   }
 
-  /* ---------- 2. Reveal блоков (карточки, статы) — та же маска, без строк ---------- */
+  /* ---------- Lenis: плавный скролл, все триггеры привязаны к нему ---------- */
 
-  function initBlockReveal() {
-    // Группируем по общему родителю, чтобы соседи внутри одного блока
-    // анимировались одной пачкой со stagger, а не по одному глобально
-    var parents = new Set();
-    document.querySelectorAll('[data-reveal="block"]').forEach(function (el) {
-      parents.add(el.parentElement);
-    });
-
-    parents.forEach(function (parent) {
-      var items = Array.prototype.filter.call(parent.children, function (child) {
-        return child.hasAttribute('data-reveal') && child.getAttribute('data-reveal') === 'block';
-      });
-      if (!items.length) return;
-
-      gsap.set(items, { y: 24, opacity: 0 });
-
-      // Свой шаг стаггера у родителя (например, портфолио — 80ms, R14),
-      // по умолчанию — 60ms, как у reveal по строкам
-      var staggerAttr = parent.getAttribute('data-reveal-stagger');
-      var stagger = staggerAttr ? parseInt(staggerAttr, 10) / 1000 : LINE_STAGGER;
-
-      ScrollTrigger.create({
-        trigger: parent,
-        start: 'top 85%',
-        once: true,
-        onEnter: function () {
-          gsap.to(items, {
-            y: 0,
-            opacity: 1,
-            duration: DUR_SLOW,
-            ease: EASE,
-            stagger: stagger,
-          });
-        },
-      });
-    });
-  }
-
-  /* ---------- 3. Hero-остров — разворот при загрузке ---------- */
-
-  function initHeroReveal() {
-    var island = document.querySelector('.hero__island');
-    if (!island) return;
-
-    gsap.set(island, { scale: 0.96, transformOrigin: '50% 50%' });
-
-    // «Наезд» камеры на сцену — единственный авторский момент hero
-    // вместо убранного искажения (19.10.2026): фото медленно оседает
-    // с 1.14 до 1, дольше разворота острова, чтобы кадр «дышал»
-    var img = document.getElementById('heroMediaImg');
-    if (img) gsap.set(img, { scale: 1.14, transformOrigin: '50% 55%' });
-
-    onPreloaderDone(function () {
-      gsap.to(island, { scale: 1, duration: DUR_SLOW, ease: EASE });
-      if (img) gsap.to(img, { scale: 1, duration: DUR_SLOW * 3, ease: 'expo.out' });
-    });
-  }
-
-  // Мягкий параллакс фото за курсором — только мышь. Сдвиг слоя
-  // .hero__media (не img — у img свой scale из initHeroReveal), запас
-  // под сдвиг заложен в CSS через отрицательный inset.
-  function initHeroParallax() {
-    var hero = document.querySelector('.hero__island');
-    var media = document.getElementById('heroMedia');
-    if (!hero || !media) return;
-
-    var SHIFT = 16; // px, меньше запаса inset у .hero__media (24px)
-    var toX = gsap.quickTo(media, 'x', { duration: DUR_SLOW * 1.5, ease: 'power3.out' });
-    var toY = gsap.quickTo(media, 'y', { duration: DUR_SLOW * 1.5, ease: 'power3.out' });
-
-    hero.addEventListener('mousemove', function (event) {
-      var rect = hero.getBoundingClientRect();
-      var nx = (event.clientX - rect.left) / rect.width - 0.5;
-      var ny = (event.clientY - rect.top) / rect.height - 0.5;
-      toX(-nx * SHIFT * 2);
-      toY(-ny * SHIFT * 2);
-    });
-    hero.addEventListener('mouseleave', function () {
-      toX(0);
-      toY(0);
-    });
-  }
-
-  /* ---------- 4. Счётчики-одометр (R16.6) ----------
-     Не интерполяция числа текстом, а вертикальная прокрутка колонки
-     цифр 0–9 до нужной, как в механическом счётчике — буквально из ТЗ. */
-
-  function buildOdometer(el, digitsStr, suffix) {
-    el.textContent = '';
-    el.classList.add('odometer');
-    var reels = [];
-
-    digitsStr.split('').forEach(function (ch) {
-      var mask = document.createElement('span');
-      mask.className = 'odometer__digit';
-      var strip = document.createElement('span');
-      strip.className = 'odometer__strip';
-      for (var i = 0; i <= 9; i++) {
-        var d = document.createElement('span');
-        d.className = 'odometer__num';
-        d.textContent = String(i);
-        strip.appendChild(d);
-      }
-      mask.appendChild(strip);
-      el.appendChild(mask);
-      reels.push({ strip: strip, target: parseInt(ch, 10) });
-    });
-
-    if (suffix) {
-      var suf = document.createElement('span');
-      suf.className = 'odometer__suffix';
-      suf.textContent = suffix;
-      el.appendChild(suf);
-    }
-
-    return reels;
-  }
-
-  function initCounters() {
-    document.querySelectorAll('.stat__number').forEach(function (el) {
-      var match = el.textContent.trim().match(/^(\d+)(\D*)$/);
-      if (!match) return;
-      var reels = buildOdometer(el, match[1], match[2] || '');
-
-      ScrollTrigger.create({
-        trigger: el,
-        start: 'top 85%',
-        once: true,
-        onEnter: function () {
-          reels.forEach(function (reel, i) {
-            // yPercent — доля от высоты самого strip'а (10 цифр), поэтому
-            // один шаг вниз по цифре = ровно 10%, без ручного пересчёта в px
-            gsap.to(reel.strip, {
-              yPercent: -reel.target * 10,
-              duration: DUR_SLOW,
-              ease: EASE,
-              delay: i * 0.05,
-            });
-          });
-        },
-      });
-    });
-  }
-
-  /* ---------- 4б. Линия над маркером секции — прочерчивается (R12) ---------- */
-
-  function initMarkerLines() {
-    document.querySelectorAll('.section-marker').forEach(function (marker) {
-      ScrollTrigger.create({
-        trigger: marker,
-        start: 'top 90%',
-        once: true,
-        onEnter: function () {
-          marker.classList.add('is-drawn');
-        },
-      });
-    });
-  }
-
-  /* Декоративная линия «География» — тот же приём отрисовки, что у
-     initMarkerLines(), просто другой элемент и путь (итоговая ревизия,
-     вечер 23.09.2026, п.2 доп. промпта про references/4.jpg). */
-  function initGeoDecoLine() {
-    var line = document.querySelector('.geography__deco-line');
-    if (!line) return;
-    ScrollTrigger.create({
-      trigger: line,
-      start: 'top 80%',
-      once: true,
-      onEnter: function () {
-        line.classList.add('is-drawn');
-      },
-    });
-  }
-
-  /* ---------- 5. Портфолио ----------
-     Горизонтальный скролл с пиннингом убран полностью — заказчик хочет
-     видеть все кейсы сразу (docs/05-REVISION-02.md, R14). Карточки теперь
-     появляются как обычные [data-reveal="block"] с задержкой 80ms —
-     см. initBlockReveal() и data-reveal-stagger="80" на #portfolioGrid. */
-
-  /* ---------- 6. Magnetic-кнопка — убрана полностью (правка, ночь
-     24.09.2026) ----------
-     Раньше магнитный эффект (GSAP quickTo по x/y, притяжение к курсору)
-     применялся ко ВСЕМ .btn--primary — hero, шапка, форма, модалка —
-     из-за этого обычные кнопки "дёргались"/сдвигались при наведении.
-     Магнитный эффект — приём для пунктов НАВИГАЦИИ (капсула меню),
-     он уже отдельно и точечно реализован в initMagneticNavLinks() ниже
-     (селектор .header__link, не .btn--primary) — эту функцию трогать
-     не нужно, она и раньше не затрагивала обычные кнопки. */
-
-  /* ---------- 6б. Капсула меню — скользящая подсветка (R10) ---------- */
-
-  function initNavCapsule() {
-    var capsule = document.getElementById('navCapsule');
-    var highlight = document.getElementById('navHighlight');
-    if (!capsule || !highlight) return;
-
-    var links = capsule.querySelectorAll('.header__link');
-    if (!links.length) return;
-
-    function moveTo(link) {
-      var capsuleRect = capsule.getBoundingClientRect();
-      var linkRect = link.getBoundingClientRect();
-      gsap.to(highlight, {
-        x: linkRect.left - capsuleRect.left,
-        width: linkRect.width,
-        opacity: 1,
-        duration: DUR,
-        ease: EASE,
-      });
-    }
-
-    links.forEach(function (link) {
-      link.addEventListener('mouseenter', function () { moveTo(link); });
-    });
-
-    capsule.addEventListener('mouseleave', function () {
-      gsap.to(highlight, { opacity: 0, duration: DUR, ease: EASE });
-    });
-  }
-
-  /* ---------- R16.1. Lenis — инерционный скролл ---------- */
+  var lenis = null;
 
   function initLenis() {
-    if (typeof Lenis === 'undefined') return null;
-
-    var lenis = new Lenis({
-      duration: 1.1,
-      easing: function (t) {
-        return Math.min(1, 1.001 - Math.pow(2, -10 * t));
-      },
-      // .stop() на открытии модалки (js/gallery.js, js/request-modal.js)
-      // останавливает обновление позиции, но Lenis по умолчанию всё
-      // равно перехватывает и глушит wheel-событие на уровне всего
-      // документа — до нативно скроллящихся модалок (.case-modal,
-      // .request-modal__panel, overflow-y:auto) оно просто не доходило.
-      // prevent — единственный надёжный способ вообще не трогать
-      // wheel/touch внутри этих контейнеров, независимо от stop/start.
+    if (typeof Lenis === 'undefined') return;
+    lenis = new Lenis({
+      duration: 1.15,
+      easing: function (t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); },
+      // Внутри модалок колесо должно скроллить их, а не страницу
       prevent: function (node) {
-        return !!(node.closest && node.closest('.case-modal, .request-modal__panel'));
-      },
+        return Boolean(node.closest && node.closest('.case-modal, .request-modal__panel, .mobile-menu'));
+      }
     });
-
-    // Обязательная связка со ScrollTrigger (R16.1) — иначе триггеры
-    // считают позицию по нативному скроллу, который Lenis подменяет
     lenis.on('scroll', ScrollTrigger.update);
-    gsap.ticker.add(function (time) {
-      lenis.raf(time * 1000);
-    });
+    gsap.ticker.add(function (time) { lenis.raf(time * 1000); });
     gsap.ticker.lagSmoothing(0);
-
-    window.ST_LENIS = lenis; // js/gallery.js вызывает stop()/start() на модалке
-    return lenis;
+    window.ST_LENIS = lenis; // gallery.js / request-modal.js: stop()/start()
   }
 
-  /* ---------- R16.2. Hero-заголовок по буквам ---------- */
+  // Скорость скролла px/кадр (Lenis знает её точно, без него — по разнице)
+  var lastScroll = window.scrollY;
+  var nativeVelocity = 0;
+  gsap.ticker.add(function () {
+    nativeVelocity = window.scrollY - lastScroll;
+    lastScroll = window.scrollY;
+  });
 
-  function initHeroLetters() {
-    var title = document.querySelector('.hero__title');
-    if (!title) return;
+  function scrollVelocity() {
+    return lenis ? lenis.velocity : nativeVelocity;
+  }
 
-    var text = title.textContent;
-    var words = text.split(' ');
-    title.textContent = '';
-    title.setAttribute('aria-label', text);
+  /* ---------- Маркеры секций: линия дорисовывается ---------- */
 
-    // Буквы группируются по словам (.hero__word, display:inline-block) —
-    // иначе перенос строки может случиться между любыми двумя буквами
-    // (каждая — свой inline-block), ломая слово посередине. Поймано на
-    // реальном скриншоте 390px: «ST EVE / NT».
-    var letters = [];
-    words.forEach(function (word, wi) {
-      var wordWrap = document.createElement('span');
-      wordWrap.className = 'hero__word';
-      wordWrap.setAttribute('aria-hidden', 'true');
-
-      word.split('').forEach(function (ch) {
-        var mask = document.createElement('span');
-        mask.className = 'hero__letter-mask';
-
-        var inner = document.createElement('span');
-        inner.className = 'hero__letter';
-        inner.textContent = ch;
-
-        mask.appendChild(inner);
-        wordWrap.appendChild(mask);
-        letters.push(inner);
+  function initSectionTags() {
+    $$('.section-tag').forEach(function (tagEl) {
+      gsap.fromTo(tagEl, { '--tag-line': 0 }, {
+        '--tag-line': 1,
+        duration: 1.4,
+        ease: EASE,
+        scrollTrigger: { trigger: tagEl, start: 'top 90%', once: true }
       });
-
-      title.appendChild(wordWrap);
-      if (wi < words.length - 1) title.appendChild(document.createTextNode(' '));
     });
+  }
 
-    gsap.set(letters, { y: '100%' });
+  /* ---------- HERO: буквы из-под маски, фото, шлейф, параллакс ---------- */
+
+  function initHero() {
+    var hero = $('#hero');
+    if (!hero) return;
+    var title = $('.hero__title', hero);
+    var photo = $('#heroPhoto');
+    var visual = $('#heroVisual');
+    var chars = [];
+
+    if (title && typeof SplitText !== 'undefined') {
+      var split = new SplitText(title, { type: 'words,chars', mask: 'chars', wordsClass: 'hero__word', charsClass: 'hero__char' });
+      chars = split.chars;
+      gsap.set(chars, { yPercent: 115 });
+    }
+
+    var lead = $$('.hero__lead, .hero__actions', hero);
+    var plaques = $$('.hero__plaque, .hero__card', hero);
+    gsap.set(lead, { autoAlpha: 0, y: 30, filter: 'blur(8px)' });
+    gsap.set(plaques, { autoAlpha: 0, y: 40 });
+    if (photo) gsap.set(photo, { clipPath: 'inset(100% 0% 0% 0% round 24px)' });
+    gsap.set($('#heroImg'), { scale: 1.3 });
+    gsap.set($('.hero__glow', hero), { scale: 0.3, autoAlpha: 0 });
 
     onPreloaderDone(function () {
-      gsap.to(letters, {
-        y: '0%',
-        duration: DUR_SLOW,
-        ease: EASE,
-        stagger: 0.04, // R16.2, буквально
-      });
+      var tl = gsap.timeline({ delay: 0.15 });
+      tl.to(chars, { yPercent: 0, duration: 1.2, ease: EASE, stagger: 0.025 }, 0)
+        .to(photo, { clipPath: 'inset(0% 0% 0% 0% round 24px)', duration: 1.4, ease: EASE_SNAP }, 0.1)
+        .to('#heroImg', { scale: 1, duration: 2, ease: EASE }, 0.1)
+        .to($('.hero__glow', hero), { scale: 1, autoAlpha: 1, duration: 1.8, ease: EASE }, 0.5)
+        .to(lead, { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: 1, ease: EASE, stagger: 0.1 }, 0.55)
+        .to(plaques, { autoAlpha: 1, y: 0, duration: 1, ease: EASE, stagger: 0.12 }, 0.85);
     });
-  }
 
-  /* ---------- R16.3. Уход hero при скролле (scrub) ---------- */
+    // Гигантская контурная надпись едет при скролле
+    gsap.to('.hero__outline', {
+      xPercent: -18,
+      ease: 'none',
+      scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true }
+    });
 
-  function initHeroScrub() {
-    var hero = document.querySelector('.hero');
-    var island = document.querySelector('.hero__island');
-    if (!hero || !island) return;
-
-    // immediateRender:false — не даёт этому твину применить своё "from"
-    // сразу при создании (что перебило бы ещё не отыгравший scale .96→1
-    // из initHeroReveal); значения включаются только когда реально
-    // изменится scroll-прогресс триггера.
-    gsap.fromTo(island,
-      { scale: 1, opacity: 1, filter: 'blur(0px)' },
-      {
-        scale: 0.94,
-        opacity: 0.5,
-        filter: 'blur(4px)',
+    // Фото уходит медленнее страницы — глубина
+    if (visual) {
+      gsap.to(visual, {
+        yPercent: 12,
         ease: 'none',
-        immediateRender: false,
-        scrollTrigger: {
-          trigger: hero,
-          start: 'top top',
-          end: 'bottom top',
-          scrub: true,
-        },
-      }
-    );
+        scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true }
+      });
+    }
+
+    initHeroTrail();
+    if (fine) initHeroParallax();
   }
 
-  /* ---------- R16.4. Смена темы (светлая секция) ---------- */
-  //
-  // Раньше здесь был scroll-scrub переход цвета body между --bg и
-  // --bg-light, привязанный к абсолютной пиксельной позиции .why-us
-  // через ScrollTrigger. Убран целиком — итоговая ревизия, 23.09.2026,
-  // п.6: ломался трижды подряд (пиксельные позиции устаревали при любом
-  // изменении высоты страницы — открытии аккордеона, и даже
-  // ScrollTrigger.refresh() для починки этого же самого бага сам вносил
-  // рассинхронизацию с Lenis). У каждой секции и так свой фиксированный
-  // фон через CSS (--bg по умолчанию с body, --bg-light явно на .why-us)
-  // — никакой JS-интерполяции не нужно вообще, значит и ломаться нечему.
+  // Моушн-шлейф (приём addco/kozyuk, §5): 3 копии фото позади смещаются
+  // против движения — сильнее при быстрой мыши или быстром скролле
+  function initHeroTrail() {
+    var trails = $$('.hero__trail');
+    if (!trails.length) return;
+    var mouseV = 0;
+    var lastX = null;
+    var energy = 0;
 
-  /* ---------- R16.7. Маска раскрытия секций ---------- */
+    if (fine) {
+      $('#hero').addEventListener('mousemove', function (event) {
+        if (lastX !== null) mouseV += event.clientX - lastX;
+        lastX = event.clientX;
+      });
+    }
 
-  function initSectionMasks() {
-    // .hero — уже открывается собственным сценарием загрузки (R16.2/п.3
-    // дизайн-системы), .why-us — уже вырезана диагональю (clip-path:
-    // polygon), второй clip-path заменил бы, а не сложился с первым
-    var sections = document.querySelectorAll('main > section:not(.hero):not(.why-us)');
+    var setters = trails.map(function (el) {
+      return { x: gsap.quickSetter(el, 'x', 'px'), o: gsap.quickSetter(el, 'opacity') };
+    });
 
-    sections.forEach(function (section) {
-      gsap.set(section, { clipPath: 'inset(0 0 100% 0)' });
-      ScrollTrigger.create({
-        trigger: section,
-        start: 'top 90%',
-        once: true,
-        onEnter: function () {
-          gsap.to(section, { clipPath: 'inset(0% 0 0% 0)', duration: DUR_SLOW, ease: EASE });
-        },
+    gsap.ticker.add(function () {
+      var v = mouseV * 0.6 + scrollVelocity() * 1.4;
+      mouseV *= 0.82;
+      energy += (v - energy) * 0.12;
+      var mag = Math.min(1, Math.abs(energy) / 40);
+      setters.forEach(function (s, i) {
+        s.x(-energy * (i + 1) * 1.6);
+        s.o(mag * (0.42 - i * 0.12));
       });
     });
   }
 
-  /* ---------- R16.8. Магнитные пункты меню ---------- */
+  // Фото слегка следует за мышью (10–20px), свечение — навстречу
+  function initHeroParallax() {
+    var hero = $('#hero');
+    var photo = $('#heroPhoto');
+    var glow = $('.hero__glow');
+    if (!photo) return;
+    var px = gsap.quickTo(photo, 'x', { duration: 1, ease: 'power3.out' });
+    var py = gsap.quickTo(photo, 'y', { duration: 1, ease: 'power3.out' });
+    var gx = glow ? gsap.quickTo(glow, 'x', { duration: 1.4, ease: 'power3.out' }) : null;
+    var gy = glow ? gsap.quickTo(glow, 'y', { duration: 1.4, ease: 'power3.out' }) : null;
 
-  function initMagneticNavLinks() {
-    if (!isFinePointer) return;
+    hero.addEventListener('mousemove', function (event) {
+      var r = hero.getBoundingClientRect();
+      var nx = (event.clientX - r.left) / r.width - 0.5;
+      var ny = (event.clientY - r.top) / r.height - 0.5;
+      px(nx * 18);
+      py(ny * 14);
+      if (gx) {
+        gx(nx * -40);
+        gy(ny * -30);
+      }
+    });
+    hero.addEventListener('mouseleave', function () {
+      px(0); py(0);
+      if (gx) { gx(0); gy(0); }
+    });
+  }
 
-    var RADIUS = 24;
-    var MAX_OFFSET = 4;
+  /* ---------- Бегущие ленты: скорость и наклон от скорости скролла ---------- */
 
-    document.querySelectorAll('.header__link').forEach(function (link) {
-      var xTo = gsap.quickTo(link, 'x', { duration: DUR_FAST, ease: EASE });
-      var yTo = gsap.quickTo(link, 'y', { duration: DUR_FAST, ease: EASE });
+  // Лента едет сама; скролл добавляет скорость, наклоняет её, а скролл
+  // вверх разворачивает направление
+  function velocityMarquee(root, opts) {
+    var track = $('.marquee__track', root);
+    var group = $('.marquee__group', root);
+    if (!track || !group) return;
+    var base = opts.speed;
+    var dir = opts.reverse ? -1 : 1;
+    var x = 0;
+    var skewTo = opts.skew ? gsap.quickTo(track, 'skewX', { duration: 0.4, ease: 'power3.out' }) : null;
+    var setX = gsap.quickSetter(track, 'x', 'px');
 
-      link.addEventListener('mousemove', function (event) {
-        var rect = link.getBoundingClientRect();
-        var cx = rect.left + rect.width / 2;
-        var cy = rect.top + rect.height / 2;
-        var dx = event.clientX - cx;
-        var dy = event.clientY - cy;
-        var dist = Math.sqrt(dx * dx + dy * dy) || 1;
-        if (dist > RADIUS) return;
-        var pull = 1 - dist / RADIUS;
-        xTo((dx / dist) * MAX_OFFSET * pull);
-        yTo((dy / dist) * MAX_OFFSET * pull);
+    gsap.ticker.add(function (time, delta) {
+      var v = opts.react ? scrollVelocity() : 0;
+      if (opts.react && Math.abs(v) > 0.5) dir = (v > 0 ? 1 : -1) * (opts.reverse ? -1 : 1);
+      var speed = base + Math.min(Math.abs(v) * 0.6, 24);
+      var width = group.offsetWidth || 1;
+      x -= speed * dir * (delta / 16.67);
+      x = ((x % width) - width) % width; // бесшовный цикл в [-width, 0)
+      setX(x);
+      if (skewTo) skewTo(Math.max(-12, Math.min(12, -v * 0.35)));
+    });
+  }
+
+  function initMarquees() {
+    $$('.tape--lime').forEach(function (el) { velocityMarquee(el, { speed: 1.4, react: true, skew: true }); });
+    $$('.tape--dark').forEach(function (el) { velocityMarquee(el, { speed: 1.1, react: true, skew: true, reverse: true }); });
+    $$('.clients__row').forEach(function (el) {
+      velocityMarquee(el, { speed: 0.7, reverse: el.classList.contains('clients__row--reverse') });
+    });
+  }
+
+  /* ---------- О НАС: слова заливаются по скроллу, фото шторкой ---------- */
+
+  function initAbout() {
+    var manifest = $('#aboutManifest');
+    if (manifest && typeof SplitText !== 'undefined') {
+      var words = [];
+      $$('.about__words', manifest).forEach(function (el) {
+        words = words.concat(new SplitText(el, { type: 'words', wordsClass: 'about__word' }).words);
       });
+      gsap.fromTo(words, { color: 'rgb(242 241 234 / .14)' }, {
+        color: 'rgb(242 241 234 / 1)',
+        ease: 'none',
+        stagger: 0.1,
+        scrollTrigger: { trigger: manifest, start: 'top 80%', end: 'bottom 45%', scrub: true }
+      });
+      gsap.fromTo($$('.about__pill', manifest), { scale: 0, rotate: -12 }, {
+        scale: 1,
+        rotate: 0,
+        ease: 'back.out(2)',
+        stagger: 0.2,
+        scrollTrigger: { trigger: manifest, start: 'top 75%', end: 'center 50%', scrub: true }
+      });
+    }
 
-      link.addEventListener('mouseleave', function () {
-        xTo(0);
-        yTo(0);
+    // Фото основателей «проявляются» шторкой снизу вверх
+    $$('.founder__photo').forEach(function (frame, i) {
+      var img = $('img', frame);
+      gsap.timeline({ scrollTrigger: { trigger: frame, start: 'top 85%', once: true }, delay: i * 0.15 })
+        .fromTo(frame, { clipPath: 'inset(100% 0% 0% 0% round 20px)' }, { clipPath: 'inset(0% 0% 0% 0% round 20px)', duration: 1.3, ease: EASE_SNAP })
+        .fromTo(img, { scale: 1.35 }, { scale: 1, duration: 1.8, ease: EASE }, 0);
+    });
+
+    // Цифры целей докручиваются
+    $$('.goal__num[data-count]').forEach(function (el) {
+      var target = parseInt(el.dataset.count, 10);
+      var suffix = el.dataset.suffix || '';
+      var state = { v: 0 };
+      el.textContent = '0' + suffix;
+      gsap.to(state, {
+        v: target,
+        duration: 2,
+        ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 88%', once: true },
+        onUpdate: function () { el.textContent = Math.round(state.v) + suffix; }
       });
     });
   }
 
-  /* ---------- 7. Курсор-точка ---------- */
+  /* ---------- УСЛУГИ: строки «прочерчиваются», картинка за курсором ---------- */
 
-  function initCursorDot() {
-    if (!isFinePointer) return;
-    var dot = document.getElementById('cursorDot');
-    if (!dot) return;
-
-    var xTo = gsap.quickTo(dot, 'x', { duration: DUR_FAST, ease: EASE });
-    var yTo = gsap.quickTo(dot, 'y', { duration: DUR_FAST, ease: EASE });
-    var scaleTo = gsap.quickTo(dot, 'scale', { duration: DUR_FAST, ease: EASE });
-
-    window.addEventListener('mousemove', function (event) {
-      xTo(event.clientX);
-      yTo(event.clientY);
+  function initServices() {
+    var rows = $$('.service');
+    rows.forEach(function (row, i) {
+      gsap.timeline({ scrollTrigger: { trigger: row, start: 'top 88%', once: true } })
+        .fromTo(row, { '--row-line': 0 }, { '--row-line': 1, duration: 1.2, ease: EASE }, 0)
+        .fromTo($$('.service__num, .service__name, .service__count', row), { x: -60, autoAlpha: 0 }, {
+          x: 0, autoAlpha: 1, duration: 1, ease: EASE, stagger: 0.06
+        }, 0.1 + i * 0.03);
     });
 
-    var clickableSelector = 'a, button, [role="button"], input, textarea, select, label';
+    if (!fine || mobile) return;
+    var follow = $('#followImg');
+    var list = $('#servicesList');
+    if (!follow || !list) return;
+    var img = $('img', follow);
+    var fx = gsap.quickTo(follow, 'x', { duration: 0.6, ease: 'power3.out' });
+    var fy = gsap.quickTo(follow, 'y', { duration: 0.6, ease: 'power3.out' });
+    var fr = gsap.quickTo(follow, 'rotate', { duration: 0.8, ease: 'power3.out' });
+    var lastX = 0;
 
-    document.addEventListener('mouseover', function (event) {
-      // Карточка портфолио — крупнее, чем обычные интерактивные элементы (R14)
-      if (event.target.closest('.case-card')) {
-        scaleTo(8); // 8px → 64px
-      } else if (event.target.closest(clickableSelector)) {
-        scaleTo(6); // 8px → 48px
+    list.addEventListener('mousemove', function (event) {
+      fx(event.clientX);
+      fy(event.clientY);
+      fr(Math.max(-14, Math.min(14, (event.clientX - lastX) * 0.6)));
+      lastX = event.clientX;
+    });
+    rows.forEach(function (row) {
+      row.addEventListener('mouseenter', function () {
+        img.src = row.dataset.followImg;
+        follow.classList.add('is-visible');
+      });
+      row.addEventListener('mouseleave', function () {
+        follow.classList.remove('is-visible');
+      });
+    });
+  }
+
+  /* ---------- ПОЧЕМУ МЫ: стопка вразброс разлетается в ряд ---------- */
+
+  function initWhyUs() {
+    var wrap = $('#whyCards');
+    if (!wrap) return;
+    var cards = $$('.why-card', wrap);
+    var ROT = [-14, 9, -5];
+    var OFF_Y = [30, -20, 10];
+
+    // Стартовая позиция — все карточки в центре контейнера, стопкой
+    function toCenter(card) {
+      var w = wrap.getBoundingClientRect();
+      var c = card.getBoundingClientRect();
+      return (w.left + w.width / 2) - (c.left + c.width / 2) - (gsap.getProperty(card, 'x') || 0);
+    }
+    function toMiddleY(card) {
+      var w = wrap.getBoundingClientRect();
+      var c = card.getBoundingClientRect();
+      return (w.top + w.height / 2) - (c.top + c.height / 2) - (gsap.getProperty(card, 'y') || 0);
+    }
+
+    gsap.fromTo(cards, {
+      x: function (i, el) { return toCenter(el); },
+      y: function (i, el) { return toMiddleY(el) + OFF_Y[i]; },
+      rotate: function (i) { return ROT[i]; },
+      scale: 0.92
+    }, {
+      x: 0,
+      y: 0,
+      rotate: function (i) { return mobile ? 0 : [-2, 1.5, -1][i]; },
+      scale: 1,
+      ease: 'power2.out',
+      stagger: 0.08,
+      scrollTrigger: {
+        trigger: wrap,
+        start: 'top 85%',
+        end: 'center 55%',
+        scrub: 0.8,
+        invalidateOnRefresh: true
       }
     });
-    document.addEventListener('mouseout', function (event) {
-      if (event.target.closest('.case-card') || event.target.closest(clickableSelector)) {
-        scaleTo(1);
+
+    gsap.fromTo('.why-us__bg-title', { xPercent: 8 }, {
+      xPercent: -8,
+      ease: 'none',
+      scrollTrigger: { trigger: '.why-us', start: 'top bottom', end: 'bottom top', scrub: true }
+    });
+
+    // Цифры докручиваются, когда карточки встают в ряд
+    $$('.why-card__big', wrap).forEach(function (el) {
+      var m = el.textContent.match(/^(\D*)(\d+)(\D*)$/);
+      if (!m) return;
+      var target = parseInt(m[2], 10);
+      var from = target > 1000 ? target - 30 : 0;
+      var state = { v: from };
+      gsap.to(state, {
+        v: target,
+        duration: 1.8,
+        ease: 'power3.out',
+        scrollTrigger: { trigger: wrap, start: 'center 70%', once: true },
+        onUpdate: function () { el.textContent = m[1] + Math.round(state.v) + m[3]; }
+      });
+    });
+  }
+
+  /* ---------- ПОРТФОЛИО: плитки бенто «раскрываются» из центра ---------- */
+
+  function initPortfolio() {
+    var cards = $$('.case-card');
+    gsap.set(cards, { clipPath: 'inset(14% 14% 14% 14% round 20px)' });
+    gsap.set($$('.case-card__media img'), { scale: 1.3 });
+    ScrollTrigger.batch(cards, {
+      start: 'top 90%',
+      once: true,
+      onEnter: function (batch) {
+        gsap.to(batch, { clipPath: 'inset(0% 0% 0% 0% round 20px)', duration: 1.2, ease: EASE_SNAP, stagger: 0.1 });
+        gsap.to(batch.map(function (c) { return $('img', c); }), { scale: 1, duration: 1.6, ease: EASE, stagger: 0.1 });
       }
+    });
+    // Скрытые фильтром карточки ScrollTrigger не видит — показываем их сразу,
+    // иначе после переключения фильтра они остались бы схлопнутыми
+    cards.forEach(function (card) {
+      if (card.hidden) {
+        gsap.set(card, { clipPath: 'inset(0% 0% 0% 0% round 20px)' });
+        gsap.set($('img', card), { scale: 1 });
+      }
+    });
+  }
+
+  /* ---------- ГАЛЕРЕЯ: веер раскрывается от скролла с глубиной ---------- */
+
+  function initFan() {
+    var stage = $('#fanStage');
+    if (!stage) return;
+    gsap.fromTo('#fanTrack', { rotateX: 38, scale: 0.78, yPercent: 12 }, {
+      rotateX: 0,
+      scale: 1,
+      yPercent: 0,
+      ease: 'none',
+      scrollTrigger: { trigger: stage, start: 'top bottom', end: 'center 55%', scrub: true }
+    });
+  }
+
+  /* ---------- ГЕОГРАФИЯ: названия городов «набираются» контуром ---------- */
+
+  function initGeography() {
+    var list = $('#geoCityList');
+    if (!list) return;
+    // Строки строит js/map.js в DOMContentLoaded + rAF — ждём их
+    requestAnimationFrame(function () {
+      var rows = $$('.geography__city-row', list);
+      gsap.fromTo(rows, { clipPath: 'inset(0% 100% 0% 0%)' }, {
+        clipPath: 'inset(0% 0% 0% 0%)',
+        duration: 1.1,
+        ease: EASE_SNAP,
+        stagger: 0.09,
+        scrollTrigger: { trigger: list, start: 'top 85%', once: true }
+      });
+      gsap.fromTo($$('.geography__stat-num'), { yPercent: 100, autoAlpha: 0 }, {
+        yPercent: 0,
+        autoAlpha: 1,
+        duration: 1,
+        ease: EASE,
+        stagger: 0.1,
+        scrollTrigger: { trigger: '.geography__stats', start: 'top 88%', once: true }
+      });
+    });
+  }
+
+  /* ---------- КОНТАКТЫ: лаймовый остров раскрывается на весь экран ---------- */
+
+  function initContacts() {
+    var island = $('#contacts');
+    if (!island) return;
+    gsap.fromTo(island, { clipPath: 'inset(6% 8% 0% 8% round 64px)' }, {
+      clipPath: 'inset(0% 0% 0% 0% round 32px)',
+      ease: 'none',
+      scrollTrigger: { trigger: island, start: 'top bottom', end: 'top 25%', scrub: true }
+    });
+
+    var title = $('.contacts__title', island);
+    if (title && typeof SplitText !== 'undefined') {
+      var split = new SplitText(title, { type: 'lines', mask: 'lines', linesClass: 'contacts__line' });
+      gsap.fromTo(split.lines, { yPercent: 110 }, {
+        yPercent: 0,
+        duration: 1.2,
+        ease: EASE,
+        stagger: 0.1,
+        scrollTrigger: { trigger: title, start: 'top 85%', once: true }
+      });
+    }
+  }
+
+  /* ---------- ФУТЕР: буквы ST EVENT выезжают снизу по одной ---------- */
+
+  function initFooter() {
+    var letters = $$('.footer__letter');
+    if (!letters.length) return;
+    gsap.fromTo(letters, { yPercent: 105 }, {
+      yPercent: 0,
+      ease: 'none',
+      stagger: 0.06,
+      scrollTrigger: { trigger: '#footerGiant', start: 'top bottom', end: 'bottom bottom', scrub: 0.6 }
     });
   }
 
   document.addEventListener('DOMContentLoaded', function () {
-    document.fonts.ready.then(function () {
-      initTextReveal();
-      initBlockReveal();
-    }).catch(function () {
-      initTextReveal();
-      initBlockReveal();
-    });
-
     initLenis();
-    initHeroReveal();
-    initHeroLetters();
-    initHeroScrub();
-    initCounters();
-    initMarkerLines();
-    initGeoDecoLine();
-    initSectionMasks();
-    initMagneticNavLinks();
-    initCursorDot();
-    if (isFinePointer) initNavCapsule();
-    if (isFinePointer) initHeroParallax();
+    // Разбивка текста на буквы/слова — после загрузки шрифтов, иначе
+    // SplitText меряет строки по запасному шрифту
+    var ready = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
+    ready.then(function () {
+      initHero();
+      initAbout();
+      initContacts();
+      ScrollTrigger.refresh();
+    });
+    initSectionTags();
+    initMarquees();
+    initServices();
+    initWhyUs();
+    initPortfolio();
+    initFan();
+    initGeography();
+    initFooter();
   });
 })();

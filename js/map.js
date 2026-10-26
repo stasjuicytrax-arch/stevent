@@ -159,10 +159,40 @@
     var dotR = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--geo-dot-d')) / 2 || 1.25;
     var waveDur = (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--geo-wave-dur')) || 1.2) * 1000;
 
+    // Цвета — из токенов редизайна (docs/13 §6: чёрная карта, контуры
+    // тонкой линией, точки приглушённые, города лаймовые)
+    var rootStyle = getComputedStyle(document.documentElement);
+    var dotColor = rootStyle.getPropertyValue('--c-text-faint').trim() || 'rgba(242,241,234,.32)';
+    var lineColor = rootStyle.getPropertyValue('--c-text-dim').trim() || 'rgba(242,241,234,.58)';
+
+    // Контур страны тонкой линией — проявляется вместе с волной точек
+    function drawOutline(alpha) {
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.strokeStyle = lineColor;
+      ctx.lineWidth = 1;
+      ctx.lineJoin = 'round';
+      projectedPolys.forEach(function (poly) {
+        poly.forEach(function (ring) {
+          ctx.beginPath();
+          ring.forEach(function (pt, i) {
+            var x = toCanvasX(pt[0]);
+            var y = toCanvasY(pt[1]);
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          });
+          ctx.closePath();
+          ctx.stroke();
+        });
+      });
+      ctx.restore();
+    }
+
     function drawDots(progress) {
       // progress = 1 — статично (без волны, напр. reduced-motion или кадр вне анимации)
       ctx.clearRect(0, 0, w, h);
-      ctx.fillStyle = 'rgba(255,255,255,.5)';
+      drawOutline(Math.min(1, progress * 1.6));
+      ctx.fillStyle = dotColor;
       for (var i = 0; i < dots.length; i++) {
         var d = dots[i];
         var local = 1;
@@ -184,11 +214,23 @@
       ctx.globalAlpha = 1;
     }
 
+    // Лаймовые точки городов загораются по очереди после волны
+    function lightCities(stepMs) {
+      CITIES.forEach(function (city, i) {
+        setTimeout(function () {
+          var el = document.getElementById(city.id);
+          if (el) el.classList.add('is-lit');
+        }, i * stepMs);
+      });
+    }
+
     function playWave() {
       if (reduceMotion) {
         drawDots(1);
+        lightCities(0);
         return;
       }
+      setTimeout(function () { lightCities(260); }, waveDur * 0.6);
       var start = null;
       function frame(ts) {
         if (start === null) start = ts;

@@ -1,78 +1,84 @@
-/* Токены дизайн-системы ST EVENT — docs/02-DESIGN-SYSTEM.md, разделы 2, 3, 4, 5, 8 */
+/* Токены редизайна №2 «Лайм на чёрном» — docs/13-REDESIGN-LIME.md.
+   Заменяют систему docs/02-DESIGN-SYSTEM.md целиком. Имена палитры —
+   дословно из документа (§2). */
 
 :root {
-  /* === 2. Палитра === */
+  /* === §2. Палитра (утверждена заказчиком 26.10.2026) === */
 
-  /* База */
-  --bg: #08080A;
-  --surface: #111114;
-  --surface-hi: #1A1A1F;
-  --line: rgba(255, 255, 255, .08);
-  --line-strong: rgba(255, 255, 255, .16);
-
-  /* Текст */
-  --text: #FFFFFF;
-  --text-2: rgba(255, 255, 255, .58);
-  --text-3: rgba(255, 255, 255, .34);
+  /* База — чёрный в четыре ступени */
+  --c-void: #0A0A0A;      /* фон страницы */
+  --c-graphite: #141414;  /* фон секций-«островов» */
+  --c-carbon: #1F1F1F;    /* карточки, поля формы */
+  --c-steel: #2E2E2E;     /* линии, ховер карточек, разделители */
 
   /* Акцент */
-  --accent: #FF4D17;
-  /* Только для светлой секции («Почему мы»): --accent на --bg-light даёт
-     2.96:1 (провал), --accent-ink — 4.63:1 (посчитано по WCAG 2.1 на
-     объявленных hex, не по пикселям). На тёмном фоне не использовать —
-     там у него всего 3.85:1, хуже обычного --accent (6.03:1). */
-  --accent-ink: #CC3300;
-  --accent-hot: #E8261C;
-  --accent-soft: rgba(255, 77, 23, .12);
-  --grad-hot: linear-gradient(135deg, #FF6A2B 0%, #FF4D17 45%, #E8261C 100%);
+  --c-lime: #D4FF2A;       /* CTA, ленты, цифры, целые блоки */
+  --c-lime-press: #B8E600; /* ховер/нажатие лаймовой кнопки */
 
-  /* Светлая инверсия — для ОДНОЙ секции */
-  --bg-light: #F2F2EF;
-  --text-light: #0A0A0C;
+  /* Светлый */
+  --c-bone: #F2F1EA;
 
-  /* === 3. Типографика === */
+  /* Производные */
+  --c-text: var(--c-bone);
+  --c-text-dim: rgb(242 241 234 / .58);
+  --c-text-faint: rgb(242 241 234 / .32);
+  --c-line: rgb(242 241 234 / .10);
+  --c-on-lime: var(--c-void);
+  --lime-glow: rgb(212 255 42 / .35);
 
-  --font-display: 'Unbounded', system-ui, sans-serif;
-  --font-text: 'Onest', system-ui, sans-serif;
+  /* Тёмные производные для светлой секции (#why-us на --c-bone) */
+  --c-ink-dim: rgb(10 10 10 / .62);
+  --c-ink-faint: rgb(10 10 10 / .08);
+  /* Текст на лайме — чёрный, приглушённый вариант для подписей */
+  --c-on-lime-dim: rgb(10 10 10 / .66);
+  --c-on-lime-line: rgb(10 10 10 / .16);
 
-  /* Шкала (desktop → mobile) */
-  --fs-display-xl: clamp(56px, 9vw, 132px);
-  --lh-display-xl: 0.94;
-  --ls-display-xl: -0.025em;
+  /* === §3. Типографика === */
 
-  --fs-display-l: clamp(40px, 6vw, 88px);
-  --lh-display-l: 0.98;
-  --ls-display-l: -0.02em;
+  --font-display: 'Unbounded', system-ui, sans-serif; /* 800–900, ВЕРХНИЙ РЕГИСТР */
+  --font-text: 'Onest', system-ui, sans-serif;        /* 400–600 */
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace; /* 400–500 */
 
-  --fs-display-m: clamp(28px, 3.4vw, 44px);
-  --lh-display-m: 1.05;
-  --ls-display-m: -0.015em;
-
-  --fs-title: clamp(20px, 2vw, 26px);
-  --lh-title: 1.2;
-  --ls-title: -0.01em;
-
+  /* Шкала: заголовок hero — «до clamp(56px, 11vw, 200px)» (§3) */
+  --fs-hero: clamp(40px, 6.4vw, 132px);
+  --fs-mega: clamp(64px, 20vw, 360px);  /* гигантские слова: фон hero, футер */
+  --fs-h2: clamp(40px, 6.4vw, 112px);
+  --fs-h3: clamp(26px, 3.4vw, 54px);
+  --fs-title: clamp(18px, 1.6vw, 24px);
+  /* Название услуги на телефоне: «ОРГАНИЗАЦИЯ» с номером и квадратом-
+     стрелкой должно влезать в 350px без переноса посреди слова */
+  --fs-service-m: clamp(18px, 5.6vw, 26px);
   --fs-body-l: 18px;
-  --lh-body-l: 1.55;
-
   --fs-body: 16px;
-  --lh-body: 1.6;
-
   --fs-small: 14px;
-  --lh-small: 1.5;
+  --fs-mono: 12px;
 
-  --fs-label: 12px;
-  --lh-label: 1.2;
-  --ls-label: 0.14em;
+  --lh-display: .9;
+  --lh-title: 1.15;
+  --lh-body: 1.55;
+  --lh-mono: 1.35;
 
-  /* === 4. Сетка и пространство === */
+  --ls-display: -.02em;
+  --ls-mono: .04em;
 
+  --fw-display: 800;
+  --fw-display-max: 900;
+
+  /* === §4. Форма и поверхности === */
+
+  --r-island: clamp(24px, 2.2vw, 32px); /* острова и карточки 24–32px */
+  --r-card: 24px;
+  --r-photo: 20px;
+  --r-s: 12px;
+  --r-full: 999px;
+
+  --island-inset: clamp(12px, 1.1vw, 16px); /* отступ острова от края экрана */
+
+  /* Сетка и ритм — база 8px */
   --container: 1440px;
-  --container-narrow: 880px;
-  --gutter: 24px;
-  --pad-x: clamp(20px, 4vw, 72px);
+  --pad-x: clamp(20px, 4vw, 64px);
+  --gutter: clamp(12px, 1.4vw, 20px);
 
-  /* Вертикальный ритм — база 8px */
   --s-1: 4px;
   --s-2: 8px;
   --s-3: 16px;
@@ -81,103 +87,52 @@
   --s-6: 48px;
   --s-7: 64px;
   --s-8: 96px;
-  --s-9: 120px;
-  /* 160px → 120px десктоп (docs/04-REVISION-01.md, R7.2 — 160px был
-     рассчитан на более плотный контент, чем есть на сайте) */
-  --s-10: 120px;
+  --s-9: 128px;
+  --s-section: clamp(88px, 11vw, 168px); /* вертикальный ритм секций */
 
-  /* === 5. Радиусы, границы, поверхности === */
+  /* Кнопки */
+  --btn-h: 60px;
+  --btn-h-s: 44px;
+  --btn-pad: 28px;
 
-  --r-xs: 4px;
-  --r-m: 16px;
-  --r-l: 24px;
-  --r-full: 999px;
+  /* === §6. Движение === */
 
-  /* === 8. Движение === */
+  --ease-out: cubic-bezier(.16, 1, .3, 1);     /* expo.out */
+  --ease-snap: cubic-bezier(.76, 0, .24, 1);
+  --dur-fast: .25s;
+  --dur: .6s;
+  --dur-slow: 1.1s;
+  --marquee-dur: 32s;
 
-  --ease: cubic-bezier(.22, 1, .36, 1);
-  --dur-fast: 200ms;
-  --dur: 420ms;
-  --dur-slow: 800ms;
+  /* Курсор */
+  --cursor-d: 10px;
+  --cursor-view-d: 90px;
 
-  /* === 6. Числа компонентов ===
-     Не входят в общую шкалу разделов 2–5/8, но заданы дизайн-системой
-     буквально (раздел 6, кнопка primary) — вынесены в токены, чтобы
-     компоненты не хардкодили размеры. */
+  /* Зерно поверх сайта (§4) */
+  --grain-opacity: .05;
 
-  --btn-h: 56px;
-  --btn-pad-text: 28px;
-  --btn-pad-circle: var(--s-2); /* 8px */
+  /* Слои */
+  --z-header: 300;
+  --z-menu: 280;
+  --z-modal: 400;
+  --z-lightbox: 500;
+  --z-request: 600;
+  --z-preloader: 1000;
+  --z-cursor: 1100;
+  --z-grain: 1200;
 
-  /* Кегль названия карточки портфолио (4 колонки, узкий столбец).
-     display-m (44px) не влезает — самое длинное слово «ИМПОРТСЕРВИС»
-     помещается в колонку 313px (1440px viewport) только до ~28.7px
-     (промерено реальным рендером). Правило раздела 3: слово не режется,
-     кегль уменьшается через clamp(). */
-  --fs-card-title: clamp(20px, 2.2vw, 28px);
-
-  /* Название направления услуг на мобильном. display-m упирается в пол
-     28px, и «МЕРОПРИЯТИЙ» (ТЗ 2026) вместе со значком и номером не
-     помещается в 350px колонку на 390px экране — слово не режется,
-     кегль уменьшается (то же правило §3, что у --fs-card-title) */
-  --fs-accordion-name-m: clamp(22px, 6.6vw, 28px);
-
-  /* Высоты логотипов — docs/04-REVISION-01.md, R1.4 / R4.1 / R5.1.
-     --logo-h-header убран: логотип шапки не нужен ни на десктопе, ни
-     на мобильном (пробовали вернуть для мобильного, явно отклонено
-     следующим заходом — правка, ночь 24.09.2026). */
-  --logo-h-client: 40px;
-  --logo-h-footer: 56px;
-
-  /* Единая левая опорная вертикаль шапки и hero-контента —
-     docs/05-REVISION-02.md, R17: "один левый край". Раньше это были два
-     independent clamp() (отступ острова + паддинг hero__content), из-за
-     которых логотип шапки стоял на 57.6px, а заголовок hero — на 104px
-     (1440px viewport). --hero-island-inset и --hero-content-pad — те же
-     значения, что были инлайн в .hero/.hero__content, просто вынесены
-     в токены, чтобы .header__inner могла ссылаться на ту же сумму. */
-  --hero-island-inset: clamp(var(--s-4), 3vw, var(--s-5));
-  --hero-content-pad: clamp(var(--s-6), 5vw, var(--s-9));
-  --content-x: calc(var(--hero-island-inset) + var(--hero-content-pad));
-
-  /* Капсула меню — точные числа из docs/05-REVISION-02.md, R17.
-     Высота (48px) и промежуток между пунктами (4px) совпали с уже
-     существующими --s-6/--s-1 — переиспользованы, не задублированы. */
-  --nav-capsule-h: var(--s-6);
-  --nav-capsule-pad: 6px;
-  --nav-item-pad-y: 10px;
-  --nav-item-pad-x: 18px;
-  --nav-item-gap: var(--s-1);
-
-  /* Скорость бесконечной ленты клиентов — docs/04-REVISION-01.md, R4.3.
-     Категория отдельная от --dur*: это декоративный луп в секундах,
-     а не переход интерфейса. */
-  --marquee-dur: 40s;
-
-  /* Высота градиентной подложки шапки — docs/04-REVISION-01.md, R1.2.
-     Совпадала со старым --s-10 (160px) случайно; после R7.2 --s-10 стал
-     120px, а это число осталось прежним — фиксирую отдельно. */
-  --header-scrim-h: 160px;
-
-  /* Точечная карта России — docs/05-REVISION-02.md, R15. Числа буквальные
-     из ТЗ (наклон, шаг сетки). --geo-tilt-delay и --geo-wave-dur — та же
-     категория исключений, что --marquee-dur: физическая инерция
-     взаимодействия и одноразовая волна появления, а не переход состояния
-     интерфейса, поэтому не входят в --dur*. --geo-marker-h (высота
-     3D-столбика маркера) убран — столбики заменены на плоские кружки,
-     финальная ревизия, пункт 2а. */
+  /* === Точечная карта (js/map.js читает эти переменные) === */
   --geo-perspective: 1400px;
-  --geo-tilt-x: 52deg;
-  --geo-tilt-z: -8deg;
+  --geo-tilt-x: 30deg;
+  --geo-tilt-z: -6deg;
   --geo-tilt-reactive: 4deg;
   --geo-tilt-delay: 300ms;
-  --geo-wave-dur: 1.2s;
-  --geo-dot-step: 8px;
-  --geo-dot-d: 2.5px;
+  --geo-wave-dur: 1.4s;
+  --geo-dot-step: 9px;
+  --geo-dot-d: 2px;
 
   /* === Жидкое стекло — css/liquid-glass.css, js/liquid-glass.js ===
-     Константы материалов из исходника стекла (docs/13-REDESIGN-LIME.md
-     §4): плотность «молока» матового стекла и вуаль тёмного. */
+     Константы материалов из исходника стекла (§4) */
   --lg-fill-light: rgb(255 255 255 / .34);
   --lg-fill-dark: rgb(16 16 18 / .65);
   --lg-fill-opacity: .34;
@@ -185,18 +140,4 @@
   --lg-veil: rgb(8 8 10 / .08);
   --lg-glow-light: rgb(255 255 255 / .3);
   --lg-glow-dark: rgb(255 255 255 / .16);
-}
-
-/* Отступ между секциями — планшет/мобильный (docs/04-REVISION-01.md, R7.2;
-   брейкпойнты из docs/02-DESIGN-SYSTEM.md §10) */
-@media (max-width: 1023px) {
-  :root {
-    --s-10: 80px;
-  }
-}
-
-@media (max-width: 639px) {
-  :root {
-    --s-10: 56px;
-  }
 }

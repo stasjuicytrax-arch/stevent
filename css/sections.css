@@ -1,300 +1,599 @@
-/* Секции ST EVENT — docs/03-TZ.md, раздел 4 */
+/* Секции ST EVENT — редизайн «Лайм на чёрном» (docs/13-REDESIGN-LIME.md §6).
+   Порядок и состав блоков — как в index.html, меняется только дизайн. */
 
-/* === 01 — Hero === */
+/* ======================================================================
+   ПРЕЛОАДЕР — счётчик 2008 → 2026 на лайме, шторка уходит вверх
+   ====================================================================== */
+
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-preloader);
+  display: grid;
+  place-items: center;
+  background: var(--c-lime);
+  color: var(--c-on-lime);
+  transition: transform 1s var(--ease-snap);
+}
+
+.preloader--hidden {
+  transform: translateY(-101%);
+}
+
+.preloader__year {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: clamp(88px, 22vw, 340px);
+  line-height: 1;
+  letter-spacing: -.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.preloader__brand,
+.preloader__descriptor {
+  position: absolute;
+  color: var(--c-on-lime-dim);
+}
+
+.preloader__brand {
+  top: var(--s-4);
+  left: var(--pad-x);
+}
+
+.preloader__descriptor {
+  right: var(--pad-x);
+  bottom: var(--s-4);
+}
+
+/* ======================================================================
+   ШАПКА — стеклянная капсула по центру, лаймовая кнопка справа
+   ====================================================================== */
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-header);
+  padding: calc(var(--island-inset) + var(--s-3)) calc(var(--island-inset) + var(--s-4)) 0;
+  pointer-events: none;
+  transition: transform .7s var(--ease-out);
+}
+
+.header--hidden {
+  transform: translateY(-140%);
+}
+
+.header__inner {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+}
+
+.header__inner > * {
+  pointer-events: auto;
+}
+
+.header__spacer {
+  pointer-events: none;
+}
+
+.nav-capsule {
+  position: relative;
+  display: flex;
+  padding: 6px;
+  border-radius: var(--r-full);
+}
+
+.nav-capsule__nav {
+  position: relative;
+  display: flex;
+  gap: var(--s-1);
+}
+
+.nav-capsule__link {
+  position: relative;
+  z-index: 1;
+  padding: 10px 18px;
+  border-radius: var(--r-full);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: var(--fs-mono);
+  letter-spacing: var(--ls-mono);
+  text-transform: uppercase;
+  color: var(--c-text);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.nav-capsule__link.is-active {
+  color: var(--c-on-lime);
+}
+
+/* «Капля» активного пункта — лаймовая; js/main.js двигает её к пункту */
+.nav-capsule__drop {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  left: 0;
+  z-index: 1;
+  width: 0;
+  border-radius: var(--r-full);
+  background: var(--c-lime);
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease-out);
+}
+
+.nav-capsule__drop.is-visible {
+  opacity: 1;
+}
+
+/* Над пунктом без активного состояния капля — светлая, а не лаймовая */
+.nav-capsule:hover .nav-capsule__link.is-active:not(:hover) {
+  color: var(--c-text);
+}
+
+.nav-capsule:hover .nav-capsule__drop {
+  background: rgb(242 241 234 / .18);
+}
+
+.header__cta {
+  justify-self: end;
+}
+
+.header__burger {
+  display: none;
+  justify-self: end;
+  width: var(--btn-h-s);
+  height: var(--btn-h-s);
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-full);
+  background: none;
+}
+
+.header__burger span {
+  position: absolute;
+  left: 50%;
+  width: 18px;
+  height: 1.5px;
+  margin-left: -9px;
+  background: var(--c-text);
+  transition: transform var(--dur) var(--ease-out);
+}
+
+.header__burger span:nth-of-type(1) {
+  top: calc(50% - 4px);
+}
+
+.header__burger span:nth-of-type(2) {
+  top: calc(50% + 3px);
+}
+
+.header__burger[aria-expanded="true"] span:nth-of-type(1) {
+  transform: translateY(3.5px) rotate(45deg);
+}
+
+.header__burger[aria-expanded="true"] span:nth-of-type(2) {
+  transform: translateY(-3.5px) rotate(-45deg);
+}
+
+/* Мобильное меню — шторка сверху */
+.mobile-menu {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-menu);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: calc(var(--s-9) + var(--s-3)) var(--pad-x) var(--s-6);
+  background: var(--c-void);
+  transform: translateY(-101%);
+  transition: transform .8s var(--ease-snap);
+}
+
+.mobile-menu--open {
+  transform: translateY(0);
+}
+
+.mobile-menu__nav {
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-menu__link {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-3);
+  padding-block: var(--s-3);
+  border-bottom: 1px solid var(--c-line);
+  font-family: var(--font-display);
+  font-weight: var(--fw-display-max);
+  font-size: clamp(28px, 8.4vw, 56px);
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.mobile-menu__link .mono {
+  color: var(--c-lime);
+}
+
+@media (max-width: 1023px) {
+  .header__inner {
+    grid-template-columns: 1fr auto;
+  }
+
+  .nav-capsule,
+  .header__cta {
+    display: none;
+  }
+
+  .header__burger {
+    position: relative;
+    display: block;
+  }
+}
+
+/* ======================================================================
+   HERO — огромный заголовок слева, фото с лаймовым свечением справа
+   ====================================================================== */
 
 .hero {
-  padding: var(--hero-island-inset);
-}
-
-.hero__island {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  /* justify-content: space-between убран (R22) — раньше он прижимал
-     .hero__content к верху острова (первый ребёнок при space-between
-     уезжает к своему краю, а не центрируется). Теперь .hero__content
-     сам растёт на flex: 1 и центрирует своё содержимое внутри —
-     .index-row естественно остаётся внизу как второй, не растущий item. */
-  min-height: calc(100vh - var(--hero-island-inset) * 2);
-  border-radius: var(--r-l);
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr);
+  gap: var(--s-6);
+  min-height: calc(100svh - var(--island-inset) * 2);
+  margin-top: var(--island-inset);
+  padding: calc(var(--s-9) + var(--s-3)) var(--s-6) var(--s-6);
   overflow: hidden;
+  background: var(--c-graphite);
 }
 
-/* Слой фото чуть больше острова (inset < 0) — запас под параллакс за
-   курсором, чтобы при сдвиге не открывались края (js/animations.js,
-   initHeroParallax). overflow:hidden у .hero__island обрезает запас. */
-.hero__media {
+/* Гигантская контурная надпись на фоне — stroke без заливки */
+.hero__outline {
   position: absolute;
-  inset: calc(-1 * var(--s-4));
-}
-
-/* Цветное фото вместо грейскейла R2 (заказчик сменил фото на красную
-   сцену СП-Крон, 19.10.2026): лёгкая приглушка насыщенности, чтобы
-   красный свет сцены не спорил с акцентной кнопкой */
-.hero__media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 50% 55%;
-  filter: saturate(.9) contrast(1.08) brightness(1.08);
-}
-
-/* Затемнение: верх под меню, низ под плашками и кнопками, плюс мягкое
-   пятно по центру под заголовком — экраны сцены за ним самые яркие
-   места кадра, без пятна белый текст на оранжевом терял контраст */
-.hero__overlay {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(
-      ellipse 55% 40% at 50% 48%,
-      color-mix(in srgb, var(--bg) 40%, transparent),
-      transparent
-    ),
-    linear-gradient(
-      to bottom,
-      color-mix(in srgb, var(--bg) 55%, transparent),
-      transparent 38%,
-      color-mix(in srgb, var(--bg) 20%, transparent) 62%,
-      color-mix(in srgb, var(--bg) 85%, transparent)
-    );
-  /* Декоративный слой не должен перехватывать mousemove у параллакса */
+  left: 0;
+  bottom: -.12em;
+  z-index: 0;
+  font-family: var(--font-display);
+  font-weight: var(--fw-display-max);
+  font-size: var(--fs-mega);
+  line-height: 1;
+  letter-spacing: -.03em;
+  white-space: nowrap;
+  /* paint-order — как у названий городов: без внутренних линий */
+  color: var(--c-graphite);
+  -webkit-text-stroke: 2px rgb(242 241 234 / .12);
+  paint-order: stroke fill;
   pointer-events: none;
+  user-select: none;
 }
 
-.hero__marker {
+.hero__copy {
   position: relative;
-  z-index: 1;
-}
-
-/* Весь контент по центру острова — docs/06-REVISION-03.md, R18 добавил
-   горизонтальное центрирование, но не вертикальное. Первая попытка
-   R22 (flex: 1 на .hero__content внутри flex-колонки острова) даёт
-   центр НЕ острова, а «острова минус .index-row» — .index-row внизу
-   отъедает часть высоты у flex-бокса контента, сдвигая его
-   геометрический центр вверх (было -56.9px от истинного центра
-   острова на 1440×900, замерено). docs/07-REVISION-04.md R22 требует
-   центр именно острова ±8px — переключился на position: absolute;
-   inset: 0, независимо от .index-row в обычном потоке. */
-.hero__content {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  gap: var(--s-4);
-  padding: var(--hero-content-pad);
-  /* Реальная причина, по которой искажение фото по курсору не работало
-     ни разу в настоящем браузере: этот блок — на весь остров
-     (inset:0), поверх фото (z-index:1), и перехватывал ВСЕ mousemove
-     по всей площади hero, включая пустые места вокруг текста — не
-     только сам заголовок/кнопку. .hero__media снизу никогда не получал
-     событие мыши, даже когда эффект казался инициализированным.
-     Подтверждено проверкой elementFromPoint() в разных точках hero —
-     topElement everywhere был .hero__content или его потомок, никогда
-     не .hero__media (правка, ночь 24.09.2026). pointer-events:none
-     пропускает события насквозь к фото; кнопке ниже это возвращено
-     явно, иначе она перестанет быть кликабельной. */
-  pointer-events: none;
+  justify-content: flex-end;
 }
 
 .hero__title {
-  /* ТЗ 2026: вместо «ST EVENT» — фраза из 5 слов, display-xl для неё
-     слишком крупный (§3: display-xl — для 1–2 слов), поэтому display-l
-     и ограничение ширины, чтобы строки ломались ровно */
-  max-width: 16ch;
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: var(--fs-display-l);
-  line-height: var(--lh-display-l);
-  letter-spacing: var(--ls-display-l);
-  color: var(--text);
+  font-weight: var(--fw-display-max);
+  font-size: var(--fs-hero);
+  line-height: var(--lh-display);
 }
 
-/* Буквенный reveal — docs/05-REVISION-02.md, R16.2. Каждая буква выезжает
-   из-под маски снизу (js/animations.js разбивает textContent на span'ы).
-   .hero__word держит буквы одного слова вместе — перенос строки может
-   случиться только между словами, не между буквами внутри слова. */
+/* SplitText делит слово на буквы — без nowrap слово рвалось между ними */
 .hero__word {
-  display: inline-block;
+  white-space: nowrap;
 }
 
-.hero__letter-mask {
-  display: inline-block;
-  overflow: hidden;
-  line-height: 1;
-  vertical-align: top;
-}
-
-.hero__letter {
-  display: inline-block;
-}
-
-.hero__subtitle {
-  max-width: 60ch;
+.hero__lead {
+  max-width: 46ch;
+  margin-top: var(--s-5);
   font-size: var(--fs-body-l);
-  line-height: var(--lh-body-l);
-  /* --text, не --text-2: под подзаголовком яркие силуэты сцены,
-     полупрозрачный серый на них терял контраст (19.10.2026) */
-  color: var(--text);
+  line-height: var(--lh-body);
+  color: var(--c-text-dim);
 }
 
 .hero__actions {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
   gap: var(--s-3);
-  margin-top: var(--s-2);
-  /* .hero__content теперь pointer-events:none (иначе перекрывал canvas
-     искажения) — кнопкам нужно вернуть кликабельность явно */
-  pointer-events: auto;
+  margin-top: var(--s-5);
 }
 
-/* На брейкпоинте, где капсула меню скрыта и вместо неё бургер (64px,
-   выше 56px-логотипа), формула --hero-content-pad + --s-5 давала всего
-   ~4.7px зазора до шапки вместо задуманных — бургер выше, чем учла
-   формула. Точечная добавка именно здесь, не трогая формулу для
-   десктопа (R18, замерено Playwright на 390/768px). */
+.hero__visual {
+  position: relative;
+  z-index: 1;
+  min-height: 440px;
+}
+
+/* Лаймовое свечение за фото (NEXUS, §5) — размытый круг, не градиент */
+.hero__glow {
+  position: absolute;
+  top: 22%;
+  left: -14%;
+  width: 128%;
+  aspect-ratio: 1.3;
+  border-radius: var(--r-full);
+  background: var(--lime-glow);
+  filter: blur(90px);
+  pointer-events: none;
+}
+
+.hero__photo {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: var(--r-island);
+}
+
+.hero__img,
+.hero__trail {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 55%;
+  filter: grayscale(1) contrast(1.15);
+}
+
+.hero__img {
+  z-index: 1;
+}
+
+/* Копии для моушн-шлейфа — js/animations.js сдвигает их и проявляет */
+.hero__trail {
+  z-index: 0;
+  opacity: 0;
+  mix-blend-mode: screen;
+}
+
+/* Стеклянная мини-карточка в углу фото (addco) */
+.hero__card {
+  position: absolute;
+  top: var(--s-4);
+  left: calc(var(--s-6) * -1);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-card);
+  color: var(--c-text);
+}
+
+.hero__card-brand {
+  font-family: var(--font-display);
+  font-weight: var(--fw-display-max);
+  font-size: var(--fs-title);
+  text-transform: uppercase;
+}
+
+.hero__card .mono {
+  color: var(--c-text-dim);
+}
+
+.hero__card-meta {
+  margin-top: var(--s-2);
+}
+
+/* Две стеклянные плашки «Корпоративный / Частный клиент» поверх фото */
+.hero__plaques {
+  position: absolute;
+  left: calc(var(--s-6) * -1);
+  right: var(--s-4);
+  bottom: var(--s-4);
+  z-index: 3;
+  display: grid;
+  gap: var(--s-2);
+}
+
+.hero__plaque {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-2) var(--s-2) var(--s-2) var(--s-4);
+  border-radius: var(--r-full);
+  color: var(--c-text);
+}
+
+.hero__plaque-num {
+  color: var(--c-lime);
+}
+
+.hero__plaque-label {
+  flex: 1;
+  font-family: var(--font-display);
+  font-weight: var(--fw-display);
+  font-size: var(--fs-small);
+  text-transform: uppercase;
+}
+
+.hero__plaque-arrow {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: var(--btn-h-s);
+  height: var(--btn-h-s);
+  border-radius: var(--r-full);
+  background: var(--c-lime);
+  color: var(--c-on-lime);
+  transition: transform var(--dur) var(--ease-out);
+}
+
+.hero__plaque-arrow svg {
+  width: 40%;
+  height: 40%;
+}
+
+.hero__plaque:hover .hero__plaque-arrow {
+  transform: rotate(45deg);
+}
+
 @media (max-width: 1023px) {
-  .hero__content {
-    padding-top: calc(var(--hero-content-pad) + var(--s-6));
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s-5);
+    padding: calc(var(--s-9) - var(--s-2)) var(--s-4) var(--s-4);
+  }
+
+  .hero__visual {
+    min-height: 0;
+    aspect-ratio: 4 / 5;
+    max-height: 70svh;
+  }
+
+  .hero__card {
+    left: var(--s-3);
+    top: var(--s-3);
+  }
+
+  .hero__plaques {
+    left: var(--s-3);
+    right: var(--s-3);
+    bottom: var(--s-3);
   }
 }
 
 @media (max-width: 639px) {
-  /* Заголовок одной строкой — было: --fs-display-xl это clamp(56px,
-     9vw, 132px), на узкой ширине упирался в пол 56px и не помещался в
-     колонку hero__content, поэтому "ST"/"EVENT" переносились на две
-     строки. Свой clamp с более низким полом + nowrap — гарантированно
-     одна строка при любой ширине телефона (правка, ночь 24.09.2026,
-     явный запрос "одной строкой, без переноса"). */
-  /* nowrap снят (ТЗ 2026): теперь в заголовке фраза, а не «ST EVENT» —
-     одной строкой она не помещается, переносится по словам */
-  .hero__title {
-    order: 1;
-    font-size: clamp(26px, 7.5vw, 40px);
-  }
-
-  .hero__subtitle {
-    order: 3;
-    /* Было var(--fs-body-l) = 18px — заметно крупнее остального текста
-       на узком экране и с полным --s-4 зазором и сверху, и снизу от
-       gap самого .hero__content давало много пустого места перед
-       кнопкой. Кегль уменьшен, отрицательный margin-top подтягивает
-       строку ближе к тегам, не трогая общий gap между остальными
-       элементами (правка, ночь 24.09.2026). */
-    font-size: var(--fs-small);
-    /* отрицательный margin-top снят вместе с надписью над заголовком
-       (19.10.2026) — подтягивать подзаголовок больше не к чему */
-  }
-
-  /* Кнопки стопкой во всю ширину колонки, текст одной строкой —
-     иначе «ОБСУДИТЬ МЕРОПРИЯТИЕ» переносилось и кнопка вырастала вдвое */
-  /* На узком экране кадр обрезается к центру — светящиеся экраны сцены
-     ложатся ровно под заголовок и подзаголовок. Пятно затемнения
-     шире и плотнее, чем на десктопе, иначе текст не читается */
-  .hero__overlay {
-    background:
-      radial-gradient(
-        ellipse 90% 45% at 50% 48%,
-        color-mix(in srgb, var(--bg) 72%, transparent),
-        transparent
-      ),
-      linear-gradient(
-        to bottom,
-        color-mix(in srgb, var(--bg) 55%, transparent),
-        color-mix(in srgb, var(--bg) 20%, transparent) 30%,
-        color-mix(in srgb, var(--bg) 30%, transparent) 62%,
-        color-mix(in srgb, var(--bg) 88%, transparent)
-      );
-  }
-
-  .hero__actions {
-    order: 4;
-    flex-direction: column;
-    align-items: stretch;
-    width: 100%;
-    gap: var(--s-2);
+  .hero__lead {
+    font-size: var(--fs-body);
   }
 
   .hero__actions .btn {
+    flex: 1 1 100%;
+  }
+
+  .hero__actions .btn--lime {
     justify-content: space-between;
   }
-
-  .hero__actions .btn--ghost {
-    justify-content: center;
-  }
-
-  .hero__actions .btn__text {
-    font-size: var(--fs-small);
-    white-space: nowrap;
-  }
 }
 
-/* === 02 — Манифест === */
+/* ======================================================================
+   ЛЕНТЫ — лаймовая и чёрная, перекрещены под углом
+   ====================================================================== */
 
-.manifest {
-  padding-block: var(--s-10);
+.tapes {
+  position: relative;
+  height: clamp(150px, 15vw, 230px);
+  margin-block: var(--s-4);
+  overflow: hidden;
 }
 
-.manifest__grid {
-  display: grid;
-  grid-template-columns: 1.4fr 1fr;
-  gap: var(--gutter);
-  align-items: start;
-  margin-top: var(--s-7);
-}
-
-.manifest__lead {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-5);
-}
-
-/* display-m: фраза из ТЗ 2026 — 8 слов, а display-l допустим только
-   до 7 (docs/02-DESIGN-SYSTEM.md §3) */
-.manifest__statement {
-  max-width: 18ch;
+.tape {
+  position: absolute;
+  top: 50%;
+  left: -5%;
+  width: 110%;
+  padding-block: var(--s-3);
   font-family: var(--font-display);
-  font-weight: 800;
-  font-size: var(--fs-display-m);
-  line-height: var(--lh-display-m);
-  letter-spacing: var(--ls-display-m);
-  color: var(--text);
+  font-weight: var(--fw-display-max);
+  font-size: clamp(24px, 3.6vw, 54px);
+  line-height: 1;
+  text-transform: uppercase;
 }
 
-/* Продолжение — body-l, ширина колонки не больше 60 символов */
-.manifest__continuation {
-  max-width: 60ch;
+.tape--lime {
+  z-index: 2;
+  background: var(--c-lime);
+  color: var(--c-on-lime);
+  transform: translateY(-50%) rotate(-3deg);
+}
+
+.tape--dark {
+  z-index: 1;
+  background: var(--c-steel);
+  color: var(--c-text);
+  transform: translateY(-50%) rotate(3deg);
+}
+
+.tape--dark .star {
+  color: var(--c-lime);
+}
+
+.tape__item,
+.tape .star {
+  padding-inline: .45em;
+}
+
+/* ======================================================================
+   О НАС — манифест с фото-пилюлями, основатели, цели
+   ====================================================================== */
+
+.about {
+  padding-block: var(--s-section);
+}
+
+/* Манифест: фото-пилюли прямо внутри строк текста (Das Grüne) */
+.about__manifest {
+  margin-top: var(--s-7);
+  font-weight: var(--fw-display-max);
+  font-size: clamp(30px, 5vw, 84px);
+  line-height: 1.04;
+  text-wrap: initial;
+}
+
+.about__pill {
+  display: inline-grid;
+  place-items: center;
+  width: 2em;
+  height: .8em;
+  margin-inline: .08em;
+  overflow: hidden;
+  border-radius: var(--r-full);
+  vertical-align: .02em;
+  background: var(--c-lime);
+  color: var(--c-on-lime);
+}
+
+.about__pill img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.15);
+}
+
+.about__pill--arrow svg {
+  width: .5em;
+  height: .5em;
+}
+
+.about__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: var(--s-7);
+  margin-top: var(--s-8);
+}
+
+.about__label {
+  color: var(--c-lime);
+}
+
+.about__text {
+  max-width: 52ch;
+  margin-top: var(--s-3);
   font-size: var(--fs-body-l);
-  line-height: var(--lh-body-l);
-  color: var(--text-2);
+  color: var(--c-text-dim);
 }
 
-/* Основатели — два портрета рядом, под каждым имя и роль */
 .founders {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--gutter);
-  align-items: start;
 }
 
 .founder {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-2);
+  margin: 0;
 }
 
-/* 4:5 как у карточек портфолио; кадр от верха — лица у обоих фото
-   в верхней трети */
 .founder__photo {
   aspect-ratio: 4 / 5;
-  margin-bottom: var(--s-2);
-  border-radius: var(--r-m);
   overflow: hidden;
+  border-radius: var(--r-photo);
+  background: var(--c-carbon);
 }
 
 .founder__photo img {
@@ -302,650 +601,715 @@
   height: 100%;
   object-fit: cover;
   object-position: 50% 15%;
+  filter: grayscale(1) contrast(1.15);
+  transition: filter var(--dur-slow) var(--ease-out);
+}
+
+.founder:hover .founder__photo img {
+  filter: grayscale(0) contrast(1.05);
+}
+
+.founder figcaption {
+  margin-top: var(--s-3);
 }
 
 .founder__name {
   font-family: var(--font-display);
-  font-weight: 800;
+  font-weight: var(--fw-display);
   font-size: var(--fs-title);
   line-height: var(--lh-title);
-  letter-spacing: var(--ls-title);
-  color: var(--text);
+  text-transform: uppercase;
 }
 
 .founder__role {
-  font-size: var(--fs-body);
-  line-height: var(--lh-body);
-  color: var(--text-2);
+  margin-top: var(--s-1);
+  color: var(--c-text-dim);
 }
 
-/* «Вы задаёте цель…» — три колонки с вертикальными разделителями,
-   тот же приём, что у .why-us__item */
 .goals {
   margin-top: var(--s-9);
 }
 
 .goals__title {
-  max-width: 22ch;
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: var(--fs-display-m);
-  line-height: var(--lh-display-m);
-  letter-spacing: var(--ls-display-m);
-  color: var(--text);
+  max-width: 20ch;
+  font-size: var(--fs-h3);
+  line-height: 1;
 }
 
 .goals__grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--gutter);
-  margin-top: var(--s-7);
+  margin-top: var(--s-6);
 }
 
 .goal {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-2);
-  padding-left: var(--s-5);
-  border-left: 1px solid var(--line);
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--c-line);
 }
 
-.goal:first-child {
-  padding-left: 0;
-  border-left: none;
+.goal__num {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: var(--fw-display-max);
+  font-size: clamp(56px, 7vw, 120px);
+  line-height: 1;
+  letter-spacing: var(--ls-display);
+  color: var(--c-lime);
+  font-variant-numeric: tabular-nums;
+}
+
+.goal__num--word {
+  max-width: 10ch;
+  font-size: clamp(26px, 2.8vw, 44px);
+  line-height: 1;
+  text-transform: uppercase;
 }
 
 .goal__label {
-  font-size: var(--fs-body);
-  color: var(--text);
-}
-
-/* Карточка без цифры («Обеспечиваем качество») — заголовок в той же
-   позиции, что число у соседей, но кеглем title: фраза, не число */
-.goal__heading {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: var(--fs-title);
-  line-height: var(--lh-title);
-  letter-spacing: var(--ls-title);
-  color: var(--accent);
+  margin-top: var(--s-3);
 }
 
 .goal__text {
   max-width: 44ch;
+  margin-top: var(--s-2);
   font-size: var(--fs-small);
-  line-height: var(--lh-small);
-  color: var(--text-2);
+  color: var(--c-text-dim);
 }
 
-/* В ряд с вертикальными разделителями — счётчики сгруппированы с
-   «Почему мы» и футером как многоколоночный блок (R12) */
-/* Вертикальная колонка вместо flex-row wrap — итоговая ревизия,
-   23.09.2026, п.5: 3 счётчика в ряд переносились на 2 строки внутри
-   ~480px колонки, оставляя большую пустую зону под ними, вровень с
-   нижней половиной параграфа слева. Стек занимает высоту ближе к
-   тексту, плюс добавлена 4-я цифра (см. index.html). */
-.manifest__stats {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-5);
-  justify-content: center;
+@media (max-width: 1023px) {
+  .about__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s-6);
+  }
 }
 
-/* === 03 — Услуги === */
+@media (max-width: 639px) {
+  .goals__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s-5);
+  }
+}
+
+/* ======================================================================
+   УСЛУГИ — строки во всю ширину, лаймовый квадрат и картинка за курсором
+   ====================================================================== */
 
 .services {
-  padding-block: var(--s-10);
-}
-
-/* impeccable detect: cramped-padding на .accordion (border-top) и
-   .accordion__item (border-bottom) — ложное срабатывание, детектор смотрит
-   только на прямого потомка и не видит padding-block: var(--s-5) = 32px
-   у вложенного .accordion__trigger, который и даёт реальный отступ от линий.
-   Пересмотрено по R17 (visual re-audit): Playwright подтвердил
-   getComputedStyle → padding-top/bottom триггера = 32px, скриншот
-   screenshots/audit-accordion.png — текст нигде не касается линий. */
-.accordion {
-  margin-top: var(--s-7);
-  border-top: 1px solid var(--line);
-}
-
-.accordion__item {
   position: relative;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto auto;
-  gap: var(--gutter);
-  border-bottom: 1px solid var(--line);
+  padding-block: var(--s-section);
 }
 
-/* Явное размещение: trigger занимает левую колонку на всю высоту строки,
-   .accordion__side и .accordion__panel стоят друг над другом в правой —
-   иначе третий дочерний элемент (.accordion__side) авто-перенёс бы
-   .accordion__panel на новую строку в колонку 1 */
-.accordion__trigger {
-  grid-column: 1;
-  grid-row: 1 / -1;
-  align-self: start;
+.services__title {
+  margin-top: var(--s-5);
 }
 
-.accordion__side {
-  grid-column: 2;
-  grid-row: 1;
+.services__list {
+  margin-top: var(--s-7);
+  border-bottom: 1px solid var(--c-line);
 }
 
-.accordion__panel {
-  grid-column: 2;
-  grid-row: 2;
+.service {
+  position: relative;
+  isolation: isolate;
+  --row-line: 1;
 }
 
-/* Заливка слева направо на ховере закрытой строки — R13. absolute,
-   не участвует в grid-раскладке; content-элементы получают z-index:1,
-   чтобы остаться поверх (без отрицательного z-index — он спрятал бы
-   заливку за фон родителя вместо того, чтобы просто быть "под текстом") */
-.accordion__item::before {
+/* Верхняя линия строки «прочерчивается» (js/animations.js) */
+.service::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--c-line);
+  transform: scaleX(var(--row-line));
+  transform-origin: left;
+}
+
+/* Подсветка строки на ховер — заливка слева направо */
+.service::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, .03);
-  transform-origin: left;
+  z-index: -1;
+  border-radius: var(--r-card);
+  background: var(--c-graphite);
   transform: scaleX(0);
-  transition: transform var(--dur) var(--ease);
-  pointer-events: none;
+  transform-origin: left;
+  transition: transform var(--dur) var(--ease-out);
 }
 
-.accordion__item:not(.is-open):hover::before {
+.service:hover::after,
+.service.is-open::after {
   transform: scaleX(1);
 }
 
-.accordion__trigger {
-  position: relative;
-  z-index: 1;
-  display: flex;
+.service__head {
+  display: grid;
+  grid-template-columns: var(--s-8) minmax(0, 1fr) auto var(--s-7);
   align-items: center;
-  gap: var(--s-5);
-  padding-block: var(--s-5);
+  gap: var(--s-4);
+  width: 100%;
+  padding: var(--s-5) var(--s-4) var(--s-3);
+  border: 0;
   background: none;
-  border: none;
-  color: var(--text);
   text-align: left;
   cursor: pointer;
 }
 
-/* Круглый бейдж со значком услуги — приём с references/4.jpg (у каждой
-   карточки услуг свой значок в круге), нарисовано инлайн-SVG контуром,
-   тем же приёмом (stroke, не заливка), что стрелка в кнопках
-   (ревизия, вечер 23.09.2026, доп. промпт п.1). */
-.accordion__icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  flex: none;
-  border-radius: var(--r-full);
-  border: 1px solid var(--line-strong);
-  color: var(--text-2);
-  transition: border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+.service__num {
+  color: var(--c-lime);
 }
 
-.accordion__icon svg {
-  width: 18px;
-  height: 18px;
-}
-
-.accordion__item.is-open .accordion__icon,
-.accordion__item:not(.is-open):hover .accordion__icon {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.accordion__num {
-  font-family: var(--font-text);
-  font-weight: 600;
-  font-size: var(--fs-small);
-  color: var(--text-3);
-  transition: color var(--dur-fast) var(--ease);
-}
-
-.accordion__item:not(.is-open):hover .accordion__num {
-  color: var(--accent);
-}
-
-.accordion__name {
+.service__name {
   font-family: var(--font-display);
-  font-weight: 800;
-  font-size: var(--fs-display-m);
-  line-height: var(--lh-display-m);
-  letter-spacing: var(--ls-display-m);
-  transition: transform var(--dur-fast) var(--ease);
+  font-weight: var(--fw-display-max);
+  font-size: var(--fs-h3);
+  line-height: 1;
+  letter-spacing: var(--ls-display);
+  text-transform: uppercase;
+  transition: transform var(--dur) var(--ease-out);
 }
 
-.accordion__item:not(.is-open):hover .accordion__name {
-  transform: translateX(8px);
+.service:hover .service__name {
+  transform: translateX(var(--s-2));
 }
 
-/* Правая колонка: счётчик + шеврон всегда видны (не дают строке
-   выглядеть пустой закрытой — R13), список раскрывается под ними */
-.accordion__side {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  /* ТЗ 2026: короткое описание направления видно всегда — над строкой
-     «N направлений + шеврон» */
-  flex-direction: column;
-  gap: var(--s-3);
-  padding-block: var(--s-5);
-  /* теперь тоже кликабелен — правая треть строки открывала карточку
-     раньше только визуально (курсор давал ложную подсказку), реального
-     обработчика не было */
-  cursor: pointer;
+.service__count {
+  color: var(--c-text-dim);
 }
 
-.accordion__desc {
-  max-width: 52ch;
-  font-size: var(--fs-body);
-  line-height: var(--lh-body);
-  color: var(--text-2);
+/* Лаймовый квадрат со стрелкой выезжает справа (Das Grüne) */
+.service__arrow {
+  display: grid;
+  place-items: center;
+  width: var(--s-7);
+  height: var(--s-7);
+  border-radius: var(--r-s);
+  background: var(--c-lime);
+  color: var(--c-on-lime);
+  opacity: 0;
+  transform: translateX(var(--s-4)) scale(.8);
+  transition: opacity var(--dur) var(--ease-out), transform var(--dur) var(--ease-out);
 }
 
-.accordion__meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.service__arrow svg {
+  width: 36%;
+  height: 36%;
+  transition: transform var(--dur) var(--ease-out);
 }
 
-.accordion__count {
-  font-family: var(--font-text);
-  font-size: var(--fs-small);
-  color: var(--text-3);
+.service:hover .service__arrow,
+.service.is-open .service__arrow {
+  opacity: 1;
+  transform: none;
 }
 
-.accordion__chevron {
-  display: inline-flex;
-  color: var(--text-3);
-  transition: transform var(--dur) var(--ease);
+.service.is-open .service__arrow svg {
+  transform: rotate(90deg);
 }
 
-.accordion__chevron svg {
-  width: 16px;
-  height: 16px;
+.service__desc {
+  max-width: 62ch;
+  padding: 0 var(--s-4) var(--s-5) calc(var(--s-8) + var(--s-4) * 2);
+  color: var(--c-text-dim);
 }
 
-.accordion__item.is-open .accordion__chevron {
-  transform: rotate(180deg);
-}
-
-/* Высота панели анимируется через grid-template-rows (0fr → 1fr) —
-   не требует JS-замера scrollHeight, работает на var(--dur)/var(--ease) */
-.accordion__panel {
-  position: relative;
-  z-index: 1;
+.service__panel {
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows var(--dur) var(--ease);
+  transition: grid-template-rows var(--dur) var(--ease-out);
 }
 
-.accordion__item.is-open .accordion__panel {
+.service.is-open .service__panel {
   grid-template-rows: 1fr;
 }
 
-.accordion__panel-inner {
+.service__panel-inner {
   overflow: hidden;
 }
 
-.accordion__list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-3);
-  /* padding-left: 0 — список ровно под описанием направления (ТЗ 2026),
-     без дефолтного отступа <ul> */
-  padding-left: 0;
-  padding-bottom: var(--s-5);
-  list-style: none;
-  color: var(--text-2);
+.service__list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-2) var(--s-5);
+  padding: 0 var(--s-4) var(--s-6) calc(var(--s-8) + var(--s-4) * 2);
 }
 
-/* Лесенкой при раскрытии, 60ms между строками — R13 */
-.accordion__list li {
-  opacity: 0;
-  transform: translateY(12px);
+.service__list li {
+  position: relative;
+  padding-left: var(--s-4);
 }
 
-.accordion__item.is-open .accordion__list li {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity var(--dur-slow) var(--ease), transform var(--dur-slow) var(--ease);
+.service__list li::before {
+  content: '+';
+  position: absolute;
+  left: 0;
+  font-family: var(--font-mono);
+  color: var(--c-lime);
 }
 
-.accordion__list li:nth-child(1) { transition-delay: 0ms; }
-.accordion__list li:nth-child(2) { transition-delay: 60ms; }
-.accordion__list li:nth-child(3) { transition-delay: 120ms; }
-.accordion__list li:nth-child(4) { transition-delay: 180ms; }
-.accordion__list li:nth-child(5) { transition-delay: 240ms; }
-.accordion__list li:nth-child(6) { transition-delay: 300ms; }
-.accordion__list li:nth-child(7) { transition-delay: 360ms; }
-.accordion__list li:nth-child(8) { transition-delay: 420ms; }
+/* Картинка, летящая за курсором — js/animations.js двигает контейнер */
+.follow-img {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 50;
+  width: clamp(220px, 20vw, 320px);
+  aspect-ratio: 4 / 3;
+  margin: calc(clamp(220px, 20vw, 320px) * -.375) 0 0 calc(clamp(220px, 20vw, 320px) * -.5);
+  pointer-events: none;
+}
 
-/* === 04 — Почему мы (единственная светлая секция) === */
+.follow-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--r-photo);
+  filter: grayscale(1) contrast(1.15);
+  transform: scale(0);
+  transition: transform var(--dur) var(--ease-out);
+}
 
-/* impeccable detect: cramped-padding на .why-us (bg на всех сторонах) —
-   ложное срабатывание: горизонтальный отступ даёт вложенный .container
-   (padding-inline: var(--pad-x), 20–72px), вертикальный — сама секция
-   через padding-top/bottom: calc(var(--s-10) + var(--s-9)) ниже.
-   Пересмотрено по R17 (visual re-audit): скриншот
-   screenshots/audit-why-us.png — воздух со всех сторон визуально большой. */
+.follow-img.is-visible img {
+  transform: scale(1);
+}
+
+@media (max-width: 767px) {
+  .service__head {
+    grid-template-columns: var(--s-5) minmax(0, 1fr) var(--s-6);
+    gap: var(--s-2);
+    padding: var(--s-4) var(--s-2) var(--s-2);
+  }
+
+  .service__count {
+    display: none;
+  }
+
+  .service__name {
+    font-size: var(--fs-service-m);
+  }
+
+  .service__arrow {
+    width: var(--s-6);
+    height: var(--s-6);
+    opacity: 1;
+    transform: none;
+  }
+
+  .service__desc,
+  .service__list {
+    padding-left: var(--s-2);
+    padding-right: var(--s-2);
+  }
+
+  .service__list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .follow-img {
+    display: none;
+  }
+}
+
+/* ======================================================================
+   ПОЧЕМУ МЫ — светлая секция, рваный край, карточки вразброс
+   ====================================================================== */
+
 .why-us {
   position: relative;
-  background: var(--bg-light);
-  color: var(--text-light);
-  /* Срезанные по диагонали вход/выход секции — приём референса A */
-  clip-path: polygon(0 var(--s-9), 100% 0, 100% calc(100% - var(--s-9)), 0 100%);
-  padding-top: calc(var(--s-10) + var(--s-9));
-  padding-bottom: calc(var(--s-10) + var(--s-9));
+  /* clip, не hidden: рваные края выходят за секцию по вертикали и должны
+     оставаться видимыми, а фоновое слово — не раздувать ширину страницы */
+  overflow-x: clip;
+  margin-block: var(--s-8);
+  padding-block: var(--s-section);
+  background: var(--c-bone);
+  color: var(--c-on-lime);
 }
 
-.why-us .section-marker__num {
-  /* --accent на --bg-light = 2.96:1 (провал) — здесь только --accent-ink */
-  color: var(--accent-ink);
+/* Рваный край — бумага «вылезает» за секцию сверху и снизу (§4) */
+.torn {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: clamp(24px, 4vw, 60px);
+  color: var(--c-bone);
 }
 
-.why-us .section-marker__text {
-  color: color-mix(in srgb, var(--text-light) 58%, transparent);
+.torn--top {
+  bottom: calc(100% - 1px);
 }
 
-/* --line (белая, 8%) невидима на светлом фоне — тёмный аналог по той же
-   формуле, только от --text-light вместо белого */
-.why-us .section-marker::before {
-  background: color-mix(in srgb, var(--text-light) 8%, transparent);
+.torn--bottom {
+  top: calc(100% - 1px);
 }
 
-.why-us__grid {
+.why-us__inner {
+  position: relative;
+}
+
+.why-us .section-tag {
+  color: var(--c-ink-dim);
+}
+
+.why-us .section-tag__num {
+  color: var(--c-on-lime);
+}
+
+.why-us .section-tag::after {
+  background: var(--c-ink-faint);
+}
+
+/* Огромный полупрозрачный заголовок за карточками (Elevate) */
+.why-us__bg-title {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 0;
+  font-family: var(--font-display);
+  font-weight: var(--fw-display-max);
+  font-size: clamp(72px, 15vw, 260px);
+  line-height: .9;
+  letter-spacing: -.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--c-ink-faint);
+  transform: translate(-50%, -40%);
+  pointer-events: none;
+}
+
+.why-us__cards {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--gutter);
-  margin-top: var(--s-7);
+  margin-top: var(--s-8);
 }
 
-/* impeccable detect: cramped-padding (border-top/left) на .why-us__item —
-   детектор не резолвит var(), реальный padding-left: var(--s-6) = 48px;
-   border-top у элемента вообще нет (только border-left между колонками,
-   первая колонка — без него по замыслу). Пересмотрено по R17
-   (visual re-audit): Playwright — gap до border-left = 49px на 2-й/3-й
-   колонке, скриншот screenshots/audit-why-us.png. */
-.why-us__item {
+.why-card {
   display: flex;
   flex-direction: column;
-  gap: var(--s-3);
-  padding-left: var(--s-6);
-  border-left: 1px solid color-mix(in srgb, var(--text-light) 8%, transparent);
+  min-height: clamp(300px, 28vw, 420px);
+  padding: var(--s-5);
+  border-radius: var(--r-card);
+  background: var(--c-void);
+  color: var(--c-text);
 }
 
-.why-us__item:first-child {
-  padding-left: 0;
-  border-left: none;
+/* Одна карточка — лаймовая: на экране один крупный лаймовый блок (§2) */
+.why-card:nth-child(2) {
+  background: var(--c-lime);
+  color: var(--c-on-lime);
 }
 
-/* Круглый бейдж со значком — тот же приём, что .accordion__icon (услуги),
-   адаптирован под светлую секцию: --text-light вместо --text-3, граница
-   потемнее вместо --line-strong (тот бы не читался на светлом фоне) */
-.why-us__icon {
+.why-card:nth-child(3) {
+  background: var(--c-carbon);
+}
+
+.why-card__face {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--r-full);
-  border: 1px solid color-mix(in srgb, var(--text-light) 20%, transparent);
-  color: color-mix(in srgb, var(--text-light) 55%, transparent);
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-2);
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
 }
 
-.why-us__icon svg {
-  width: 18px;
-  height: 18px;
+.why-card__num {
+  color: var(--c-lime);
 }
 
-.why-us__num {
+.why-card:nth-child(2) .why-card__num {
+  color: var(--c-on-lime);
+}
+
+.why-card__big {
+  margin-top: auto;
   font-family: var(--font-display);
-  font-weight: 800;
-  font-size: var(--fs-display-l);
-  line-height: var(--lh-display-l);
-  letter-spacing: var(--ls-display-l);
-  /* --accent на --bg-light = 2.96:1 (провал) — здесь только --accent-ink */
-  color: var(--accent-ink);
+  font-weight: var(--fw-display-max);
+  font-size: clamp(48px, 5.6vw, 96px);
+  line-height: 1;
+  letter-spacing: var(--ls-display);
+  color: var(--c-lime);
+  font-variant-numeric: tabular-nums;
 }
 
-.why-us__title {
+.why-card:nth-child(2) .why-card__big {
+  color: var(--c-on-lime);
+}
+
+.why-card__title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-display);
   font-size: var(--fs-title);
-  color: var(--text-light);
+  text-transform: uppercase;
 }
 
-.why-us__text {
-  max-width: 60ch;
-  font-size: var(--fs-body);
-  line-height: var(--lh-body);
-  color: color-mix(in srgb, var(--text-light) 58%, transparent);
+.why-card__more {
+  margin-top: var(--s-2);
+  opacity: .66;
 }
 
-/* === 05 — Портфолио === */
+.why-card.is-open .why-card__more {
+  opacity: 0;
+}
+
+.why-card__text {
+  display: grid;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height var(--dur) var(--ease-out), opacity var(--dur) var(--ease-out), margin-top var(--dur) var(--ease-out);
+}
+
+.why-card.is-open .why-card__text {
+  max-height: 12em;
+  margin-top: var(--s-3);
+  opacity: .8;
+}
+
+@media (max-width: 767px) {
+  .why-us__cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .why-card {
+    min-height: 240px;
+  }
+}
+
+/* ======================================================================
+   ПОРТФОЛИО — стеклянные фильтры, бенто-сетка, ховер в цвет
+   ====================================================================== */
 
 .portfolio {
-  padding-block: var(--s-10);
+  padding-block: var(--s-section);
 }
 
-/* Обычная сетка, без пиннинга и горизонтального скролла — убрано по
-   docs/05-REVISION-02.md, R14 (заказчик хочет видеть все кейсы сразу).
-   3 колонки десктоп / 2 планшет / 1 мобильный — адаптивные оверрайды ниже
-   по файлу уже задавали 2/1, менялось только это число с 4 на 3. */
-.portfolio__grid {
-  display: grid;
-  /* minmax(0, 1fr) — без него колонки с более "широкими" по intrinsic-size
-     фото (разное разрешение исходников) продавливают grid, ширина и,
-     следовательно, aspect-ratio-высота карточек 4:5 расходятся между собой */
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--gutter);
-  margin-top: var(--s-6);
+.portfolio__head {
+  margin-top: var(--s-5);
 }
 
-/* Фильтр «Для бизнеса / Частные события» — капсулы, тот же радиус и
-   подпись, что у бейджа карточки */
+/* Фильтр липнет к верху и едет поверх карточек */
 .portfolio__filters {
+  position: sticky;
+  top: calc(var(--s-8) + var(--s-2));
+  z-index: 5;
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--s-2);
-  margin-top: var(--s-7);
-}
-
-.portfolio__filter {
-  padding: var(--s-2) var(--s-4);
-  border: 1px solid var(--line-strong);
+  width: fit-content;
+  gap: var(--s-1);
+  margin: var(--s-5) 0 calc(var(--s-5) * -1) auto;
+  padding: 6px;
   border-radius: var(--r-full);
-  background: none;
-  color: var(--text-2);
-  font-family: var(--font-text);
-  font-weight: 600;
-  font-size: var(--fs-small);
-  cursor: pointer;
-  transition: color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease);
-}
-
-.portfolio__filter:hover {
-  color: var(--text);
-  border-color: var(--text-2);
+  transform: translateY(calc(var(--s-6) + var(--s-3)));
 }
 
 .portfolio__filter.is-active {
-  background: var(--text);
-  border-color: var(--text);
-  color: var(--bg);
+  background: var(--c-lime);
+  color: var(--c-on-lime);
+}
+
+.portfolio__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: clamp(200px, 19vw, 300px);
+  gap: var(--gutter);
+  margin-top: var(--s-5);
+}
+
+.case-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--r-photo);
+  background: var(--c-carbon);
+  cursor: pointer;
 }
 
 .case-card[hidden] {
   display: none;
 }
 
-.case-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-3);
-  cursor: pointer;
+.case-card--l {
+  grid-column: span 2;
+  grid-row: span 2;
 }
 
-/* focus-visible теперь общий для [tabindex] в base.css (impeccable audit,
-   P3) — .case-card (role="button" tabindex="0") уже под ним, отдельное
-   правило было бы дублем */
+.case-card--w {
+  grid-column: span 2;
+}
 
 .case-card__media {
-  position: relative;
-  aspect-ratio: 4 / 5;
-  border-radius: var(--r-m);
-  overflow: hidden;
+  position: absolute;
+  inset: 0;
 }
 
 .case-card__media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  /* Увеличение фото в рамке на ховере — карточка сама не растёт (R14) */
-  transition: transform var(--dur-slow) var(--ease);
+  filter: grayscale(1) contrast(1.15);
+  transition: filter var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out);
 }
 
-.case-card:hover .case-card__media img {
-  transform: scale(1.06);
+.case-card:hover .case-card__media img,
+.case-card:focus-visible .case-card__media img {
+  filter: grayscale(0) contrast(1.05);
+  transform: scale(1.05);
 }
 
-/* Бейдж "СМОТРЕТЬ ПРОЕКТ" в углу — та же стрелка, что в кнопке
-   primary (R14). ТЗ 2026: кнопка на каждом кейсе — теперь видна всегда
-   (на тач-экранах ховера нет), ховер только подсвечивает её акцентом */
-.case-card__badge {
+/* Затемнение снизу под подпись */
+.case-card::after {
+  content: '';
   position: absolute;
-  top: var(--s-4);
-  right: var(--s-4);
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  gap: var(--s-2);
-  padding: var(--s-2) var(--s-4) var(--s-2) var(--s-5);
-  border-radius: var(--r-full);
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-text);
-  font-weight: 600;
-  font-size: var(--fs-small);
-  text-transform: uppercase;
-  letter-spacing: var(--ls-label);
-  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
+  inset: 40% 0 0;
+  background: linear-gradient(to top, rgb(10 10 10 / .82), transparent);
   pointer-events: none;
 }
 
-.case-card__badge svg {
-  width: 14px;
-  height: 14px;
-}
-
-.case-card:hover .case-card__badge {
-  background: var(--accent);
-  color: var(--bg);
+.case-card__info {
+  position: absolute;
+  left: var(--s-4);
+  right: var(--s-4);
+  bottom: var(--s-4);
+  z-index: 1;
 }
 
 .case-card__title {
-  /* docs/02-DESIGN-SYSTEM.md §3: слово не режется — кегль уменьшается
-     через clamp() вместо переноса посреди слова */
-  font-size: var(--fs-card-title);
-  line-height: var(--lh-display-m);
-  letter-spacing: var(--ls-display-m);
-  color: var(--text);
-  overflow-wrap: normal;
-  word-break: normal;
-  hyphens: manual;
-  transition: transform var(--dur) var(--ease);
+  font-size: var(--fs-title);
+  line-height: var(--lh-title);
 }
 
-.case-card:hover .case-card__title {
-  transform: translateX(12px);
+.case-card--l .case-card__title {
+  font-size: var(--fs-h3);
+  line-height: 1;
 }
 
 .case-card__meta {
-  font-size: var(--fs-small);
-  color: var(--text-3);
+  margin-top: var(--s-2);
+  color: var(--c-text-dim);
 }
 
-/* === 06 — Галерея (веер карточек) === */
-/* Позиционирование карточек (translate/rotate/scale/z-index) считает
-   js/fan-gallery.js и применяет инлайн-стилями через GSAP — здесь
-   только размеры, форма самой карточки и статичные части (стрелки,
-   точки). --fan-card-w/h через clamp() — отвечают за адаптивность
-   РАЗМЕРА карточки, JS пересчитывает только РАССТОЯНИЯ между ними от
-   реальной ширины .fan-gallery__stage при ресайзе (правка, ночь
-   24.09.2026, доп. промпт про веер карточек). */
+.case-card__arrow {
+  position: absolute;
+  top: var(--s-3);
+  right: var(--s-3);
+  z-index: 1;
+  transform: scale(0) rotate(-45deg);
+  transition: transform var(--dur) var(--ease-out);
+}
+
+.case-card:hover .case-card__arrow,
+.case-card:focus-visible .case-card__arrow {
+  transform: scale(1) rotate(0deg);
+}
+
+@media (max-width: 1023px) {
+  .portfolio__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: clamp(200px, 40vw, 320px);
+  }
+
+  .case-card--l {
+    grid-row: span 1;
+  }
+}
+
+@media (max-width: 639px) {
+  .portfolio__grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: auto;
+  }
+
+  .case-card,
+  .case-card--l,
+  .case-card--w {
+    grid-column: auto;
+    grid-row: auto;
+    aspect-ratio: 4 / 5;
+  }
+
+  .case-card--l .case-card__title {
+    font-size: var(--fs-title);
+  }
+
+  /* На тач-экранах ховера нет — стрелка видна сразу; внизу справа,
+     потому что вверху карточки едет липкий фильтр */
+  .case-card__arrow {
+    top: auto;
+    bottom: var(--s-3);
+    transform: none;
+  }
+
+  .case-card__info {
+    right: calc(var(--s-7) + var(--s-4));
+  }
+
+  .portfolio__filters {
+    top: calc(var(--s-7) + var(--s-3));
+  }
+}
+
+/* ======================================================================
+   ГАЛЕРЕЯ — веер с глубиной, активная карточка в цвете
+   ====================================================================== */
 
 .fan-gallery {
-  padding-block: var(--s-9);
+  padding-block: var(--s-section) var(--s-8);
+  overflow: hidden;
 }
 
 .fan-gallery__stage {
-  /* Было clamp(110px, 15vw, 200px) — веер терялся мелким островком в
-     пустом блоке, увеличено ~в 1.7 раза на десктопе (доп. промпт,
-     ночь 24.09.2026: «карточки слишком мелкие»). Расстояние между
-     карточками (xStep) пересчитывает js/fan-gallery.js от той же
-     ширины сцены — см. константы MAX_X_STEP там же. */
-  --fan-card-w: clamp(160px, 21vw, 340px);
-  --fan-card-h: calc(var(--fan-card-w) * 1.3);
   position: relative;
-  height: calc(var(--fan-card-h) + var(--s-9));
-  margin-top: var(--s-8);
+  height: clamp(380px, 44vw, 620px);
+  margin-top: var(--s-6);
+  perspective: 1400px;
 }
 
 .fan-gallery__track {
   position: absolute;
   inset: 0;
+  transform-style: preserve-3d;
 }
 
 .fan-gallery__card {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: var(--fan-card-w);
-  height: var(--fan-card-h);
-  margin: calc(var(--fan-card-h) / -2) 0 0 calc(var(--fan-card-w) / -2);
-  border-radius: var(--r-m);
+  width: clamp(200px, 22vw, 340px);
+  aspect-ratio: 3 / 4;
+  margin: calc(clamp(200px, 22vw, 340px) * -2 / 3) 0 0 calc(clamp(200px, 22vw, 340px) / -2);
   overflow: hidden;
+  border-radius: var(--r-photo);
+  background: var(--c-carbon);
   cursor: pointer;
-  background: var(--bg);
-  /* transform сам ставит JS (позиция в веере) — transition только на
-     тех же свойствах, чтобы смена активной карточки анимировалась */
-  transition: transform var(--dur-slow) var(--ease), opacity var(--dur-slow) var(--ease);
-  will-change: transform;
 }
 
 .fan-gallery__card img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  pointer-events: none;
-  /* Те же приёмы, что у остальных фото сайта (docs/02-DESIGN-SYSTEM.md
-     §7) — не цветные подложки, паттерн для B&W затемнения неактивных */
-  filter: grayscale(1) contrast(1.05);
-  transition: filter var(--dur) var(--ease);
+  filter: grayscale(1) contrast(1.15);
+  transition: filter var(--dur-slow) var(--ease-out);
 }
 
 .fan-gallery__card--active img {
-  filter: none;
+  filter: grayscale(0) contrast(1.05);
 }
 
-/* Название кейса — снизу, тем же градиентом-скримом, что в портфолио,
-   видно только у активной (центральной) карточки, чтобы не шуметь по
-   всему вееру мелким текстом */
 .fan-gallery__card-overlay {
   position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: flex-end;
-  padding: var(--s-3);
-  background: linear-gradient(to top, rgba(8, 8, 10, .75), transparent 55%);
+  inset: auto 0 0;
+  padding: var(--s-5) var(--s-3) var(--s-3);
+  background: linear-gradient(to top, rgb(10 10 10 / .8), transparent);
   opacity: 0;
-  transition: opacity var(--dur) var(--ease);
+  transition: opacity var(--dur) var(--ease-out);
 }
 
 .fan-gallery__card--active .fan-gallery__card-overlay {
@@ -953,1102 +1317,939 @@
 }
 
 .fan-gallery__card-name {
-  font-family: var(--font-text);
-  font-weight: 600;
-  font-size: var(--fs-small);
-  letter-spacing: var(--ls-label);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: var(--fs-mono);
+  letter-spacing: var(--ls-mono);
   text-transform: uppercase;
-  color: var(--text);
 }
 
 .fan-gallery__controls {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--s-5);
-  margin-top: var(--s-6);
+  gap: var(--s-4);
+  margin-top: var(--s-5);
 }
 
 .fan-gallery__arrow {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
+  display: grid;
+  place-items: center;
+  width: var(--s-7);
+  height: var(--s-7);
+  border: 1px solid var(--c-line);
   border-radius: var(--r-full);
-  border: 1px solid var(--line-strong);
   background: none;
-  color: var(--text);
   cursor: pointer;
-  transition: border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+  transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
 
 .fan-gallery__arrow svg {
-  width: 40%;
-  height: 40%;
+  width: 18px;
+  height: 18px;
 }
 
 .fan-gallery__arrow:hover {
-  border-color: var(--accent);
-  color: var(--accent);
+  background: var(--c-lime);
+  color: var(--c-on-lime);
 }
 
 .fan-gallery__dots {
   display: flex;
-  align-items: center;
-  gap: var(--s-2);
+  gap: var(--s-1);
 }
 
 .fan-gallery__dot {
-  width: 6px;
-  height: 6px;
-  border-radius: var(--r-full);
-  border: none;
+  width: var(--s-3);
+  height: 3px;
   padding: 0;
-  background: var(--line-strong);
+  border: 0;
+  border-radius: var(--r-full);
+  background: var(--c-steel);
   cursor: pointer;
-  transition: background var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
-}
-
-.fan-gallery__dot:hover {
-  background: var(--text-2);
+  transition: width var(--dur) var(--ease-out), background-color var(--dur) var(--ease-out);
 }
 
 .fan-gallery__dot--active {
-  background: var(--accent);
-  transform: scale(1.4);
+  width: var(--s-6);
+  background: var(--c-lime);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .fan-gallery__card {
-    transition: none;
-  }
-}
-
-@media (max-width: 639px) {
-  .fan-gallery__stage {
-    /* Было clamp(90px, 30vw, 130px) — увеличено пропорционально
-       десктопной версии, но менее агрессивно (узкий экран не должен
-       вызывать горизонтальный скролл — см. проверку hscroll) */
-    --fan-card-w: clamp(110px, 34vw, 170px);
-  }
-}
-
-/* === 07 — Клиенты === */
+/* ======================================================================
+   КЛИЕНТЫ — две ленты логотипов навстречу
+   ====================================================================== */
 
 .clients {
-  padding-block: var(--s-10);
+  padding-block: var(--s-8);
 }
 
 .clients__row {
-  display: flex;
-  align-items: center;
-  gap: var(--s-9);
+  margin-top: var(--s-5);
 }
 
-.clients__marker {
-  flex-shrink: 0;
+.clients__row + .clients__row {
+  margin-top: var(--s-4);
 }
 
-.clients__marquee {
-  flex: 1;
-  overflow: hidden;
-}
-
-/* Трек = два идентичных .clients__group подряд, translateX(-50%) сдвигает
-   ровно на ширину одной группы — бесшовный луп (docs/04-REVISION-01.md, R4.3).
-   overflow:hidden — на обёртке .clients__marquee, не здесь (R4.4). */
-.clients__track {
-  display: flex;
-  align-items: center;
-  width: max-content;
-  animation: clients-marquee var(--marquee-dur) linear infinite;
-}
-
-.clients__track:hover {
-  animation-play-state: paused;
-}
-
-.clients__group {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  gap: var(--s-8);
-  padding-right: var(--s-8);
-}
-
-@keyframes clients-marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-/* Высота фиксирована, ширина по aspect ratio — иначе лого растягивается
-   по ширине контейнера и обрезается (docs/04-REVISION-01.md, R4.1) */
 .clients__logo {
-  flex-shrink: 0;
-  height: var(--logo-h-client);
+  flex: none;
   width: auto;
+  height: 40px;
+  margin-inline: clamp(24px, 3vw, 48px);
   object-fit: contain;
-  filter: grayscale(1);
-  opacity: .45;
-  transition: opacity var(--dur-fast) var(--ease);
+  filter: brightness(0) invert(.94);
+  opacity: .4;
+  transition: opacity var(--dur-fast) var(--ease-out);
 }
 
 .clients__logo:hover {
   opacity: 1;
 }
 
-/* === 08 — География === */
-/* Точечная карта России вместо типографики городов —
-   docs/05-REVISION-02.md, R15 (заменяет решение R6 из первой ревизии). */
+/* Логотип на белой плашке: инверсия делает плашку чёрной, screen её
+   растворяет на тёмном фоне — остаётся светлый знак */
+.clients__logo--boxed {
+  filter: grayscale(1) invert(1) contrast(1.4);
+  mix-blend-mode: screen;
+}
+
+/* ======================================================================
+   ГЕОГРАФИЯ — чёрная карта, лаймовые точки, контурные названия
+   ====================================================================== */
 
 .geography {
-  position: relative;
-  padding-block: var(--s-10);
+  padding-block: var(--s-section);
 }
 
-/* Весь контент секции — выше фоновой линии по стэкингу (п.1 текущей
-   ревизии): линия физически не может оказаться поверх текста, даже
-   если её путь проходит под ним геометрически. */
-.geography__inner {
-  position: relative;
-  z-index: 1;
-}
-
-.geography__grid {
-  position: relative;
-  /* Было var(--s-7) (64px) — недостаточно относительно top:96px у
-     sticky-заголовка секции: в момент, когда заголовок "залипает",
-     .geography__grid (посчитанный по натуральному потоку, не по
-     застрявшей позиции заголовка) успевал начаться раньше, чем
-     заголовок визуально заканчивался — реальное наложение "6 ГОРОДОВ"
-     на "08 — ГЕОГРАФИЯ", воспроизведено и проверено скроллом именно
-     к началу секции (срочный регресс, ночь 24.09.2026). */
-  margin-top: var(--s-9);
-  display: grid;
-  grid-template-columns: minmax(200px, 280px) 1fr;
-  gap: var(--s-8) var(--s-8);
-  /* Было var(--s-8) (96px) — список городов казался далёким от карты,
-     хотя логически с ней связан (правка, ночь 24.09.2026, п.4) */
-  row-gap: var(--s-5);
-  /* stretch, не start — левая колонка растягивается по высоте карты
-     (которая заметно выше стата), пустая нижняя часть колонки получает
-     собственный контент, а не голый фон (правка, ночь 24.09.2026, п.4) */
-  align-items: stretch;
-}
-
-/* Список городов — был тесно под счётчиками в левой колонке, сливался
-   с ней визуально; вынесен третьей строкой грида на всю ширину секции
-   под картой (правка ночь 24.09.2026, п.2), поднят ближе к карте
-   уменьшением row-gap выше (п.4 того же захода). */
-.geography__cities {
-  grid-column: 1 / -1;
-}
-
-.geography__left {
-  position: relative;
-  min-width: 0;
-  /* Была полупрозрачная подложка (color-mix, --bg 88%) за счётчиками —
-     на глаз почти сливалась с фоном секции, поэтому раньше не мешала,
-     но именно она читалась как "лишняя плашка" за счётчиком "6" после
-     того, как заголовок секции перестал наезжать на неё (перестал
-     маскировать проблему собой) — правка ночь 24.09.2026. Убрана
-     целиком, счётчикам подложка не нужна. */
-  padding: var(--s-4);
-}
-
-/* Фоновый слой на всю секцию edge-to-edge, а не внутри грида карты
-   (переделано — прошлая версия «внутри карты» была ошибкой, доп.
-   промпт, ночь 23.09.2026, п.1-2). z-index:0 ниже .geography__inner. */
-.geography__deco-line {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0;
-  /* Под текстовой колонкой (левые ~18-20% ширины секции) линия должна
-     быть тусклее, не такой яркой, как над открытой картой — маска по
-     яркости вдоль всей SVG, плавный переход к 32%, а не отдельный
-     css-класс на кусок пути (доп. промпт, п.2). Альфа маски = сила
-     видимости самой линии: .45 под текстом ≈ 45% от полной яркости. */
-  -webkit-mask-image: linear-gradient(
-    to right,
-    rgba(0, 0, 0, .45) 0%,
-    rgba(0, 0, 0, .45) 18%,
-    rgba(0, 0, 0, 1) 32%
-  );
-  mask-image: linear-gradient(
-    to right,
-    rgba(0, 0, 0, .45) 0%,
-    rgba(0, 0, 0, .45) 18%,
-    rgba(0, 0, 0, 1) 32%
-  );
-}
-
-.geography__deco-line path {
-  fill: none;
-}
-
-/* Отрисовка при появлении секции — glow и core «рисуются» вместе,
-   тот же приём stroke-dashoffset, что у initMarkerLines() */
-.geography__deco-line-glow,
-.geography__deco-line-core {
-  /* Путь стал длиннее (вся ширина секции, ~1700+ юнитов) — 900 не
-     хватало бы, чтобы полностью его скрыть до отрисовки */
-  stroke-dasharray: 2000;
-  stroke-dashoffset: 2000;
-  transition: stroke-dashoffset var(--dur-slow) var(--ease);
-}
-
-.geography__deco-line.is-drawn .geography__deco-line-glow,
-.geography__deco-line.is-drawn .geography__deco-line-core {
-  stroke-dashoffset: 0;
-}
-
-/* Подложка — размытый толстый дубль того же пути тем же цветом, даёт
-   свечение вокруг тонкой линии (доп. промпт, вечер 23.09.2026, п.1:
-   «реально световой, не hairline») */
-.geography__deco-line-glow {
-  stroke: var(--accent);
-  stroke-width: 5;
-  filter: blur(7px);
-  opacity: .3;
-}
-
-.geography__deco-line-core {
-  stroke: var(--accent);
-  stroke-width: 1;
-  opacity: .55;
-}
-
-/* Бегущий блик — короткий сегмент едет по кругу вдоль пути через
-   stroke-dasharray/dashoffset; внешний слой размыт и шире (мягкое
-   свечение вокруг блика), внутренний — узкий и яркий (само «ядро»
-   света). Оба скрыты до отрисовки основной линии (opacity), затем
-   бегут постоянно по кругу. */
-.geography__deco-line-run {
-  stroke: var(--accent);
-  stroke-linecap: round;
-  opacity: 0;
-  transition: opacity var(--dur-slow) var(--ease);
-  animation: geo-line-run 3.6s linear infinite;
-}
-
-.geography__deco-line.is-drawn .geography__deco-line-run {
-  opacity: 1;
-}
-
-.geography__deco-line-run--outer {
-  stroke-width: 10;
-  stroke-dasharray: 4 2000;
-  filter: blur(6px);
-}
-
-.geography__deco-line-run--inner {
-  stroke-width: 2.5;
-  stroke-dasharray: 1.5 2002.5;
-}
-
-@keyframes geo-line-run {
-  from { stroke-dashoffset: 0; }
-  to { stroke-dashoffset: -2004; }
-}
-
-@media (max-width: 1023px) {
-  /* Первая попытка вернуть линию на мобильном (правка, ночь 24.09.2026)
-     сняла только маску, но не трогала сам SVG: он absolute+inset:0
-     внутри секции, а секция на мобильном в один столбец гораздо выше,
-     чем широкая (viewBox 1600×700). preserveAspectRatio="none"
-     растягивает путь НЕ пропорционально под контейнер — при аспекте
-     секции ~390×1380 линия растягивалась по вертикали почти в 8 раз
-     сильнее, чем по горизонтали, и вместо пологой дуги превращалась в
-     резкий зигзаг через всю секцию, пересекающий карточки городов по
-     диагонали (баг найден по свежему скриншоту — следующий заход).
-     Полноширинный SVG-путь для мобильной раскладки в принципе не
-     годится — секция каждый раз разной высоты (зависит от числа
-     городов), под неё нельзя один раз подогнать координаты. Вместо
-     этого — простой ровный акцент ПОСЛЕ сетки карточек, обычным
-     элементом потока (см. .geography__grid::after ниже), гарантированно
-     без пересечений: он не абсолютно спозиционирован поверх контента,
-     а идёт третьей строкой грида, после которой ничего нет. */
-  .geography__deco-line {
-    display: none;
-  }
-
-  .geography__grid::after {
-    content: '';
-    grid-column: 1;
-    justify-self: center;
-    width: 70%;
-    height: 2px;
-    margin-top: var(--s-4);
-    background: linear-gradient(to right, transparent, var(--accent) 25%, var(--accent) 75%, transparent);
-    box-shadow: 0 0 16px 2px var(--accent);
-    opacity: .55;
-  }
+.geography__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s-5);
+  margin-top: var(--s-5);
 }
 
 .geography__stats {
   display: flex;
-  flex-direction: column;
-  gap: var(--s-5);
+  gap: clamp(24px, 4vw, 64px);
 }
 
-/* Тонкая линия-разделитель между строками — тот же сквозной приём R12,
-   что у счётчиков манифеста/«Почему мы»/футера (финальная ревизия,
-   пункт 2г). border-top, не border-bottom — тогда первая строка чисто
-   исключается через :first-child, без лишнего псевдокласса на последней. */
-/* display:flex column — число и подпись раздельными блочными строками,
-   не связный текст. Одной строкой ("12 ПРОЕКТОВ") в узкой колонке
-   (200-280px) на крупном дисплейном кегле слова переносились некрасиво
-   ("12" отдельно, "ПРОЕКТОВ" следующей строкой) — раздельные строки
-   переноситься не могут в принципе, при любой ширине (правка ночь
-   24.09.2026, п.1). */
 .geography__stat {
   display: flex;
   flex-direction: column;
   gap: var(--s-1);
-  padding-top: var(--s-4);
-  border-top: 1px solid var(--line);
-}
-
-.geography__stat:first-child {
-  padding-top: 0;
-  border-top: none;
+  overflow: hidden;
+  color: var(--c-text-dim);
 }
 
 .geography__stat-num {
   font-family: var(--font-display);
-  font-weight: 800;
-  font-size: var(--fs-display-m);
-  line-height: var(--lh-display-m);
-  letter-spacing: var(--ls-display-m);
-  color: var(--accent);
-  text-transform: uppercase;
+  font-weight: var(--fw-display-max);
+  font-size: clamp(36px, 4.4vw, 72px);
+  line-height: 1;
+  color: var(--c-lime);
 }
 
-.geography__stat-label {
-  font-family: var(--font-text);
-  font-weight: 600;
-  font-size: var(--fs-body);
-  letter-spacing: var(--ls-label);
-  color: var(--text-2);
-  text-transform: uppercase;
+.geography__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: var(--s-6);
+  align-items: center;
+  margin-top: var(--s-6);
 }
 
-/* Сцена сама не наклонена — только .geography__map внутри неё (R15).
-   perspective на родителе .geography__map, а не отдельным свойством
-   .geography__scene, потому что сама 3D-плоскость и её наклон заданы
-   одним transform на .geography__map (буквальный снимок из ТЗ). */
 .geography__scene {
   position: relative;
-  /* width:100% явно, не полагаться на stretch по умолчанию — с
-     aspect-ratio и min-height одновременно браузер в некоторых случаях
-     считает ширину из min-height через отношение сторон вместо того,
-     чтобы растянуть на всю колонку грида, из-за чего сцена вылезала
-     за контейнер на мобильном (найдено при проверке hscroll) */
-  width: 100%;
   aspect-ratio: 4 / 3;
-  min-height: 360px;
-  /* Обрезка именно здесь, не на секции — overflow:hidden на .geography
-     ломал position:sticky у .section-marker (браузер считал секцию
-     скролл-контейнером и якорил sticky-отступ от её начала) */
-  overflow: hidden;
 }
 
 .geography__map {
   position: absolute;
-  inset: 0;
-  transform: perspective(var(--geo-perspective)) rotateX(var(--geo-tilt-x)) rotateZ(var(--geo-tilt-z));
-  transform-style: preserve-3d;
-  will-change: transform;
+  inset: -6% -8%;
+  transform-origin: 50% 60%;
 }
 
 .geography__canvas {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
 }
 
-/* Маркер города — точка на плоскости + столбик, встающий перпендикулярно
-   ей (rotateX(90deg) относительно уже наклонённого родителя, R15:
-   "вырастающий из плоскости карты вверх на 40px"). Позиция left/top
-   выставляется в js/map.js по спроецированным координатам города. */
 .geography__marker {
   position: absolute;
-  left: 0;
   top: 0;
-  transform-style: preserve-3d;
+  left: 0;
+  width: 0;
+  height: 0;
 }
 
-/* Интерактивные кружочки с мягким миганием — docs/07-REVISION-04.md,
-   R25. Осознанное исключение из общего запрета на pulse
-   (docs/02-DESIGN-SYSTEM.md §8) по прямому решению клиента, только для
-   этого компонента — см. письменную оговорку там же. Мигание — только
-   opacity (не scale/transform), чтобы не конфликтовать с hover-масштабом
-   ниже: анимация и transition управляют разными свойствами, не спорят
-   за одно и то же кадр за кадром. */
+/* Точка города — лаймовая, загорается по очереди (класс is-lit, map.js) */
 .geography__marker-dot {
   position: absolute;
-  left: 0;
-  top: 0;
-  width: 8px;
-  height: 8px;
-  margin: -4px 0 0 -4px;
-  border-radius: 50%;
-  background: var(--accent);
-  cursor: pointer;
-  transition: transform var(--dur-fast) var(--ease);
-  animation: geo-marker-pulse 2.6s ease-in-out infinite;
+  top: -6px;
+  left: -6px;
+  width: 12px;
+  height: 12px;
+  border-radius: var(--r-full);
+  background: var(--c-lime);
+  box-shadow: 0 0 0 0 var(--lime-glow);
+  transform: scale(0);
+  transition: transform var(--dur) var(--ease-out);
 }
 
-.geography__marker-dot:hover {
-  transform: scale(1.4);
+.geography__marker.is-lit .geography__marker-dot {
+  transform: scale(1);
+  animation: geo-pulse 2.4s var(--ease-out) infinite;
 }
 
-/* Небольшой сдвиг фазы у разных городов — иначе все 6 точек мигают
-   идеально синхронно, что читается более механически/навязчиво, чем
-   мягкое случайное дыхание карты */
-.geography__marker:nth-of-type(2) .geography__marker-dot { animation-delay: .45s; }
-.geography__marker:nth-of-type(3) .geography__marker-dot { animation-delay: .9s; }
-.geography__marker:nth-of-type(4) .geography__marker-dot { animation-delay: 1.35s; }
-.geography__marker:nth-of-type(5) .geography__marker-dot { animation-delay: 1.8s; }
-.geography__marker:nth-of-type(6) .geography__marker-dot { animation-delay: 2.25s; }
-
-@keyframes geo-marker-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: .5; }
+@keyframes geo-pulse {
+  0% { box-shadow: 0 0 0 0 var(--lime-glow); }
+  70% { box-shadow: 0 0 0 18px rgb(212 255 42 / 0); }
+  100% { box-shadow: 0 0 0 0 rgb(212 255 42 / 0); }
 }
 
-/* Столбик (3D pole) и его остриё убраны — предыдущая ревизия, пункт 2а:
-   визуально это была стрелка-выноска от точки к подписи. Сами подписи
-   у точек тоже убраны целиком следующей ревизией, п.8а — весь текст
-   (название, число проектов) переехал в список слева. */
-
-/* Список городов под картой, горизонтальной сеткой — итоговая ревизия,
-   23.09.2026, п.8б, переверстано ночью 24.09.2026, п.2 (было тесной
-   колонкой под счётчиками, сливалось с ними). Строится в js/map.js,
-   buildCityList(), из того же массива, что и точки. Нумерация #01–06 —
-   тот же приём, что индексная строка hero. Разделители — border-left
-   между колонками, тот же приём R12, просто повёрнутый на 90°. */
 .geography__cities {
-  /* margin-top больше не нужен — расстояние до карты теперь задаёт
-     row-gap самого .geography__grid (правка, ночь 24.09.2026, п.4) */
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: var(--s-5);
+  display: flex;
+  flex-direction: column;
 }
 
 .geography__city-row {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-1);
-  padding-left: var(--s-4);
-  border-left: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: var(--s-6) minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: var(--s-3);
+  padding-block: var(--s-2);
+  border-bottom: 1px solid var(--c-line);
 }
 
-.geography__city-row:first-child {
-  padding-left: 0;
-  border-left: none;
-}
-
-.geography__city-num {
-  font-family: var(--font-text);
-  font-weight: 600;
-  font-size: var(--fs-small);
-  color: var(--accent);
-}
-
-.geography__city-name {
-  font-family: var(--font-text);
-  font-weight: 500;
-  font-size: var(--fs-body);
-  color: var(--text);
-}
-
+.geography__city-num,
 .geography__city-count {
-  font-family: var(--font-text);
-  font-size: var(--fs-small);
-  color: var(--text-2);
-  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: var(--fs-mono);
+  letter-spacing: var(--ls-mono);
+  text-transform: uppercase;
+  color: var(--c-text-dim);
 }
 
-@media (max-width: 1023px) {
-  .geography__cities {
-    grid-template-columns: repeat(3, 1fr);
-    row-gap: var(--s-5);
-  }
-
-  /* На 3 колонки первый элемент каждой новой строки (4-й город) тоже
-     оказывается у левого края — ему тоже не нужен border-left */
-  .geography__city-row:nth-child(4) {
-    padding-left: 0;
-    border-left: none;
-  }
+/* Название — крупный контурный шрифт, на ховер заливается лаймом */
+.geography__city-name {
+  font-family: var(--font-display);
+  font-weight: var(--fw-display-max);
+  font-size: clamp(22px, 2.6vw, 42px);
+  line-height: 1.1;
+  text-transform: uppercase;
+  /* У вариативного шрифта контуры букв перекрываются — обводка рисовала
+     внутренние линии. Заливка цветом фона поверх обводки (paint-order)
+     их прячет, видна только внешняя половина обводки */
+  color: var(--c-void);
+  -webkit-text-stroke: 2px var(--c-text);
+  paint-order: stroke fill;
+  transition: color var(--dur-fast) var(--ease-out), -webkit-text-stroke-color var(--dur-fast) var(--ease-out);
 }
 
-@media (max-width: 639px) {
-  .geography__cities {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .geography__city-row:nth-child(4) {
-    padding-left: var(--s-4);
-    border-left: 1px solid var(--line);
-  }
-
-  .geography__city-row:nth-child(odd) {
-    padding-left: 0;
-    border-left: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .geography__map {
-    /* Базовый наклон — не анимация, а статичная 3D-раскладка, остаётся.
-       Убирается только реактивный отклик на курсор (JS проверяет
-       matchMedia и не запускает rAF-твин наклона) и волна появления
-       точек (рисуются сразу в полной непрозрачности). */
-    transition: none;
-  }
-
-  .geography__marker-dot {
-    /* R25 — исключение из запрета на pulse не отменяет общее правило
-       "всё мгновенно" для reduced-motion */
-    animation: none;
-    opacity: 1;
-  }
+.geography__city-row:hover .geography__city-name {
+  color: var(--c-lime);
+  -webkit-text-stroke-color: var(--c-lime);
 }
 
 @media (max-width: 1023px) {
   .geography__grid {
-    grid-template-columns: 1fr;
-    /* Было var(--s-6) = 48px — вместе с собственным padding:var(--s-4)
-       у .geography__left (24px) давало 72px пустого пространства между
-       счётчиками и картой, заметно больше, чем везде на странице
-       (замерено — правка, ночь 24.09.2026). */
-    gap: var(--s-3);
-  }
-
-  .geography__stats {
-    /* Остаётся колонкой и на планшете/мобильном — фразы вроде «8 ПРОЕКТОВ»
-       на дисплейном кегле не помещаются в строку рядом друг с другом */
-    gap: var(--s-4);
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
-/* === 09 — Контакты === */
+@media (max-width: 639px) {
+  .geography__stats {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+/* ======================================================================
+   КОНТАКТЫ — лаймовый остров во весь экран
+   ====================================================================== */
 
 .contacts {
-  padding-block: var(--s-10);
+  min-height: 100svh;
+  margin-top: var(--s-6);
+  background: var(--c-lime);
+  color: var(--c-on-lime);
+}
+
+.contacts__inner {
+  max-width: var(--container);
+  margin-inline: auto;
+  padding: var(--s-section) var(--pad-x);
+}
+
+.contacts .section-tag {
+  color: var(--c-on-lime-dim);
+}
+
+.contacts .section-tag__num {
+  color: var(--c-on-lime);
+}
+
+.contacts .section-tag::after {
+  background: var(--c-on-lime-line);
+}
+
+.contacts__title {
+  max-width: 13ch;
+  margin-top: var(--s-6);
+  font-weight: var(--fw-display-max);
+  font-size: var(--fs-h2);
+  /* 1, не .9: строки режутся маской (SplitText), иначе «Й» и «Ё»
+     подрезает соседняя строка */
+  line-height: 1;
+  color: var(--c-on-lime);
+}
+
+.contacts__lead {
+  max-width: 46ch;
+  margin-top: var(--s-5);
+  font-size: var(--fs-body-l);
+  color: var(--c-on-lime-dim);
 }
 
 .contacts__grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--gutter);
-  margin-top: var(--s-7);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: var(--s-7);
+  align-items: start;
+  margin-top: var(--s-8);
 }
 
 .contacts__info {
   display: flex;
   flex-direction: column;
-  gap: var(--s-8);
+  gap: var(--s-5);
 }
 
 .contacts__block {
   display: flex;
   flex-direction: column;
-  gap: var(--s-3);
+  gap: var(--s-1);
 }
 
-.contacts__block-head {
-  display: flex;
-  align-items: center;
-  gap: var(--s-3);
+.contacts__label {
+  margin-bottom: var(--s-1);
+  color: var(--c-on-lime-dim);
 }
 
-/* Тот же круглый бейдж, что .accordion__icon (услуги), .why-us__icon
-   (Почему мы) и .case-modal__block-icon (модалка кейса) — правка,
-   добавление иконок в раздел Контакты */
-.contacts__block-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  flex: none;
-  border-radius: var(--r-full);
-  border: 1px solid var(--line-strong);
-  color: var(--text-2);
-}
-
-.contacts__block-icon svg {
-  width: 18px;
-  height: 18px;
-}
-
-.contacts__phone,
-.contacts__link {
-  width: fit-content;
-  max-width: 100%;
-  /* Email — одно длинное слово без пробелов; на дисплейном кегле на
-     узкой мобильной ширине не помещался и вылезал за край экрана,
-     создавая горизонтальный скролл на всей странице (найдено и
-     воспроизведено замером document.documentElement.scrollWidth —
-     правка, ночь 24.09.2026). Телефон не переносится не задет — там
-     всегда есть пробелы, ломаться некуда. */
-  overflow-wrap: anywhere;
+.contacts__phone {
   font-family: var(--font-display);
-  font-weight: 800;
-  font-size: var(--fs-title);
-  color: var(--text);
-  transition: color var(--dur-fast) var(--ease);
+  font-weight: var(--fw-display);
+  font-size: clamp(22px, 2.4vw, 36px);
+  line-height: 1.2;
+}
+
+.contacts__link {
+  font-size: var(--fs-body-l);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.contacts__address {
+  font-size: var(--fs-body-l);
 }
 
 .contacts__phone:hover,
 .contacts__link:hover {
-  color: var(--accent);
-}
-
-.contacts__address {
-  color: var(--text-2);
-  font-size: var(--fs-body);
+  opacity: .7;
 }
 
 .contacts__socials {
   display: flex;
-  gap: var(--s-5);
+  flex-wrap: wrap;
+  gap: var(--s-2);
 }
 
-.contacts__social {
-  font-size: var(--fs-small);
-  color: var(--text-2);
-  text-transform: uppercase;
-  letter-spacing: var(--ls-label);
-  transition: color var(--dur-fast) var(--ease);
+@media (max-width: 1023px) {
+  .contacts__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s-6);
+  }
 }
 
-.contacts__social:hover {
-  color: var(--accent);
-}
+/* === Форма на чёрной карточке (контакты, модалка заявки) === */
 
-/* Линия между колонкой контактов и формой — R12 */
-.contacts__form {
+.form-card {
   display: flex;
   flex-direction: column;
-  gap: var(--s-6);
-  padding-left: var(--s-8);
-  border-left: 1px solid var(--line);
-}
-
-.contacts__submit {
-  align-self: flex-start;
-}
-
-.contacts__form-status {
-  min-height: 1em;
-  font-size: var(--fs-small);
-  color: var(--text-2);
-}
-
-.contacts__form.is-success .contacts__form-status {
-  color: var(--accent);
-}
-
-/* === 10 — Футер === */
-
-.footer {
-  position: relative;
-  overflow: hidden;
-}
-
-.footer__bg {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-}
-
-.footer__bg img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  /* 12% → 8% яркости — фото спорило с логотипом (docs/04-REVISION-01.md, R5.2) */
-  filter: brightness(.08);
-}
-
-/* Сплошная подложка поверх фона — R5.3 */
-.footer__bg::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: color-mix(in srgb, var(--bg) 86%, transparent);
-}
-
-.footer__content {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: 1.4fr 1fr 1fr 1fr;
-  gap: var(--gutter);
-  padding-block: var(--s-9);
-}
-
-.footer__brand {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--s-3);
-}
-
-.footer__logo {
-  height: var(--logo-h-footer);
-  width: auto;
-}
-
-/* Вертикальные разделители между колонками футера — R12.
-   impeccable detect: cramped-padding — детектор не резолвит var(),
-   реальный padding-left: var(--gutter) = 24px. Пересмотрено по R17
-   (visual re-audit): скриншот screenshots/audit-footer-wide.png —
-   текст колонок чётко отстоит от вертикальных линий. */
-.footer__nav,
-.footer__contacts,
-.footer__socials {
-  border-left: 1px solid var(--line);
-  padding-left: var(--gutter);
-}
-
-.footer__nav {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-3);
-}
-
-.footer__nav a {
-  font-size: var(--fs-small);
-  color: var(--text-2);
-  text-transform: uppercase;
-  letter-spacing: var(--ls-label);
-  transition: color var(--dur-fast) var(--ease);
-}
-
-.footer__nav a:hover {
-  color: var(--text);
-}
-
-.footer__contacts {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-3);
-}
-
-.footer__contacts a,
-.footer__contacts p {
-  font-size: var(--fs-small);
-  color: var(--text-2);
-}
-
-.footer__contacts a {
-  transition: color var(--dur-fast) var(--ease);
-}
-
-.footer__contacts a:hover {
-  color: var(--text);
-}
-
-.footer__socials {
-  display: flex;
-  align-items: flex-start;
   gap: var(--s-4);
+  padding: var(--s-6);
+  border-radius: var(--r-island);
+  background: var(--c-void);
+  color: var(--c-text);
 }
 
-.footer__social img {
-  width: var(--s-6);
-  height: var(--s-6);
-}
-
-.footer__bottom {
-  grid-column: 1 / -1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: var(--s-8);
-  padding-top: var(--s-5);
-  border-top: 1px solid var(--line);
-  font-size: var(--fs-small);
-  color: var(--text-3);
-}
-
-.footer__privacy {
-  color: var(--text-3);
-  transition: color var(--dur-fast) var(--ease);
-}
-
-.footer__privacy:hover {
-  color: var(--accent);
-}
-
-/* === Страница «Политика конфиденциальности» === */
-
-.legal {
-  padding-block: var(--s-10);
-}
-
-.legal__back {
-  font-size: var(--fs-small);
-  color: var(--text-2);
-  transition: color var(--dur-fast) var(--ease);
-}
-
-.legal__back:hover {
-  color: var(--text);
-}
-
-.legal__title {
-  margin-top: var(--s-4);
-  font-size: var(--fs-display-l);
-  line-height: var(--lh-display-l);
-  letter-spacing: var(--ls-display-l);
-  color: var(--text);
-}
-
-.legal__updated {
-  margin-top: var(--s-3);
-  font-size: var(--fs-small);
-  color: var(--text-3);
-}
-
-.legal__body {
-  margin-top: var(--s-9);
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-8);
-}
-
-.legal__section h2 {
-  font-size: var(--fs-title);
-  color: var(--text);
-}
-
-.legal__section p {
-  margin-top: var(--s-3);
-  max-width: 68ch;
-  font-size: var(--fs-body);
-  line-height: var(--lh-body);
-  color: var(--text-2);
-}
-
-.legal__section ul {
-  margin-top: var(--s-3);
-  padding-left: var(--s-5);
+.form-field {
   display: flex;
   flex-direction: column;
   gap: var(--s-2);
-  max-width: 68ch;
+}
+
+.form-field__label {
+  color: var(--c-text-dim);
+}
+
+.form-field__optional {
+  color: var(--c-text-faint);
+  text-transform: none;
+}
+
+.form-field__input {
+  width: 100%;
+  height: var(--btn-h);
+  padding: 0 var(--s-3);
+  border: 1px solid var(--c-steel);
+  border-radius: var(--r-s);
+  background: var(--c-carbon);
+  color: var(--c-text);
+  font-family: var(--font-text);
   font-size: var(--fs-body);
-  line-height: var(--lh-body);
-  color: var(--text-2);
-  list-style: disc;
+  transition: border-color var(--dur-fast) var(--ease-out);
 }
 
-.legal__section a {
-  color: var(--text);
+.form-field__input::placeholder {
+  color: var(--c-text-faint);
+}
+
+.form-field__input:focus {
+  border-color: var(--c-lime);
+  outline: none;
+}
+
+.form-field__input[aria-invalid="true"] {
+  border-color: var(--c-lime);
+}
+
+.form-field__input--textarea {
+  height: auto;
+  min-height: 120px;
+  padding-block: var(--s-3);
+  resize: vertical;
+}
+
+.form-field__error {
+  min-height: 1em;
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  color: var(--c-lime);
+}
+
+.form-field__error:empty {
+  display: none;
+}
+
+.form-field__checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-2);
+  font-size: var(--fs-small);
+  color: var(--c-text-dim);
+  cursor: pointer;
+}
+
+.form-field__checkbox input {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  accent-color: var(--c-lime);
+}
+
+.form-field__checkbox a {
+  color: var(--c-text);
   text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
-.legal__section a:hover {
-  color: var(--accent);
+.form-card__submit,
+.request-modal__submit {
+  justify-content: space-between;
+  width: 100%;
+}
+
+.form-card__status,
+.request-modal__status {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  letter-spacing: var(--ls-mono);
+  text-transform: uppercase;
+  color: var(--c-text-dim);
+}
+
+.form-card__status:empty,
+.request-modal__status:empty {
+  display: none;
+}
+
+.is-success .form-card__status,
+.is-success .request-modal__status {
+  color: var(--c-lime);
+}
+
+/* Иконка отправки: стрелка → спиннер → галочка (js/form.js) */
+.btn__icon {
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.btn__icon.is-spinning {
+  animation: btn-icon-spin .8s linear infinite;
+}
+
+@keyframes btn-icon-spin {
+  to { transform: rotate(360deg); }
+}
+
+.btn__icon-check-path {
+  stroke-dasharray: 16;
+  stroke-dashoffset: 16;
+  transition: stroke-dashoffset var(--dur) var(--ease-out);
+}
+
+.btn__icon.is-success .btn__icon-check-path {
+  stroke-dashoffset: 0;
+}
+
+@media (max-width: 639px) {
+  .form-card {
+    padding: var(--s-5) var(--s-4);
+  }
 }
 
 /* ======================================================================
-   Часть 4 — Адаптив. Брейкпойнты docs/02-DESIGN-SYSTEM.md §10:
-   mobile <640px, tablet 640–1024px, desktop 1024–1440px, wide >1440px.
-   Бургер/десктоп-нав уже разведены на 1024px в components.css (R1).
-   Горизонтальный скролл портфолио (js/animations.js) сам выключается
-   ниже 1024px через ScrollTrigger.matchMedia — здесь просто должна
-   остаться нормальная сетка для этих ширин.
+   ФУТЕР — гигантское ST EVENT на всю ширину
    ====================================================================== */
 
-/* --- Планшет и уже: ≤1023px --- */
-@media (max-width: 1023px) {
-  /* Портфолио — 2 в ряд (без JS-скролла ниже 1024px и так грид, не флекс) */
-  .portfolio__grid {
+.footer {
+  padding-top: var(--s-8);
+  overflow: hidden;
+}
+
+.footer__top {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--s-5);
+}
+
+.footer__col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-2);
+  color: var(--c-text-dim);
+}
+
+.footer__col a {
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.footer__col a:hover {
+  color: var(--c-lime);
+}
+
+.footer__label {
+  margin-bottom: var(--s-2);
+  color: var(--c-lime);
+}
+
+.footer__col--end {
+  align-items: flex-end;
+  text-align: right;
+}
+
+/* Буквы — маска overflow, js/animations.js выдвигает их снизу */
+.footer__giant {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--s-7);
+  padding-inline: var(--island-inset);
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-weight: var(--fw-display-max);
+  font-size: 15.2vw;
+  line-height: .78;
+  letter-spacing: -.04em;
+  text-transform: uppercase;
+  color: var(--c-bone);
+}
+
+.footer__letter {
+  display: inline-block;
+  padding-block: .06em .1em;
+}
+
+@media (max-width: 767px) {
+  .footer__top {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  /* Аккордеон — всё в один столбец, иначе "список подпунктов справа"
-     превращается в две тесные полоски (видно на мобильном скриншоте
-     из R1–R7). Явные grid-column/row из десктопной раскладки (R13,
-     .accordion__side) тоже сбрасываются на auto-поток. */
-  .accordion__item {
-    grid-template-columns: minmax(0, 1fr);
-    /* в одну колонку gutter + паддинги триггера и описания давали ~90px
-       пустоты между названием и описанием направления */
-    row-gap: 0;
-  }
-
-  .accordion__side {
-    padding-top: 0;
-  }
-
-  .accordion__trigger,
-  .accordion__side,
-  .accordion__panel {
-    grid-column: 1;
-    grid-row: auto;
-  }
-
-  .accordion__trigger {
-    align-self: auto;
-  }
-
-  /* Футер — 2 колонки вместо 4: .footer__contacts переносится в начало
-     своей строки и больше не граничит с колонкой слева — линия убирается,
-     иначе повисает без соседа */
-  .footer__content {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .footer__contacts {
-    border-left: none;
-    padding-left: 0;
-  }
-
-  .footer__bottom {
-    grid-column: 1 / -1;
+  .footer__col--end {
+    align-items: flex-start;
+    text-align: left;
   }
 }
 
-/* --- Мобильный: ≤639px --- */
+/* ======================================================================
+   МОДАЛКА КЕЙСА, ЛАЙТБОКС, МОДАЛКА ЗАЯВКИ
+   ====================================================================== */
+
+.case-modal {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--c-void);
+}
+
+.case-modal__close {
+  position: fixed;
+  top: var(--s-4);
+  right: var(--s-4);
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: var(--s-7);
+  height: var(--s-7);
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-full);
+  background: none;
+  color: var(--c-text);
+}
+
+.case-modal__close svg {
+  width: 18px;
+  height: 18px;
+}
+
+.case-modal__cover {
+  position: relative;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.case-modal__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.case-modal__cover::after {
+  content: '';
+  position: absolute;
+  inset: 35% 0 0;
+  background: linear-gradient(to top, rgb(10 10 10 / .9), transparent);
+}
+
+.case-modal__cover-content {
+  position: absolute;
+  left: var(--pad-x);
+  right: var(--pad-x);
+  bottom: var(--s-7);
+  z-index: 1;
+}
+
+.case-modal__meta {
+  color: var(--c-lime);
+}
+
+.case-modal__title {
+  max-width: 16ch;
+  margin-top: var(--s-3);
+  font-weight: var(--fw-display-max);
+  font-size: var(--fs-h2);
+}
+
+.case-modal__body {
+  padding-block: var(--s-section);
+}
+
+.case-modal__info {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-7) var(--s-6);
+}
+
+.case-modal__block[hidden] {
+  display: none;
+}
+
+.case-modal__label {
+  display: flex;
+  gap: var(--s-2);
+  padding-bottom: var(--s-3);
+  border-bottom: 1px solid var(--c-line);
+  color: var(--c-text-dim);
+}
+
+.case-modal__label span {
+  color: var(--c-lime);
+}
+
+.case-modal__text {
+  margin-top: var(--s-3);
+  font-size: var(--fs-body-l);
+  color: var(--c-text-dim);
+}
+
+.case-modal__text p + p {
+  margin-top: var(--s-3);
+}
+
+.case-modal__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.case-modal__list li {
+  position: relative;
+  padding-left: var(--s-4);
+}
+
+.case-modal__list li::before {
+  content: '+';
+  position: absolute;
+  left: 0;
+  font-family: var(--font-mono);
+  color: var(--c-lime);
+}
+
+.case-modal__gallery {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--gutter);
+  margin-top: var(--s-8);
+}
+
+.case-modal__gallery-item {
+  aspect-ratio: 3 / 2;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--r-photo);
+  background: var(--c-carbon);
+  cursor: pointer;
+}
+
+.case-modal__gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.15);
+  transition: filter var(--dur) var(--ease-out), transform var(--dur-slow) var(--ease-out);
+}
+
+.case-modal__gallery-item:hover img {
+  filter: grayscale(0);
+  transform: scale(1.04);
+}
+
+/* Лаймовый CTA-блок в конце кейса (ТЗ 2026) */
+.case-modal__cta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-4);
+  margin-top: var(--s-8);
+  padding: clamp(32px, 5vw, 72px);
+  border-radius: var(--r-island);
+  background: var(--c-lime);
+  color: var(--c-on-lime);
+}
+
+.case-modal__cta-title {
+  max-width: 16ch;
+  font-family: var(--font-display);
+  font-weight: var(--fw-display-max);
+  font-size: var(--fs-h3);
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.case-modal__cta-text {
+  max-width: 52ch;
+  font-size: var(--fs-body-l);
+  color: var(--c-on-lime-dim);
+}
+
+@media (max-width: 767px) {
+  .case-modal__info {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s-6);
+  }
+
+  .case-modal__gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .case-modal__close {
+    top: var(--s-3);
+    right: var(--s-3);
+    width: var(--s-6);
+    height: var(--s-6);
+  }
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-lightbox);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(10 10 10 / .95);
+}
+
+.lightbox[hidden] {
+  display: none;
+}
+
+.lightbox__image {
+  max-width: 88vw;
+  max-height: 84svh;
+  border-radius: var(--r-photo);
+  object-fit: contain;
+}
+
+.lightbox__close,
+.lightbox__arrow {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: var(--s-7);
+  height: var(--s-7);
+  padding: 0;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-full);
+  background: var(--c-carbon);
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+
+.lightbox__close:hover,
+.lightbox__arrow:hover {
+  background: var(--c-lime);
+  color: var(--c-on-lime);
+}
+
+.lightbox__close svg,
+.lightbox__arrow svg {
+  width: 18px;
+  height: 18px;
+}
+
+.lightbox__close {
+  top: var(--s-4);
+  right: var(--s-4);
+}
+
+.lightbox__arrow--prev {
+  left: var(--s-4);
+}
+
+.lightbox__arrow--next {
+  right: var(--s-4);
+}
+
 @media (max-width: 639px) {
-  /* Манифест, контакты — асимметричные 2-колоночные блоки складываются
-     в один столбец (R7.3: пустая колонка шире 30% запрещена — на узком
-     экране вторая колонка либо во всю ширину, либо друг под другом) */
-  /* minmax(0, 1fr), не голый 1fr — иначе колонка не сжимается меньше
-     min-content самого длинного слова и вылезает за контейнер
-     (найдено при проверке горизонтального скролла на mobile, доп.
-     промпт про references/4.jpg) */
-  .manifest__grid,
-  .contacts__grid {
-    grid-template-columns: minmax(0, 1fr);
+  .lightbox__arrow {
+    top: auto;
+    bottom: var(--s-4);
   }
+}
 
-  .contacts__form {
-    margin-top: var(--s-7);
-    padding-left: 0;
-    padding-top: var(--s-6);
-    border-left: none;
-    border-top: 1px solid var(--line);
-  }
+.request-modal {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-request);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--s-3);
+}
 
-  /* flex-direction:column, border-top — уже дефолт после итоговой
-     ревизии п.5 (колонка счётчиков сама вертикальная теперь), здесь
-     остаётся только доп. отступ сверху — при схлопывании грида в один
-     столбец счётчики нужно явно отделить от текста над ними */
-  .manifest__stats,
-  .founders {
-    margin-top: var(--s-6);
-  }
+.request-modal[hidden] {
+  display: none;
+}
 
-  /* Цели — 3 колонки в одну, разделитель становится горизонтальным */
-  .goals__grid {
-    grid-template-columns: minmax(0, 1fr);
-    row-gap: var(--s-5);
-  }
+.request-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(10 10 10 / .72);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease-out);
+}
 
-  .goal {
-    padding-left: 0;
-    padding-top: var(--s-5);
-    border-left: none;
-    border-top: 1px solid var(--line);
-  }
+.request-modal__panel {
+  position: relative;
+  width: min(540px, 100%);
+  max-height: calc(100svh - var(--s-5));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--s-6);
+  border-radius: var(--r-island);
+  background: var(--c-graphite);
+  opacity: 0;
+  transform: translateY(var(--s-5)) scale(.97);
+  transition: opacity var(--dur) var(--ease-out), transform var(--dur) var(--ease-out);
+}
 
-  .goal:first-child {
-    padding-top: 0;
-    border-top: none;
-  }
+.request-modal.is-open .request-modal__backdrop,
+.request-modal.is-open .request-modal__panel {
+  opacity: 1;
+  transform: none;
+}
 
-  /* Значок услуги + стандартный gap (--s-5, 32px) на узком экране
-     отъедали место у длинных названий («ТЕХНИЧЕСКОЕ ОБЕСПЕЧЕНИЕ») —
-     текст обрезался за краем экрана (найдено при проверке значков,
-     доп. промпт про references/4.jpg, п.1) */
-  .accordion__trigger {
-    gap: var(--s-3);
-  }
+.request-modal__close {
+  position: absolute;
+  top: var(--s-3);
+  right: var(--s-3);
+  display: grid;
+  place-items: center;
+  width: var(--btn-h-s);
+  height: var(--btn-h-s);
+  padding: 0;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-full);
+  background: none;
+  cursor: pointer;
+}
 
-  .accordion__name {
-    font-size: var(--fs-accordion-name-m);
-  }
+.request-modal__close svg {
+  width: 16px;
+  height: 16px;
+}
 
-  .accordion__icon {
-    width: 32px;
-    height: 32px;
-  }
+.request-modal__title {
+  max-width: 12ch;
+  font-weight: var(--fw-display-max);
+  font-size: var(--fs-h3);
+  line-height: 1;
+}
 
-  .accordion__icon svg {
-    width: 15px;
-    height: 15px;
-  }
+.request-modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  margin-top: var(--s-5);
+}
 
-  /* Почему мы — 3 колонки в одну, вертикальный разделитель меняется
-     на горизонтальный */
-  .why-us__grid {
-    grid-template-columns: 1fr;
-    row-gap: var(--s-7);
-  }
+/* После успешной отправки остаётся только сообщение */
+.request-modal--success .request-modal__form > :not(.request-modal__status) {
+  display: none;
+}
 
-  .why-us__item {
-    padding-left: 0;
-    padding-top: var(--s-6);
-    border-left: none;
-    border-top: 1px solid color-mix(in srgb, var(--text-light) 8%, transparent);
-  }
-
-  .why-us__item:first-child {
-    padding-top: 0;
-    border-top: none;
-  }
-
-  /* Портфолио — вертикальная лента по одной карточке (§10, mobile) */
-  .portfolio__grid {
-    grid-template-columns: 1fr;
-  }
-
-  /* Клиенты — маркер над лентой, не сбоку */
-  .clients__row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--s-5);
-  }
-
-  .clients__marquee {
-    width: 100%;
-  }
-
-  /* Футер — один столбец, вертикальные разделители меняются на
-     горизонтальные (везде граница только сверху, кроме первого) */
-  .footer__content {
-    grid-template-columns: 1fr;
-  }
-
-  .footer__nav,
-  .footer__contacts,
-  .footer__socials {
-    border-left: none;
-    padding-left: 0;
-    padding-top: var(--s-5);
-    border-top: 1px solid var(--line);
-  }
-
-  .footer__bottom {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--s-2);
+@media (max-width: 639px) {
+  .request-modal__panel {
+    padding: var(--s-5) var(--s-4);
   }
 }

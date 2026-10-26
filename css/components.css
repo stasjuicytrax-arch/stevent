@@ -1,1309 +1,251 @@
-/* Компоненты ST EVENT — переиспользуемые блоки (docs/02-DESIGN-SYSTEM.md, раздел 6) */
+/* Компоненты ST EVENT — редизайн «Лайм на чёрном» (docs/13-REDESIGN-LIME.md) */
 
-/* === Кнопка primary === */
+/* === Кнопки ===
+   Главная — сплошной лайм, полностью круглая, чёрный текст и стрелка
+   в чёрном круге (§4, §7: «главная кнопка — сплошной лайм, не стекло»).
+   Второстепенная — стекло (data-glass, js/liquid-glass.js). */
 
 .btn {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s-4);
-  height: var(--btn-h);
-  padding-left: var(--btn-pad-text);
-  padding-right: var(--btn-pad-circle);
-  border: none;
-  border-radius: var(--r-full);
-  cursor: pointer;
-  text-decoration: none;
-}
-
-/* Ещё одна правка стиля primary-кнопки (ночь 24.09.2026, второй заход) —
-   отменяет предыдущую версию (тонкая обводка + прозрачный фон в покое,
-   заливка и круг только на ховере). Теперь наоборот: кнопка ВСЕГДА
-   залита сплошным --accent, круг со стрелкой виден всегда — обводки
-   и скрытого до-ховера состояния больше нет. */
-.btn--primary {
   position: relative;
-  isolation: isolate;
-  background: var(--accent);
-  border: none;
-  /* Лёгкое затемнение на ховере — единственный оставшийся hover-эффект,
-     без исчезающей заливки/круга (сам просили: "затемнение фона или
-     сдвиг стрелки") */
-  transition: filter var(--dur-fast) var(--ease);
-}
-
-.btn--primary:hover {
-  filter: brightness(.93);
-}
-
-.btn__text {
-  position: relative;
-  z-index: 2;
-  font-family: var(--font-text);
-  /* "тёмный и жирный" — было 600, недостаточно жирно для сплошной
-     заливки */
-  font-weight: 700;
-  font-size: var(--fs-body);
-  color: var(--bg);
-}
-
-/* Белый круг с оранжевой стрелкой внутри — виден всегда, никакого
-   opacity:0/transform-скрытия до ховера, никакой отдельной ::after
-   заливки под ним (кнопка и так уже полностью --accent) */
-.btn__circle {
-  position: relative;
-  z-index: 2;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  width: calc(var(--btn-h) - var(--btn-pad-circle) * 2);
-  height: calc(var(--btn-h) - var(--btn-pad-circle) * 2);
+  gap: var(--s-3);
+  height: var(--btn-h);
+  padding-inline: var(--btn-pad);
+  border: 0;
   border-radius: var(--r-full);
-  background: var(--text);
-  color: var(--accent);
-  transition: transform var(--dur-fast) var(--ease);
+  background: none;
+  font-family: var(--font-text);
+  font-weight: 700;
+  font-size: var(--fs-small);
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
 
-/* Стрелка слегка "въезжает" на ховере — тот же лёгкий эффект, который
-   разрешал доп. промпт, только без исчезновения самого круга */
-.btn--primary:hover .btn__circle {
-  transform: translateX(2px);
+.btn--lime {
+  padding-right: var(--s-2);
+  background: var(--c-lime);
+  color: var(--c-on-lime);
 }
 
-.btn__circle svg {
+.btn--lime:hover {
+  background: var(--c-lime-press);
+}
+
+/* Круг со стрелкой — у главной и тёмной кнопок */
+.btn__arrow {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: calc(var(--btn-h) - var(--s-2) * 2);
+  height: calc(var(--btn-h) - var(--s-2) * 2);
+  border-radius: var(--r-full);
+  background: var(--c-void);
+  color: var(--c-lime);
+  transition: transform var(--dur) var(--ease-out);
+}
+
+.btn__arrow svg {
   width: 40%;
   height: 40%;
 }
 
-/* Вторичная кнопка (ТЗ 2026: «Посмотреть проекты» — менее заметная
-   рядом с основной): та же высота и капсула, без заливки и круга */
-.btn--ghost {
-  padding-right: var(--btn-pad-text);
-  border: 1px solid var(--line-strong);
-  background: none;
-  transition: border-color var(--dur-fast) var(--ease);
+.btn:hover .btn__arrow {
+  transform: rotate(45deg);
 }
 
-.btn--ghost .btn__text {
-  color: var(--text);
-  font-weight: 600;
+/* Тёмная — для лаймового острова контактов (текст на лайме — чёрный) */
+.btn--dark {
+  padding-right: var(--s-2);
+  background: var(--c-void);
+  color: var(--c-lime);
 }
 
-.btn--ghost:hover {
-  border-color: var(--text);
+.btn--dark .btn__arrow {
+  background: var(--c-lime);
+  color: var(--c-void);
 }
 
-/* === Шапка === */
-
-.header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  /* Было 100, ниже .mobile-menu (z-index:200) — при открытом мобильном
-     меню бургер физически оказывался ПОД панелью меню и переставал
-     ловить клики: единственный способ закрыть меню тем же тапом по
-     бургеру не работал (воспроизведено — клик перехватывался
-     #mobileMenu). Шапка (и бургер в ней) должна оставаться поверх
-     панели меню всегда — правка, ночь 24.09.2026. */
-  z-index: 300;
-  transition: background var(--dur) var(--ease);
+.btn--dark:hover {
+  background: var(--c-carbon);
 }
 
-/* Постоянная подложка сверху вниз — меню читается на любом фоне под ним,
-   не только когда включается --header--scrolled (docs/04-REVISION-01.md, R1.2) */
-.header::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: var(--header-scrim-h);
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 75%, transparent), transparent);
-  pointer-events: none;
-  z-index: -1;
+/* Стекло: фон рисует js/liquid-glass.js, здесь только текст */
+.btn--glass {
+  color: var(--c-text);
 }
 
-/* .header--scrolled намеренно не задаёт фон/blur самой шапке — правка,
-   ночь 24.09.2026, п.2: раньше здесь был полупрозрачный тёмный фон на
-   всю ширину, из-за которого при скролле появлялась сплошная тёмная
-   полоса во весь экран. Стекло/фон остаются только у .nav-capsule
-   (единственное разрешённое место, см. комментарий выше); сам класс
-   .header--scrolled остаётся — им уплотняется капсула ниже. */
+/* Контурная — на лайме, второстепенная к тёмной */
+.btn--outline-dark {
+  border: 1.5px solid var(--c-void);
+  color: var(--c-void);
+}
 
-/* Сетка 1fr auto 1fr — капсула стоит ровно по центру экрана при любой
-   ширине логотипа и правого блока, независимо от паддингов контейнера
-   (математически: при симметричных боковых паддингах центр auto-колонки
-   всегда = window.innerWidth/2). docs/05-REVISION-02.md, R17. */
-.header__inner {
+.btn--outline-dark:hover {
+  background: var(--c-void);
+  color: var(--c-lime);
+}
+
+.btn--small {
+  height: var(--btn-h-s);
+  padding-inline: var(--s-4);
+}
+
+/* Круглая лаймовая стрелка — карточки кейсов, строки услуг (§1, NEXUS) */
+.round-arrow {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  padding-inline: var(--content-x);
-  /* Отступ сверху = отступ острова от края экрана + 24px (R17) */
-  padding-top: calc(var(--hero-island-inset) + 24px);
-  padding-bottom: var(--s-4);
-}
-
-/* === Капсула меню — стекло (docs/05-REVISION-02.md, R10, уточнено R17) ===
-   Единственное место на сайте со стеклом — глобальный запрет на
-   glassmorphism в остальных компонентах остаётся в силе. */
-/* impeccable detect: cramped-padding — «children flush against border+bg
-   on all sides» смотрит на padding-block самой .nav-capsule (его нет,
-   инсет даёт flex align-items:center + padding у вложенного .header__link
-   двумя уровнями глубже — см. его правило ниже). Перемерено Playwright
-   после R17: реальный зазор текст→край капсулы 14.8–15.2px (верт.),
-   25px+ (гор.) — не искать здесь, уже проверено глазами и числом. */
-.nav-capsule {
-  grid-column: 2;
-  position: relative;
-  height: var(--nav-capsule-h);
-  display: flex;
-  /* stretch, не center — .header__nav должен получить полную высоту
-     капсулы, чтобы САМ мог растянуть .header__link до 48px (impeccable
-     audit, P3: клик-зона пункта была ~42px). .nav-capsule__highlight
-     не задет — она absolute, вне flex-потока. */
-  align-items: stretch;
-  border-radius: var(--r-full);
-  padding-inline: var(--nav-capsule-pad);
-  /* .08/.22 вместо .07/.18 — на тёмном фото капсула читалась как обводка,
-     не как стекло (R17, п. «Стекло»). Ревизия №6, п.1: всё ещё читалось
-     блёкло — blur 24→36px и saturate 180→220% дают заметно более
-     искажённый контент под капсулой (само по себе главный сигнал
-     «это стекло»); contrast(112%) добавляет лёгкое «стеклянное» пятно
-     без отдельного слоя преломления (полноценная refraction-текстура
-     через SVG displacement на backdrop-filter не работает ни в одном
-     браузере — не тот примитив, filter применяется до backdrop). */
-  background: rgba(255, 255, 255, .08);
-  backdrop-filter: blur(36px) saturate(220%) contrast(112%);
-  -webkit-backdrop-filter: blur(36px) saturate(220%) contrast(112%);
-  border: 1px solid rgba(255, 255, 255, .12);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, .22),
-    inset 0 -1px 0 rgba(0, 0, 0, .25),
-    0 8px 32px rgba(0, 0, 0, .35);
-  transition: padding var(--dur) var(--ease), background var(--dur) var(--ease);
-}
-
-/* Фолбэк для браузеров без backdrop-filter */
-@supports not (backdrop-filter: blur(1px)) {
-  .nav-capsule {
-    background: rgba(8, 8, 10, .88);
-  }
-}
-
-/* При скролле капсула уплотняется */
-.header--scrolled .nav-capsule {
-  padding-inline: 4px;
-  background: rgba(255, 255, 255, .10);
-  backdrop-filter: blur(32px) saturate(180%);
-  -webkit-backdrop-filter: blur(32px) saturate(180%);
-}
-
-/* Скользящая подсветка под наведённым пунктом — позиция/ширина
-   считаются в js/animations.js от bounding box пункта */
-.nav-capsule__highlight {
-  position: absolute;
-  top: 4px;
-  bottom: 4px;
-  left: 0;
-  width: 0;
-  border-radius: var(--r-full);
-  background: rgba(255, 255, 255, .10);
-  opacity: 0;
-  pointer-events: none;
-}
-
-.header__nav {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  /* stretch, не center — клик-зона пункта растягивается на всю высоту
-     капсулы (48px), а не только на высоту текста + padding (~42px,
-     ниже рекомендованных WCAG 2.5.5 44px). Сама капсула не меняется —
-     это только hit-area, R17 её 48px не трогает. impeccable audit, P3. */
-  align-items: stretch;
-  gap: var(--nav-item-gap);
-}
-
-/* Правый блок пустой всегда — кнопка «Обсудить проект» убрана из шапки
-   целиком (правка, ночь 24.09.2026, п.2), обсуждение проекта доступно
-   только через кнопку в hero. .header__right остаётся пустым div —
-   grid 1fr auto 1fr не требует контента в крайних колонках, чтобы
-   капсула стояла по центру (тот же приём, что и у пустой левой). */
-.header__right {
-  grid-column: 3;
-  justify-self: end;
-  height: var(--nav-capsule-h);
-  display: flex;
-  align-items: center;
-}
-
-/* Текст нигде не касается границы капсулы — R17 явно назвал это реальным
-   cramped-padding, не ложным срабатыванием (см. также docs/05-REVISION-02.md
-   R17, пересмотр 19 ранее подавленных находок). */
-.header__link {
-  display: flex;
-  align-items: center;
-  padding: var(--nav-item-pad-y) var(--nav-item-pad-x);
-  font-family: var(--font-text);
-  font-weight: 500;
-  font-size: var(--fs-small);
-  letter-spacing: var(--ls-label);
-  text-transform: uppercase;
-  color: var(--text-2);
-  transition: color var(--dur-fast) var(--ease);
-}
-
-.header__link:hover {
-  color: var(--text);
-}
-
-/* Шапка на мобильном — без фона (чёрная плашка при скролле убрана
-   явным решением, правка ночь 24.09.2026, п.2), поэтому бургер как
-   fixed-элемент постоянно висит поверх контента страницы, который
-   проезжает под ним при скролле. Без собственной подложки его тонкие
-   линии сливались с текстом снизу — на конкретном скролле накрывали
-   "Сочи" в списке городов раздела География, обрезая слово визуально
-   (баг найден и воспроизведён реальным колёсным скроллом, не как
-   особенность именно Географии — совпадение скролл-позиции; тот же
-   эффект был бы над любым другим текстом в этой полосе). Небольшая
-   собственная подложка по кругу — тот же приём, что у остальных
-   круглых icon-кнопок сайта (крестик модалки, стрелки галереи), просто
-   с непрозрачным фоном вместо только обводки, т.к. этой кнопке нужно
-   перекрыть контент под собой, а не просто выделиться на своём фоне.
-   color-mix, не backdrop-filter — блюр разрешён только капсуле меню. */
-.header__burger {
-  grid-column: 3;
-  justify-self: end;
-  display: inline-flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: var(--s-1);
-  /* Было var(--s-7) = 64px — заметно крупнее остальных элементов шапки
-     (капсула меню в среднем ~48px высотой), непропорционально на
-     мобильном (правка, ночь 24.09.2026). var(--s-6) = 48px — стандартный
-     минимальный размер тач-таргета, тот же приём, что у остальных
-     круглых icon-кнопок сайта. */
-  width: var(--s-6);
-  height: var(--s-6);
-  background: color-mix(in srgb, var(--bg) 82%, transparent);
-  border-radius: var(--r-full);
-  border: none;
-  cursor: pointer;
-}
-
-.header__burger span {
-  display: block;
-  /* Было var(--s-5) = 32px — пропорционально уменьшено вместе с самой
-     кнопкой (правка, ночь 24.09.2026) */
-  width: var(--s-4);
-  height: 2px;
-  background: var(--text);
-  transition: transform var(--dur-fast) var(--ease), opacity var(--dur-fast) var(--ease);
-}
-
-/* Три линии складываются в крестик, когда меню открыто — единственная
-   визуальная подсказка, что повторный тап по той же кнопке закроет меню
-   (правка, ночь 24.09.2026 — раньше кнопка никак не показывала своё
-   состояние открыто/закрыто) */
-.header__burger[aria-expanded="true"] span:nth-child(1) {
-  transform: translateY(6px) rotate(45deg);
-}
-
-.header__burger[aria-expanded="true"] span:nth-child(2) {
-  opacity: 0;
-}
-
-.header__burger[aria-expanded="true"] span:nth-child(3) {
-  transform: translateY(-6px) rotate(-45deg);
-}
-
-/* Бургер и десктоп-меню никогда не показаны одновременно
-   (docs/04-REVISION-01.md, R1.1). Точечное исключение до полного шага
-   «Адаптив» — остальная сетка/типографика пока не переверстаны.
-   Идут после базовых правил, чтобы выигрывать при равной специфичности. */
-@media (min-width: 1024px) {
-  .header__burger {
-    display: none;
-  }
-}
-
-@media (max-width: 1023px) {
-  .nav-capsule,
-  .header__right {
-    display: none;
-  }
-}
-
-/* === Мобильное меню (полноэкранное) === */
-
-.mobile-menu {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--s-5);
-  /* Боковой запас — без него длинный пункт мог вплотную подойти к краю
-     экрана (правка, ночь 24.09.2026) */
-  padding-inline: var(--s-5);
-  text-align: center;
-  background: var(--bg);
-  transform: translateY(-100%);
-  transition: transform var(--dur) var(--ease);
-}
-
-.mobile-menu--open {
-  transform: translateY(0);
-}
-
-/* Ссылки внутри <nav> без этого правила остаются inline-элементами по
-   умолчанию — вместо списка друг под другом текст переносился слитно,
-   без отступов между пунктами ("О НАС УСЛУГИ ПОРТФОЛИО..." одним
-   потоком). Столбец с читаемым зазором между пунктами — правка, ночь
-   24.09.2026. */
-.mobile-menu__nav {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--s-4);
-}
-
-.mobile-menu__link {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: var(--fs-display-m);
-  line-height: var(--lh-display-m);
-  color: var(--text);
-}
-
-.mobile-menu__cta {
-  margin-top: var(--s-4);
-}
-
-/* === Прелоадер === */
-
-.preloader {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--s-5);
-  background: var(--bg);
-  transition: transform var(--dur-slow) var(--ease);
-}
-
-.preloader__logo {
-  width: clamp(120px, 20vw, 200px);
-}
-
-.preloader__counter {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: var(--fs-title);
-  letter-spacing: var(--ls-title);
-  color: var(--text-3);
-}
-
-/* Уход шторкой вверх */
-.preloader--hidden {
-  transform: translateY(-100%);
-  pointer-events: none;
-}
-
-/* === Маркер секции: "01 — НАЗВАНИЕ" ===
-   impeccable detect: em-dash-overuse — тире здесь не проза, а обязательный
-   структурный элемент маркера (docs/02-DESIGN-SYSTEM.md §6, «это скелет
-   сайта»). Один маркер на секцию, поэтому счётчик тире растёт вместе с
-   числом секций — это ожидаемо, не признак AI-водянистого текста. */
-
-.section-marker {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--s-1);
-  font-family: var(--font-text);
-  font-weight: 500;
-  font-size: var(--fs-label);
-  line-height: var(--lh-label);
-  letter-spacing: var(--ls-label);
-  text-transform: uppercase;
-}
-
-/* Горизонтальная линия во всю ширину контейнера над каждым маркером —
-   фирменный сквозной приём (docs/05-REVISION-02.md, R12). ::before с
-   flex-basis:100% в flex-wrap контейнере переносит num/text на новую
-   строку — без переверстки разметки во всех местах, где стоит маркер.
-   Прочерчивается слева направо при появлении — js/animations.js. */
-.section-marker::before {
-  content: '';
-  flex-basis: 100%;
-  height: 1px;
-  margin-bottom: var(--s-4);
-  background: var(--line);
-  transform-origin: left center;
-  transform: scaleX(0);
-  /* GSAP не может анимировать псевдоэлементы напрямую — js/animations.js
-     только переключает класс .is-drawn по ScrollTrigger, саму анимацию
-     ведёт этот CSS-transition */
-  transition: transform var(--dur-slow) var(--ease);
-}
-
-.section-marker.is-drawn::before {
-  transform: scaleX(1);
-}
-
-.section-marker__num {
-  color: var(--accent);
-}
-
-.section-marker__text {
-  color: var(--text-3);
-}
-
-/* === Обработка фотографий (docs/02-DESIGN-SYSTEM.md, раздел 7) === */
-
-.media img {
-  filter: grayscale(1) contrast(1.08) brightness(.92);
-  transition: filter var(--dur-slow) var(--ease);
-}
-
-.media:hover img {
-  filter: grayscale(0) contrast(1.04);
-}
-
-/* === Индексная строка (4 колонки, приём референса B) === */
-
-.index-row {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  /* minmax(0, 1fr), не просто 1fr — иначе длинное слово в одной колонке
-     продавливает её min-content и колонки перестают быть равными */
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  border-top: 1px solid var(--line);
-  /* .hero__content стал position:absolute (R22) — .index-row теперь
-     единственный ребёнок острова в обычном потоке flex-колонки, без
-     margin-top:auto он встал бы наверх, а не остался внизу */
-  margin-top: auto;
-}
-
-.index-row__item {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-1);
-  /* impeccable detect: cramped-padding — ложное срабатывание, детектор не
-     резолвит clamp()/var(); реальный inline-отступ от border-left — 48–120px.
-     Пересмотрено по R17 (visual re-audit): Playwright — фактический gap
-     72–73px на 1440px viewport, скриншот screenshots/audit-index-row.png. */
-  padding: var(--s-4) clamp(var(--s-6), 5vw, var(--s-9));
-  border-left: 1px solid var(--line);
-}
-
-.index-row__item:first-child {
-  border-left: none;
-}
-
-.index-row__num {
-  font-family: var(--font-text);
-  font-weight: 600;
-  font-size: var(--fs-small);
-  color: var(--accent);
-}
-
-/* Две плашки «Корпоративный / Частный клиент» (ТЗ 2026) — ссылки
-   в портфолио с фильтром, поэтому крупнее и с ховером */
-.index-row--audience {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.index-row--audience .index-row__item {
-  text-decoration: none;
-  transition: background-color var(--dur) var(--ease);
-}
-
-.index-row--audience .index-row__item:hover {
-  background: color-mix(in srgb, var(--bg) 55%, transparent);
-}
-
-.index-row--audience .index-row__label {
-  font-size: var(--fs-body);
-  color: var(--text);
-}
-
-.index-row__label {
-  font-family: var(--font-text);
-  font-weight: 500;
-  font-size: var(--fs-label);
-  letter-spacing: var(--ls-label);
-  text-transform: uppercase;
-  color: var(--text-2);
-}
-
-/* === Счётчик (стата) === */
-
-/* Вертикальный разделитель между колонками — сквозной приём линий,
-   docs/05-REVISION-02.md R12 (было горизонтальным делителем стопки,
-   теперь счётчики стоят в ряд, см. .manifest__stats).
-   impeccable detect: cramped-padding (border-top/left) на .stat — border-top
-   у элемента вообще нет (детектор путает грань), реальный
-   padding-left: var(--s-5) = 32px; у первого .stat границы и паддинга нет
-   вовсе — так и задумано (первая колонка ряда). Пересмотрено по R17
-   (visual re-audit): Playwright — gap 33px, скриншот
-   screenshots/audit-stats.png — числа не касаются линии. */
-/* border-top вместо border-left — колонка теперь вертикальная (итоговая
-   ревизия, п.5), тот же приём R12, что у .geography__stat */
-.stat {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-1);
-  padding-top: var(--s-4);
-  border-top: 1px solid var(--line);
-}
-
-.stat:first-child {
-  padding-top: 0;
-  border-top: none;
-}
-
-/* Значок — не круглый бейдж, как у услуг (там кликабельная строка
-   аккордеона, здесь статичная цифра — достаточно самого контура),
-   но тот же приём: inline-SVG, stroke, не заливка */
-.stat__icon {
-  display: block;
-  width: 22px;
-  height: 22px;
-  margin-bottom: var(--s-2);
-  color: var(--text-3);
-}
-
-/* display-l вместо display-m — больше визуального веса в колонке,
-   которая раньше выглядела пустой рядом с крупным заголовком слева
-   (итоговая ревизия, п.5) */
-.stat__number {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: var(--fs-display-l);
-  line-height: var(--lh-display-l);
-  letter-spacing: var(--ls-display-l);
-  color: var(--accent);
-}
-
-/* Счётчик-одометр — docs/05-REVISION-02.md, R16.6. Колонка цифр 0–9 внутри
-   каждого разряда, окно (mask) показывает ровно одну — js/animations.js
-   строит разметку и доезжает strip'ы через yPercent. Высота считается
-   локальным 1em, не наследуемым line-height родителя — самодостаточная
-   система, не зависит от --lh-display-m. */
-.odometer__digit {
-  display: inline-block;
-  overflow: hidden;
-  height: 1em;
-  vertical-align: top;
-}
-
-.odometer__strip {
-  display: block;
-}
-
-.odometer__num {
-  display: block;
-  height: 1em;
-  line-height: 1em;
-  font-variant-numeric: tabular-nums;
-}
-
-.odometer__suffix {
-  display: inline-block;
-}
-
-.stat__label {
-  font-family: var(--font-text);
-  font-size: var(--fs-body);
-  color: var(--text-2);
-}
-
-/* === Модалка кейса === */
-
-.case-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 300;
-  overflow-y: auto;
-  /* Без этого докрут колеса после достижения низа модалки "протекал"
-     через scroll chaining на страницу под ней — совпадало по симптомам
-     с Lenis-багом, но было отдельной причиной (найдено при починке
-     скролла внутри модалки кейса). */
-  overscroll-behavior: contain;
-  background: var(--bg);
-}
-
-.case-modal[hidden] {
-  display: none;
-}
-
-.case-modal__close,
-.lightbox__close {
-  position: fixed;
-  top: var(--s-4);
-  right: var(--s-4);
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  place-items: center;
   width: var(--s-7);
   height: var(--s-7);
   border-radius: var(--r-full);
-  border: 1px solid var(--line-strong);
-  background: color-mix(in srgb, var(--bg) 60%, transparent);
-  color: var(--text);
-  cursor: pointer;
-  transition: border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+  background: var(--c-lime);
+  color: var(--c-on-lime);
 }
 
-.case-modal__close svg,
-.lightbox__close svg {
-  width: 40%;
-  height: 40%;
+.round-arrow svg {
+  width: 36%;
+  height: 36%;
 }
 
-.case-modal__close:hover,
-.lightbox__close:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
+/* === Моно-маркер секции: [02] О НАС === */
 
-.case-modal__cover {
-  position: relative;
-  height: 100vh;
-}
-
-.case-modal__cover img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* Градиент-скрим для читаемости названия поверх фото — docs/02-DESIGN-SYSTEM.md §7 */
-.case-modal__cover-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to top,
-    color-mix(in srgb, var(--bg) 70%, transparent),
-    transparent 55%
-  );
-}
-
-.case-modal__cover-content {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: clamp(var(--s-6), 5vw, var(--s-9));
+.section-tag {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: var(--s-3);
+  color: var(--c-text-dim);
+}
+
+.section-tag__num {
+  color: var(--c-lime);
+}
+
+.section-tag::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--c-line);
+}
+
+/* Заголовок секции — крупный, верхний регистр, до 7 слов (§3) */
+.section-title {
+  font-size: var(--fs-h2);
+}
+
+/* === Пилюли (фильтры, теги) === */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
   gap: var(--s-2);
-}
-
-.case-modal__title {
-  font-size: var(--fs-display-l);
-  line-height: var(--lh-display-l);
-  letter-spacing: var(--ls-display-l);
-  color: var(--text);
-}
-
-.case-modal__meta {
-  font-size: var(--fs-small);
-  color: var(--text-3);
-}
-
-.case-modal__body {
-  padding-block: var(--s-10);
-}
-
-.case-modal__info {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-8);
-  max-width: var(--container-narrow);
-}
-
-.case-modal__block {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-3);
-}
-
-.case-modal__block[hidden] {
-  display: none;
-}
-
-/* Абзацы внутри блока (тип ps в js/gallery.js) */
-.case-modal__text p + p {
-  margin-top: var(--s-3);
-}
-
-/* Призыв в конце кейса — ТЗ 2026 */
-.case-modal__cta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--s-4);
-  max-width: var(--container-narrow);
-  margin-top: var(--s-9);
-  padding-top: var(--s-7);
-  border-top: 1px solid var(--line);
-}
-
-.case-modal__cta-title {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: var(--fs-display-m);
-  line-height: var(--lh-display-m);
-  letter-spacing: var(--ls-display-m);
-  color: var(--text);
-}
-
-.case-modal__cta-text {
-  max-width: 60ch;
-  font-size: var(--fs-body-l);
-  line-height: var(--lh-body-l);
-  color: var(--text-2);
-}
-
-.case-modal__block-head {
-  display: flex;
-  align-items: center;
-  gap: var(--s-3);
-}
-
-/* Тот же круглый бейдж, что .accordion__icon (услуги) и .why-us__icon
-   (Почему мы) — правка, добавление иконок в модалку кейса */
-.case-modal__block-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  flex: none;
+  height: var(--btn-h-s);
+  padding-inline: var(--s-4);
+  border: 0;
   border-radius: var(--r-full);
-  border: 1px solid var(--line-strong);
-  color: var(--text-2);
-}
-
-.case-modal__block-icon svg {
-  width: 18px;
-  height: 18px;
-}
-
-.case-modal__text {
-  font-size: var(--fs-body-l);
-  line-height: var(--lh-body-l);
-  color: var(--text-2);
-  max-width: 68ch;
-}
-
-.case-modal__list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-3);
-  list-style: none;
-}
-
-.case-modal__list li {
-  position: relative;
-  padding-left: var(--s-4);
-}
-
-.case-modal__list li::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0.6em;
-  width: var(--s-1);
-  height: var(--s-1);
-  border-radius: var(--r-full);
-  background: var(--accent);
-}
-
-.case-modal__gallery {
-  margin-top: var(--s-9);
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--gutter);
-}
-
-.case-modal__gallery-item {
-  aspect-ratio: 3 / 2;
-  border-radius: var(--r-m);
-  overflow: hidden;
-  border: none;
-  padding: 0;
-  background: var(--surface);
-  cursor: pointer;
-}
-
-.case-modal__gallery-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* === Лайтбокс === */
-
-.lightbox {
-  position: fixed;
-  inset: 0;
-  z-index: 400;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: color-mix(in srgb, var(--bg) 92%, transparent);
-}
-
-.lightbox[hidden] {
-  display: none;
-}
-
-.lightbox__image {
-  max-width: 90vw;
-  max-height: 90vh;
-  object-fit: contain;
-  border-radius: var(--r-m);
-}
-
-.lightbox__arrow {
-  position: fixed;
-  top: 50%;
-  transform: translateY(-50%);
-  border: none;
   background: none;
-  padding: 0;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: var(--fs-mono);
+  letter-spacing: var(--ls-mono);
+  text-transform: uppercase;
+  color: var(--c-text);
+  white-space: nowrap;
   cursor: pointer;
-  line-height: 0;
 }
 
-.lightbox__arrow img {
-  width: var(--s-8);
-  height: auto;
-}
-
-.lightbox__arrow--prev {
-  left: var(--s-5);
-}
-
-.lightbox__arrow--next {
-  right: var(--s-5);
-}
-
-/* === Модалка заявки — пересобрана с нуля (правка, ночь 24.09.2026) ===
-   Прошлая версия ломалась точечными правками пять раз подряд подряд:
-   FLIP-морфинг кнопки в панель (GSAP, завязан на rect триггера и точный
-   тайминг), декоративный водяной знак (бleeding в scrollHeight),
-   пословная лесенка полей (nth-child задержки) — три независимых
-   источника хрупкости на одном компоненте. Новая версия: один класс
-   .is-open переключает fade+scale через обычный CSS transition, без
-   GSAP и без вычисления rect чего-либо. Декор убран, кроме тонкой
-   статичной верхней кромки (не участвует ни в одном из старых багов —
-   не измеряется, не зависит от контента). */
-
-.request-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--s-5);
-}
-
-.request-modal[hidden] {
-  display: none;
-}
-
-/* Сплошное затемнение, НЕ стекло — backdrop-filter на сайте разрешён
-   только капсуле меню (R10), это не пересмотр правила */
-.request-modal__backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(8, 8, 10, .88);
-  opacity: 0;
-  transition: opacity var(--dur) var(--ease);
-}
-
-.request-modal.is-open .request-modal__backdrop {
-  opacity: 1;
-}
-
-.request-modal__panel {
-  position: relative;
-  z-index: 1;
-  width: min(560px, 100%);
-  max-height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
-  overscroll-behavior: contain;
-  padding: var(--s-6);
-  /* Пара тонов темнее --bg, не просто --surface (тот светлее базы) —
-     color-mix, не хардкод хекса, тот же приём, что у --accent-ink.
-     box-shadow — запрет из 02-DESIGN-SYSTEM.md §9 касается карточек
-     контента (портфолио, кейсы); это всплывающая модальная панель,
-     а не карточка, и тень здесь — явное отдельное требование итоговой
-     ревизии (п.3в), не хардкод "по умолчанию". */
-  background: color-mix(in srgb, var(--bg) 90%, black);
-  box-shadow: 0 32px 80px rgba(0, 0, 0, .5);
-  border-radius: var(--r-l);
-  /* Простое появление — fade + лёгкий подъём/масштаб, один class-toggle,
-     без FLIP и без расчёта rect кнопки-триггера */
-  opacity: 0;
-  transform: scale(.96) translateY(8px);
-  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
-}
-
-.request-modal.is-open .request-modal__panel {
-  opacity: 1;
-  transform: scale(1) translateY(0);
-}
-
-/* Верхняя кромка --grad-hot — второе разрешённое место применения
-   помимо hero-острова (02-DESIGN-SYSTEM.md §5: «максимум ещё в одном
-   месте»). Статичная, ничего не измеряет и не зависит от контента —
-   единственный оставшийся декор панели. */
-.request-modal__panel::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: var(--grad-hot);
-}
-
-.request-modal__close {
-  position: absolute;
-  top: var(--s-4);
-  right: var(--s-4);
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--s-6);
-  height: var(--s-6);
-  border-radius: var(--r-full);
-  border: 1px solid var(--line-strong);
-  background: none;
-  color: var(--text);
-  cursor: pointer;
-  transition: border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
-}
-
-.request-modal__close svg {
-  width: 40%;
-  height: 40%;
-}
-
-.request-modal__close:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.request-modal__title {
-  position: relative;
+/* Звёздочка-маркер ✦ (§4) */
+.star {
   display: inline-block;
-  padding-bottom: var(--s-3);
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: var(--fs-display-m);
-  line-height: var(--lh-display-m);
-  color: var(--text);
+  color: currentColor;
 }
 
-/* Тонкая акцентная линия под заголовком */
-.request-modal__title::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  width: var(--s-8);
-  height: 2px;
-  background: var(--accent);
-}
+/* === Бегущая лента === */
 
-.request-modal__form {
+.marquee {
   display: flex;
-  flex-direction: column;
-  gap: var(--s-4);
-  margin-top: var(--s-4);
+  overflow: hidden;
+  white-space: nowrap;
 }
 
-/* Чекбокс и кнопка «Отправить» — одна смысловая группа (согласие → сразу
-   действие), общий gap между ними читался как лишний воздух. */
-.request-modal__form .form-field__checkbox + .request-modal__submit {
-  margin-top: calc(-1 * var(--s-2));
-}
-
-.request-modal__status {
-  min-height: 1.4em;
-  font-size: var(--fs-small);
-  color: var(--text-2);
-}
-
-.request-modal__form.is-success .request-modal__status {
-  color: var(--accent);
-}
-
-/* Успех — заголовок меняется на благодарность (js/request-modal.js) */
-.request-modal--success .request-modal__title {
-  color: var(--accent);
-}
-
-/* Иконка кнопки «Отправить» — переделано полностью (ревизия, ночь
-   24.09.2026, п.1): раньше три SVG лежали друг на друге внутри
-   .btn__circle через position:absolute, opacity-переключение между
-   ними ломалось визуально несколько правок подряд (иконка съезжала,
-   перекашивалась поверх текста). Теперь внутри .btn__circle всего один
-   SVG-элемент (.btn__icon, обычный inline-элемент, без absolute) —
-   js/form.js переключает состояние, подменяя его innerHTML
-   (arrow/spinner/check), а не накладывая слои. Круг и его размер не
-   трогаются вообще — базовые .btn__circle/.btn__circle svg общие для
-   всех .btn--primary (components.css выше), здесь только заменяемое
-   содержимое одного элемента внутри. */
-.btn__icon {
-  transition: transform var(--dur-fast) var(--ease);
-}
-
-.btn__icon.is-spinning {
-  animation: btn-icon-spin .8s linear infinite;
-}
-
-@keyframes btn-icon-spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Галочка «дорисовывается» тем же приёмом stroke-dashoffset, что и
-   раньше — просто теперь это единственный path в единственном SVG,
-   не отдельный наложенный слой */
-.btn__icon-check-path {
-  stroke-dasharray: 16;
-  stroke-dashoffset: 16;
-  transition: stroke-dashoffset var(--dur) var(--ease);
-}
-
-.btn__icon.is-success .btn__icon-check-path {
-  stroke-dashoffset: 0;
-}
-
-@media (max-width: 639px) {
-  .request-modal__panel {
-    width: calc(100vw - var(--s-4) * 2);
-    padding: var(--s-6) var(--s-4);
-  }
-}
-
-/* === Поле формы (docs/02-DESIGN-SYSTEM.md §6, «Форма») === */
-
-.form-field {
+.marquee__track {
   display: flex;
-  flex-direction: column;
-  gap: var(--s-2);
-}
-
-.form-field__label {
-  font-size: var(--fs-small);
-  color: var(--text-2);
-}
-
-.form-field__optional {
-  color: var(--text-3);
-}
-
-/* Без рамок сверху и по бокам — только нижняя линия. Фокус красит её в акцент. */
-.form-field__input {
-  width: 100%;
-  padding-block: var(--s-3);
-  background: none;
-  border: none;
-  border-bottom: 1px solid var(--line);
-  color: var(--text);
-  font-family: var(--font-text);
-  font-size: var(--fs-body);
-  transition: border-color var(--dur-fast) var(--ease);
-}
-
-.form-field__input::placeholder {
-  color: var(--text-3);
-}
-
-.form-field__input:focus {
-  outline: none;
-  border-bottom-color: var(--accent);
-}
-
-.form-field__input[aria-invalid='true'] {
-  border-bottom-color: var(--accent);
-}
-
-.form-field__input--textarea {
-  resize: vertical;
-  min-height: var(--s-9);
-  font-family: inherit;
-}
-
-.form-field__error {
-  min-height: 1em;
-  font-size: var(--fs-small);
-  color: var(--accent);
-}
-
-.form-field__checkbox {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--s-3);
-  font-size: var(--fs-small);
-  color: var(--text-2);
-  cursor: pointer;
-}
-
-.form-field__checkbox input {
-  accent-color: var(--accent);
-  margin-top: 0.2em;
-}
-
-.form-field__checkbox a {
-  color: var(--text);
-  text-decoration: underline;
-}
-
-.form-field__checkbox a:hover {
-  color: var(--accent);
-}
-
-/* === Floating label + наливающаяся линия (docs/08-REVISION-05.md, R27) ===
-   Только для модалки заявки — форма в разделе «Контакты» остаётся как
-   была (R27 её явно не трогает), поэтому это модификатор .form-field,
-   а не правка базового класса. */
-.form-field--float .form-field__control {
-  position: relative;
-}
-
-.form-field--float .form-field__input {
-  padding-top: 22px;
-  padding-bottom: var(--s-2);
-}
-
-.form-field--float .form-field__label {
-  position: absolute;
-  left: 0;
-  bottom: 10px;
-  font-size: var(--fs-body);
-  color: var(--text-3);
-  transform-origin: left bottom;
-  /* transform:scale() вместо анимации font-size напрямую — тот же
-     визуальный эффект (текст уменьшается и уезжает вверх), но не
-     триггерит reflow на каждый кадр. var(--dur)/var(--ease) — по
-     итоговой ревизии, пункт 3б. */
-  transition: transform var(--dur) var(--ease), color var(--dur) var(--ease);
-  pointer-events: none;
-}
-
-/* :not(:placeholder-shown) вместо JS-проверки "заполнено ли поле" —
-   держит лейбл наверху и после потери фокуса, если поле не пустое.
-   placeholder=" " (пробел) в разметке обязателен — иначе состояние
-   :placeholder-shown не сработает вообще */
-.form-field--float .form-field__input:focus + .form-field__label,
-.form-field--float .form-field__input:not(:placeholder-shown) + .form-field__label {
-  transform: translateY(-18px) scale(.82);
-  color: var(--text-2);
-}
-
-/* Линия снизу наливается акцентом слева направо на фокусе — тот же
-   scaleX-приём, что у линии над маркером секции (R12) */
-.form-field--float .form-field__control::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 2px;
-  background: var(--accent);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform var(--dur) var(--ease);
-  pointer-events: none;
-}
-
-.form-field--float .form-field__control:focus-within::after {
-  transform: scaleX(1);
-}
-
-/* === Курсор-точка (docs/02-DESIGN-SYSTEM.md §8) ===
-   8px, растёт до 48px над кликабельным. Только мышь+точный указатель —
-   на тач-устройствах (pointer: coarse) не показываем вообще. Позицию и
-   рост ведёт js/animations.js через gsap.quickTo/scale. */
-.cursor-dot {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 500;
-  width: 8px;
-  height: 8px;
-  margin: -4px 0 0 -4px;
-  border-radius: var(--r-full);
-  background: var(--accent);
-  pointer-events: none;
+  flex: none;
   will-change: transform;
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .cursor-dot {
-    display: block;
-  }
+.marquee__group {
+  display: flex;
+  flex: none;
+  align-items: center;
 }
 
-/* Заголовок секции — обычный поток документа, НЕ sticky (было
-   position:sticky, docs/02-DESIGN-SYSTEM.md §8 описывает его для
-   макета "маркер слева, карточки едут справа"; в реальной вёрстке
-   маркер — full-width заголовок НАД контентом секции в одну колонку,
-   и контент в такой раскладке неизбежно проезжает под залипшим
-   заголовком при скролле — в Географии это было видно как наложение
-   "08 — ГЕОГРАФИЯ" на счётчики, в Портфолио/Контактах то же самое
-   менее заметно на фото/промежутках между блоками. Повторное точечное
-   исправление отступов не решало это системно — маркер просто убран
-   из sticky, правка ночь 24.09.2026). */
-.section-marker {
-  position: static;
+/* === Курсор (js/cursor.js) — только мышь ===
+   Лаймовая точка с mix-blend-mode: difference; над [data-cursor="view"]
+   вырастает в круг «СМОТРЕТЬ» — там смешивание выключается, иначе
+   подпись в круге не читается на фото */
+
+.cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: var(--z-cursor);
+  pointer-events: none;
+  mix-blend-mode: difference;
 }
 
-/* === Часть 4 — Адаптив (докомпонентные правки) === */
-
-@media (max-width: 1023px) {
-  /* Индексная строка hero — 2 колонки вместо 4 */
-  .index-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+.cursor__dot {
+  position: absolute;
+  top: calc(var(--cursor-view-d) / -2);
+  left: calc(var(--cursor-view-d) / -2);
+  display: grid;
+  place-items: center;
+  width: var(--cursor-view-d);
+  height: var(--cursor-view-d);
+  border-radius: var(--r-full);
+  background: var(--c-lime);
+  transform: scale(calc(var(--cursor-d) / var(--cursor-view-d)));
+  transition: transform var(--dur) var(--ease-out);
 }
 
-@media (max-width: 639px) {
-  /* Плашки «Корпоративный / Частный клиент»: десктопный паддинг (от 48px
-     с каждой стороны) оставлял колонке ~75px — «КОРПОРАТИВНЫЙ»
-     наезжало на соседнюю плашку */
-  .index-row--audience .index-row__item {
-    padding: var(--s-4) var(--s-3);
-  }
-
-  .index-row--audience .index-row__label {
-    font-size: var(--fs-label);
-  }
-
-  /* Галерея кейса — 2 колонки вместо 3, иначе плитки становятся крошечными */
-  .case-modal__gallery {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+.cursor__label {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: var(--fs-mono);
+  letter-spacing: var(--ls-mono);
+  color: var(--c-on-lime);
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out);
 }
 
+.cursor.is-view {
+  mix-blend-mode: normal;
+}
+
+.cursor.is-view .cursor__dot {
+  transform: scale(1);
+}
+
+.cursor.is-view .cursor__label {
+  opacity: 1;
+}
+
+.cursor.is-hidden .cursor__dot {
+  transform: scale(0);
+}
+
+/* Нативный курсор прячем только там, где работает свой */
+html.has-cursor,
+html.has-cursor a,
+html.has-cursor button,
+html.has-cursor [role="button"] {
+  cursor: none;
+}
+
+html.has-cursor input,
+html.has-cursor textarea {
+  cursor: text;
+}
