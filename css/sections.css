@@ -489,7 +489,7 @@
 
 .tapes {
   position: relative;
-  height: clamp(150px, 15vw, 230px);
+  height: clamp(200px, 19vw, 300px);
   margin-block: var(--s-4);
   overflow: hidden;
 }
@@ -507,18 +507,23 @@
   text-transform: uppercase;
 }
 
+/* Ленты разнесены по высоте и перекрещиваются только по центру —
+   раньше обе стояли на 50% и серая почти целиком пряталась под лаймовой
+   (особенно на телефоне, где наклон даёт малый сдвиг) */
 .tape--lime {
   z-index: 2;
+  top: 34%;
   background: var(--c-lime);
   color: var(--c-on-lime);
-  transform: translateY(-50%) rotate(-3deg);
+  transform: translateY(-50%) rotate(-4deg);
 }
 
 .tape--dark {
   z-index: 1;
+  top: 66%;
   background: var(--c-steel);
-  color: var(--c-text);
-  transform: translateY(-50%) rotate(3deg);
+  color: var(--c-bone);
+  transform: translateY(-50%) rotate(4deg);
 }
 
 .tape--dark .star {
