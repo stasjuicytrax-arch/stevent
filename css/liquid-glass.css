@@ -1,0 +1,73 @@
+/* Жидкое стекло — слои, которые js/liquid-glass.js вставляет в элемент
+   с атрибутом data-glass. Сам элемент задаёт форму (border-radius) и
+   контент; стекло живёт под контентом в его изолированном контексте. */
+
+[data-glass] {
+  isolation: isolate;
+}
+
+.lg-layer {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Линза: фон под элементом через backdrop-filter (преломление или мат) */
+.lg-lens,
+.lg-fill,
+.lg-glow {
+  inset: 0;
+  border-radius: inherit;
+}
+
+/* Обод: блик и тень, выходит на 2px за форму */
+.lg-overlay {
+  inset: -2px;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+.lg-fill[data-fill="regular-light"] {
+  background-color: var(--lg-fill-light);
+}
+
+.lg-fill[data-fill="regular-dark"] {
+  background-color: var(--lg-fill-dark);
+}
+
+.lg-fill[data-fill="veil-frost"] {
+  background-color: var(--lg-veil-frost);
+}
+
+.lg-fill[data-fill="veil"] {
+  background-color: var(--lg-veil);
+}
+
+/* Подсветка под курсором — --lg-glow* пишет пружина в JS */
+.lg-glow {
+  --lg-glow-color: var(--lg-glow-light);
+  background-image: radial-gradient(
+    var(--lg-glow-size, 64px) circle at var(--lg-glow-x, 50%) var(--lg-glow-y, 50%),
+    color-mix(in srgb, var(--lg-glow-color) calc(var(--lg-glow, 0) * 100%), transparent),
+    transparent 65%
+  );
+}
+
+[data-glass-appearance="dark"] > .lg-glow {
+  --lg-glow-color: var(--lg-glow-dark);
+}
+
+[data-glass-interactive] {
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Общий SVG-хост фильтров — вне потока и невидим */
+.lg-defs {
+  position: fixed;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}

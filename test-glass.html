@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Тест жидкого стекла — ST EVENT</title>
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/liquid-glass.css">
+  <style>
+    /* Страница-песочница для js/liquid-glass.js — не часть сайта */
+    body {
+      min-height: 100vh;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .stage {
+      position: fixed;
+      inset: 0;
+    }
+
+    .stage img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .stage__title {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: var(--fs-display-xl);
+      letter-spacing: var(--ls-display-xl);
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .demo-nav {
+      position: fixed;
+      top: var(--s-4);
+      left: 50%;
+      translate: -50% 0;
+      display: flex;
+      gap: var(--s-1);
+      padding: var(--s-2);
+      border-radius: var(--r-full);
+    }
+
+    .demo-nav a {
+      padding: var(--s-2) var(--s-4);
+      border-radius: var(--r-full);
+      font-size: var(--fs-small);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: var(--ls-label);
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .demo-btn {
+      position: fixed;
+      left: 50%;
+      bottom: var(--s-8);
+      translate: -50% 0;
+      padding: var(--s-4) var(--s-7);
+      border: 0;
+      border-radius: var(--r-full);
+      background: none;
+      font-family: var(--font-text);
+      font-weight: 700;
+      font-size: var(--fs-body);
+      text-transform: uppercase;
+      color: var(--text);
+    }
+
+    .demo-card {
+      position: fixed;
+      left: var(--s-6);
+      bottom: var(--s-6);
+      width: min(340px, calc(100vw - var(--s-6) * 2));
+      padding: var(--s-5);
+      border-radius: var(--r-l);
+    }
+
+    .demo-card h2 {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: var(--fs-title);
+      text-transform: uppercase;
+    }
+
+    .demo-card p {
+      margin-top: var(--s-2);
+      font-size: var(--fs-small);
+      line-height: var(--lh-small);
+    }
+
+    .demo-info {
+      position: fixed;
+      right: var(--s-4);
+      bottom: var(--s-4);
+      font-size: var(--fs-label);
+      letter-spacing: var(--ls-label);
+      text-transform: uppercase;
+      color: var(--text-2);
+    }
+
+    .demo-nav a,
+    .demo-btn {
+      white-space: nowrap;
+    }
+
+    @media (max-width: 639px) {
+      .demo-nav {
+        gap: 0;
+        padding: var(--s-1);
+      }
+
+      .demo-nav a {
+        padding: var(--s-2);
+        font-size: var(--fs-label);
+        letter-spacing: 0;
+      }
+
+      .demo-btn {
+        padding: var(--s-3) var(--s-5);
+      }
+
+      .demo-card {
+        left: var(--s-3);
+        bottom: calc(var(--s-8) + var(--s-9));
+      }
+
+      .demo-info {
+        left: var(--s-3);
+        right: var(--s-3);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="stage" id="stage">
+    <img id="stageImg" src="assets/portfolio/kron/kron-04.jpg" alt="">
+    <p class="stage__title" aria-hidden="true">ST EVENT</p>
+  </div>
+
+  <!-- Капсула-меню: прозрачное светлое стекло -->
+  <nav class="demo-nav" data-glass data-glass-refraction="14">
+    <a href="#">О нас</a>
+    <a href="#">Услуги</a>
+    <a href="#">Портфолио</a>
+    <a href="#">Контакты</a>
+  </nav>
+
+  <!-- Кнопка: пружина нажатия + подсветка под курсором. Клик меняет фон -->
+  <button class="demo-btn" id="demoBtn" type="button" data-glass data-glass-interactive data-glass-refraction="18">Сменить фон</button>
+
+  <!-- Карточка: тёмное матовое стекло -->
+  <div class="demo-card" id="demoCard" data-glass data-glass-appearance="dark" data-glass-material="regular" data-glass-refraction="32" data-glass-bezel="32" data-glass-blur="2">
+    <h2>Стеклянная карточка</h2>
+    <p>Тёмное матовое стекло поверх фото. Перетащите её мышью — карта преломления едет вместе с ней, а при смене размера окна пересчитывается.</p>
+  </div>
+
+  <p class="demo-info" id="demoInfo"></p>
+
+  <script src="js/liquid-glass.js" defer></script>
+  <script defer>
+    (function () {
+      'use strict';
+
+      var PHOTOS = [
+        'assets/portfolio/kron/kron-04.jpg',
+        'assets/portfolio/bitva-robotov/bitva-robotov-12.jpg',
+        'assets/portfolio/vypusknoy/cover.jpg',
+        'assets/common/hero-stage.jpg'
+      ];
+      var index = 0;
+
+      document.addEventListener('DOMContentLoaded', function () {
+        var img = document.getElementById('stageImg');
+        var info = document.getElementById('demoInfo');
+        var card = document.getElementById('demoCard');
+
+        document.getElementById('demoBtn').addEventListener('click', function () {
+          index = (index + 1) % PHOTOS.length;
+          img.src = PHOTOS[index];
+        });
+
+        // Режим каждого стекла пишет сам скрипт в data-liquid-glass
+        requestAnimationFrame(function () {
+          var modes = Array.prototype.map.call(document.querySelectorAll('[data-glass]'), function (el) {
+            return el.getAttribute('data-liquid-glass');
+          });
+          info.textContent = 'движок: ' + window.LiquidGlass.engine() + ' · режим: ' + modes.join(' / ');
+        });
+
+        // Перетаскивание карточки — проверка, что стекло преломляет
+        // то, что под ним сейчас
+        var drag = null;
+        card.addEventListener('pointerdown', function (event) {
+          var rect = card.getBoundingClientRect();
+          drag = { dx: event.clientX - rect.left, dy: event.clientY - rect.top };
+          card.setPointerCapture(event.pointerId);
+        });
+        card.addEventListener('pointermove', function (event) {
+          if (!drag) return;
+          card.style.left = event.clientX - drag.dx + 'px';
+          card.style.top = event.clientY - drag.dy + 'px';
+          card.style.bottom = 'auto';
+        });
+        card.addEventListener('pointerup', function () {
+          drag = null;
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
