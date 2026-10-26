@@ -120,6 +120,15 @@
         ],
         "createdAt": "2026-10-19T19:43:35.633Z",
         "reason": "Claude: .hero__media намеренно выходит за .hero__island (отрицательный inset — запас под параллакс), обрезка overflow:hidden задумана; всплывающих слоёв внутри нет"
+      },
+      {
+        "rule": "buried-raster",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-10-26T20:02:07.417Z",
+        "reason": "Claude: копии фото hero для моушн-шлейфа, проявляются анимацией (docs/13 §5)"
       }
     ]
   }
