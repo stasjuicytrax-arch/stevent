@@ -53,7 +53,7 @@
 
     // Магнит: кнопка чуть тянется за курсором и пружинит обратно
     document.querySelectorAll(MAGNET_SELECTOR).forEach(function (el) {
-      if (!hasGsap || el.hasAttribute('data-glass-interactive')) return; // у стекла своя пружина
+      if (!hasGsap) return;
       var toX = gsap.quickTo(el, 'x', { duration: 0.5, ease: 'power3.out' });
       var toY = gsap.quickTo(el, 'y', { duration: 0.5, ease: 'power3.out' });
       el.addEventListener('mousemove', function (event) {

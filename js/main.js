@@ -59,109 +59,103 @@
     setTimeout(finish, 3200); // предохранитель, если rAF застрял
   }
 
-  /* ---------- Шапка: прячется при скролле вниз, возвращается вверх ---------- */
+  /* ---------- Шапка-пилюля (рецепт DIGITAL EVENTS, раздел 5) ----------
+     Десктоп: при скролле вниз на 80px сжимается до «логотип + бургер»,
+     при скролле вверх на 40px раскрывается. Мобильный: всегда сжатая,
+     бургер открывает полноэкранное меню. */
+
+  var desktopQuery = window.matchMedia('(min-width: 1024px)');
 
   function initHeader() {
     var header = document.getElementById('siteHeader');
-    if (!header) return;
-    var lastY = window.scrollY;
-
-    window.addEventListener('scroll', function () {
-      var y = window.scrollY;
-      var menuOpen = document.body.classList.contains('menu-open');
-      header.classList.toggle('header--scrolled', y > 20);
-      if (!menuOpen) header.classList.toggle('header--hidden', y > lastY && y > 160);
-      lastY = y;
-    }, { passive: true });
-  }
-
-  /* ---------- «Капля» в капсуле меню: перетекает к пункту ---------- */
-
-  function initNavDrop() {
-    var capsule = document.getElementById('navCapsule');
-    var drop = document.getElementById('navDrop');
-    if (!capsule || !drop) return;
-    var links = Array.prototype.slice.call(capsule.querySelectorAll('.nav-capsule__link'));
-    var active = null;
-
-    function moveTo(link, instant) {
-      if (!link) {
-        drop.classList.remove('is-visible');
-        return;
-      }
-      var cRect = capsule.getBoundingClientRect();
-      var lRect = link.getBoundingClientRect();
-      var x = lRect.left - cRect.left;
-      drop.classList.add('is-visible');
-      if (hasGsap && !reduceMotion && !instant) {
-        // Капля сначала вытягивается к цели, потом догоняет — «перетекание»
-        gsap.to(drop, { x: x, width: lRect.width, duration: 0.55, ease: 'elastic.out(1, 0.75)', overwrite: true });
-      } else {
-        drop.style.transform = 'translateX(' + x + 'px)';
-        drop.style.width = lRect.width + 'px';
-      }
-    }
-
-    links.forEach(function (link) {
-      link.addEventListener('mouseenter', function () { moveTo(link); });
-    });
-    capsule.addEventListener('mouseleave', function () { moveTo(active); });
-
-    // Активный пункт — по секции, которая сейчас в середине экрана
-    var sections = links.map(function (link) {
-      return document.querySelector(link.getAttribute('href'));
-    });
-    var observer = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (!entry.isIntersecting) return;
-        var i = sections.indexOf(entry.target);
-        active = links[i] || null;
-        links.forEach(function (l) { l.classList.toggle('is-active', l === active); });
-        moveTo(active);
-      });
-    }, { rootMargin: '-45% 0px -45% 0px' });
-    sections.forEach(function (section) { if (section) observer.observe(section); });
-
-    // Над hero активного пункта нет — капля прячется
-    var hero = document.getElementById('hero');
-    if (hero) {
-      new IntersectionObserver(function (entries) {
-        if (entries[0].isIntersecting && entries[0].intersectionRatio > 0.5) {
-          active = null;
-          links.forEach(function (l) { l.classList.remove('is-active'); });
-          moveTo(null);
-        }
-      }, { threshold: [0.5] }).observe(hero);
-    }
-  }
-
-  /* ---------- Мобильное меню ---------- */
-
-  function initBurger() {
+    var pill = document.getElementById('navPill');
     var burger = document.getElementById('burgerBtn');
     var menu = document.getElementById('mobileMenu');
-    if (!burger || !menu) return;
+    if (!header || !pill || !burger) return;
+    var logo = pill.querySelector('.nav-pill__logo');
 
-    var header = document.getElementById('siteHeader');
+    // Разница полной и сжатой ширины — на неё сужается подложка и
+    // сдвигается пилюля (css/sections.css, --nav-collapse)
+    function measure() {
+      if (!desktopQuery.matches) {
+        pill.style.removeProperty('--nav-collapse');
+        return;
+      }
+      var cs = getComputedStyle(pill);
+      var collapsed = parseFloat(cs.paddingLeft) + logo.offsetWidth +
+        parseFloat(cs.columnGap) + burger.offsetWidth + parseFloat(cs.paddingRight);
+      pill.style.setProperty('--nav-collapse', Math.max(0, pill.offsetWidth - collapsed) + 'px');
+    }
 
-    function setOpen(open) {
-      // Шапка могла уехать при скролле — кнопка закрытия должна быть видна
-      if (open && header) header.classList.remove('header--hidden');
+    function setCollapsed(on) {
+      header.classList.toggle('is-collapsed', on);
+    }
+
+    var lastY = window.scrollY;
+    var down = 0;
+    var up = 0;
+    window.addEventListener('scroll', function () {
+      var y = window.scrollY;
+      var dy = y - lastY;
+      lastY = y;
+      if (y < 80) {
+        down = up = 0;
+        setCollapsed(false);
+        return;
+      }
+      if (dy > 0) {
+        down += dy;
+        up = 0;
+        if (down > 80) setCollapsed(true);
+      } else if (dy < 0) {
+        up -= dy;
+        down = 0;
+        if (up > 40) setCollapsed(false);
+      }
+    }, { passive: true });
+
+    function setMenuOpen(open) {
+      if (!menu) return;
       menu.classList.toggle('mobile-menu--open', open);
       document.body.classList.toggle('menu-open', open);
       burger.setAttribute('aria-expanded', String(open));
       burger.setAttribute('aria-label', open ? 'Закрыть меню' : 'Открыть меню');
     }
 
+    // На десктопе бургер раскрывает пилюлю обратно, на телефоне — меню
     burger.addEventListener('click', function () {
-      setOpen(!menu.classList.contains('mobile-menu--open'));
+      if (desktopQuery.matches) {
+        down = 0;
+        setCollapsed(false);
+        return;
+      }
+      setMenuOpen(!menu.classList.contains('mobile-menu--open'));
     });
-    menu.querySelectorAll('a').forEach(function (link) {
-      link.addEventListener('click', function () { setOpen(false); });
-    });
+    if (menu) {
+      menu.querySelectorAll('a').forEach(function (link) {
+        link.addEventListener('click', function () { setMenuOpen(false); });
+      });
+    }
     document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape') setOpen(false);
+      if (event.key === 'Escape') setMenuOpen(false);
     });
+
+    measure();
+    window.addEventListener('resize', measure);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+    window.addEventListener('load', measure);
+
+    // Активный пункт — по секции в середине экрана
+    var links = Array.prototype.slice.call(pill.querySelectorAll('.nav-pill__link'));
+    var sections = links.map(function (link) { return document.querySelector(link.getAttribute('href')); });
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        var active = links[sections.indexOf(entry.target)];
+        links.forEach(function (l) { l.classList.toggle('is-active', l === active); });
+      });
+    }, { rootMargin: '-45% 0px -45% 0px' });
+    sections.forEach(function (section) { if (section) observer.observe(section); });
   }
 
   /* ---------- Плавная прокрутка к якорям через Lenis ---------- */
@@ -256,8 +250,6 @@
   document.addEventListener('DOMContentLoaded', function () {
     initPreloader();
     initHeader();
-    initNavDrop();
-    initBurger();
     initAnchors();
     initServices();
     initWhyCards();

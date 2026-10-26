@@ -92,10 +92,18 @@
   --s-9: 128px;
   --s-section: clamp(88px, 11vw, 168px); /* вертикальный ритм секций */
 
-  /* Кнопки */
-  --btn-h: 60px;
+  /* Кнопки — рецепт DIGITAL EVENTS (раздел 4): круг стоит вплотную к
+     правому краю, отступ от круга до края = отступу сверху и снизу */
+  --btn-h: 56px;
+  --btn-arrow: 40px;
+  --btn-pad: 24px;
   --btn-h-s: 44px;
-  --btn-pad: 28px;
+  --btn-arrow-s: 32px;
+  --btn-pad-s: 16px;
+
+  /* Шапка-пилюля (раздел 5) */
+  --nav-h: 64px;
+  --nav-logo-h: 26px;
 
   /* === §6. Движение === */
 
@@ -132,14 +140,4 @@
   --geo-wave-dur: 1.4s;
   --geo-dot-step: 9px;
   --geo-dot-d: 2px;
-
-  /* === Жидкое стекло — css/liquid-glass.css, js/liquid-glass.js ===
-     Константы материалов из исходника стекла (§4) */
-  --lg-fill-light: rgb(255 255 255 / .34);
-  --lg-fill-dark: rgb(16 16 18 / .65);
-  --lg-fill-opacity: .34;
-  --lg-veil-frost: rgb(8 8 10 / .16);
-  --lg-veil: rgb(8 8 10 / .08);
-  --lg-glow-light: rgb(255 255 255 / .3);
-  --lg-glow-dark: rgb(255 255 255 / .16);
 }
