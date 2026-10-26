@@ -11,19 +11,29 @@
   <link rel="stylesheet" href="css/sections.css">
 </head>
 <body>
+  <!-- Жидкое стекло: та же SVG-карта, что на главной (js/liquid-glass.js) -->
+  <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+    <filter id="st-liquid" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+      <feImage id="st-liquid-map" x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="map"/>
+      <feDisplacementMap in="SourceGraphic" in2="map" scale="32" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </svg>
 
-  <header class="header header--scrolled">
-    <div class="header__inner container">
-      <a href="index.html" class="header__logo">
-        <img src="assets/brand/logo-st-white.png" alt="Логотип ST EVENT">
+  <!-- Шапка — та же стеклянная пилюля, что на главной: логотип и
+       возврат на главную -->
+  <header class="header">
+    <div class="nav-pill">
+      <span class="glass glass-nav nav-pill__glass" aria-hidden="true"></span>
+      <a class="nav-pill__logo" href="index.html" aria-label="ST EVENT — на главную">
+        <img src="assets/brand/logo-st-white.png" alt="">
       </a>
-      <a href="index.html" class="legal__back">← На главную</a>
+      <a href="index.html" class="btn btn--primary btn--compact legal__back"><span class="btn__text">На главную</span><span class="btn__arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M11 5L5 11M5 11H9.5M5 11V6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a>
     </div>
   </header>
 
   <main class="legal">
-    <div class="container-narrow">
-      <p class="label">Политика конфиденциальности</p>
+    <div class="container legal__inner">
+      <p class="section-tag mono"><span class="section-tag__num">[ST EVENT]</span><span>Политика конфиденциальности</span></p>
       <h1 class="legal__title">Политика обработки персональных данных</h1>
       <p class="legal__updated">Действует с [УТОЧНИТЬ У КЛИЕНТА — дата публикации]</p>
 
@@ -97,21 +107,33 @@
   </main>
 
   <footer class="footer">
-    <div class="footer__bg" aria-hidden="true">
-      <img src="assets/common/footer-bg.jpg" alt="">
-    </div>
-    <div class="footer__content container">
-      <div class="footer__brand">
-        <img class="footer__logo" src="assets/brand/logo-st-white.png" alt="Логотип ST EVENT">
-        <p class="footer__descriptor label">событие // искусство // видео</p>
+    <div class="container footer__top">
+      <nav class="footer__col" aria-label="Меню в подвале">
+        <p class="mono footer__label">Меню</p>
+        <a class="mono" href="index.html#about">О нас</a>
+        <a class="mono" href="index.html#services">Услуги</a>
+        <a class="mono" href="index.html#portfolio">Портфолио</a>
+        <a class="mono" href="index.html#contacts">Контакты</a>
+      </nav>
+      <div class="footer__col">
+        <p class="mono footer__label">Контакты</p>
+        <a class="mono" href="tel:+73422774812">+7 (342) 277-48-12</a>
+        <a class="mono" href="mailto:st2000event@gmail.com">st2000event@gmail.com</a>
+        <p class="mono">Пермь, ул. Лодыгина, 9</p>
       </div>
-      <div class="footer__bottom">
-        <p class="footer__copyright">© 2026 ST EVENT</p>
-        <a class="footer__privacy" href="privacy.html">Политика конфиденциальности</a>
+      <div class="footer__col">
+        <p class="mono footer__label">Соцсети</p>
+        <a class="mono" href="https://t.me/st_stevent" target="_blank" rel="noopener noreferrer">Telegram ↗</a>
+        <a class="mono" href="https://vk.com/prazdnikvperm" target="_blank" rel="noopener noreferrer">ВКонтакте ↗</a>
+      </div>
+      <div class="footer__col footer__col--end">
+        <p class="mono footer__label">событие // искусство // видео</p>
+        <p class="mono">© 2026 ST EVENT</p>
       </div>
     </div>
+    <p class="footer__giant" aria-label="ST EVENT"><span class="footer__letter" aria-hidden="true">S</span><span class="footer__letter" aria-hidden="true">T</span><span class="footer__letter" aria-hidden="true">&nbsp;</span><span class="footer__letter" aria-hidden="true">E</span><span class="footer__letter" aria-hidden="true">V</span><span class="footer__letter" aria-hidden="true">E</span><span class="footer__letter" aria-hidden="true">N</span><span class="footer__letter" aria-hidden="true">T</span></p>
   </footer>
 
-  <script src="js/main.js" defer></script>
+  <script src="js/liquid-glass.js" defer></script>
 </body>
 </html>

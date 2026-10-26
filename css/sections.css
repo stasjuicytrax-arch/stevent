@@ -1267,8 +1267,13 @@
     right: calc(var(--s-7) + var(--s-4));
   }
 
+  /* На телефоне фильтр стоит в начале блока и не едет за скроллом
+     (правка заказчика 26.10.2026) */
   .portfolio__filters {
-    top: calc(var(--s-7) + var(--s-3));
+    position: relative;
+    top: auto;
+    margin: var(--s-5) 0 0;
+    transform: none;
   }
 }
 
@@ -2270,4 +2275,92 @@
   .request-modal__panel {
     padding: var(--s-5) var(--s-4);
   }
+}
+
+/* ======================================================================
+   ПОЛИТИКА КОНФИДЕНЦИАЛЬНОСТИ (privacy.html) — та же система, что на
+   главной: шапка-пилюля, моно-маркер, крупный заголовок, футер
+   ====================================================================== */
+
+.legal {
+  padding-block: calc(var(--s-9) + var(--s-5)) var(--s-section);
+}
+
+.legal__inner {
+  max-width: calc(68ch + var(--pad-x) * 2);
+}
+
+.legal__back {
+  margin-left: var(--s-2);
+}
+
+.legal__title {
+  margin-top: var(--s-5);
+  font-weight: var(--fw-display-max);
+  font-size: var(--fs-h3);
+  line-height: 1;
+}
+
+.legal__updated {
+  margin-top: var(--s-3);
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  letter-spacing: var(--ls-mono);
+  text-transform: uppercase;
+  color: var(--c-text-dim);
+}
+
+.legal__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-7);
+  margin-top: var(--s-8);
+}
+
+.legal__section {
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--c-line);
+}
+
+.legal__section h2 {
+  font-size: var(--fs-title);
+  line-height: var(--lh-title);
+}
+
+.legal__section p,
+.legal__section ul {
+  max-width: 68ch;
+  margin-top: var(--s-3);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--c-text-dim);
+}
+
+.legal__section ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.legal__section li {
+  position: relative;
+  padding-left: var(--s-4);
+}
+
+.legal__section li::before {
+  content: '+';
+  position: absolute;
+  left: 0;
+  font-family: var(--font-mono);
+  color: var(--c-lime);
+}
+
+.legal__section a {
+  color: var(--c-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.legal__section a:hover {
+  color: var(--c-lime);
 }
