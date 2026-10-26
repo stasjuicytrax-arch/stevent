@@ -1372,23 +1372,25 @@
 
 .fan-gallery__dots {
   display: flex;
-  gap: var(--s-1);
+  gap: 0;
 }
 
 .fan-gallery__dot {
-  width: var(--s-3);
+  width: var(--s-5);
   height: 3px;
   padding: 0;
   border: 0;
   border-radius: var(--r-full);
   background: var(--c-steel);
   cursor: pointer;
-  transition: width var(--dur) var(--ease-out), background-color var(--dur) var(--ease-out);
+  /* ширина анимируется через scaleX, а не width — без перекладки */
+  transform: scaleX(.5);
+  transition: transform var(--dur) var(--ease-out), background-color var(--dur) var(--ease-out);
 }
 
 .fan-gallery__dot--active {
-  width: var(--s-6);
   background: var(--c-lime);
+  transform: scaleX(1);
 }
 
 /* ======================================================================
