@@ -957,24 +957,6 @@
   background: var(--c-ink-faint);
 }
 
-/* Огромный полупрозрачный заголовок за карточками (Elevate) */
-.why-us__bg-title {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  z-index: 0;
-  font-family: var(--font-display);
-  font-weight: var(--fw-display-max);
-  font-size: clamp(72px, 15vw, 260px);
-  line-height: .9;
-  letter-spacing: -.03em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  color: var(--c-ink-faint);
-  transform: translate(-50%, -40%);
-  pointer-events: none;
-}
-
 .why-us__cards {
   position: relative;
   z-index: 1;

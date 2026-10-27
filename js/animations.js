@@ -370,12 +370,6 @@
       }
     });
 
-    gsap.fromTo('.why-us__bg-title', { xPercent: 8 }, {
-      xPercent: -8,
-      ease: 'none',
-      scrollTrigger: { trigger: '.why-us', start: 'top bottom', end: 'bottom top', scrub: true }
-    });
-
     // Цифры докручиваются, когда карточки встают в ряд
     $$('.why-card__big', wrap).forEach(function (el) {
       var m = el.textContent.match(/^(\D*)(\d+)(\D*)$/);
