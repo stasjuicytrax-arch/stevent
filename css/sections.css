@@ -1783,13 +1783,39 @@
   width: 100%;
 }
 
+/* Поле-ловушка для ботов — вне экрана (не display:none: часть ботов
+   пропускает скрытые поля) */
+.form-hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Статус отправки — стеклянная плашка: лайм при успехе, ссылки на
+   мессенджер при ошибке. Появляется снизу (js/form.js, is-visible) */
 .form-card__status,
 .request-modal__status {
-  font-family: var(--font-mono);
-  font-size: var(--fs-mono);
-  letter-spacing: var(--ls-mono);
-  text-transform: uppercase;
-  color: var(--c-text-dim);
+  position: relative;
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-card);
+  background: rgb(242 241 234 / .06);
+  -webkit-backdrop-filter: blur(10px) saturate(1.4);
+  backdrop-filter: blur(10px) saturate(1.4);
+  box-shadow: inset 0 1px 0 rgb(242 241 234 / .22), inset 0 0 0 1px rgb(242 241 234 / .10);
+  font-size: var(--fs-small);
+  line-height: var(--lh-body);
+  color: var(--c-text);
+  opacity: 0;
+  transform: translateY(var(--s-2));
+  transition: opacity var(--dur) var(--ease-out), transform var(--dur) var(--ease-out);
+}
+
+.form-card__status.is-visible,
+.request-modal__status.is-visible {
+  opacity: 1;
+  transform: none;
 }
 
 .form-card__status:empty,
@@ -1797,9 +1823,17 @@
   display: none;
 }
 
-.is-success .form-card__status,
-.is-success .request-modal__status {
+.form-card__status.is-success,
+.request-modal__status.is-success {
   color: var(--c-lime);
+  box-shadow: inset 0 1px 0 rgb(242 241 234 / .22), inset 0 0 0 1px rgb(212 255 42 / .35);
+}
+
+.form-card__status a,
+.request-modal__status a {
+  color: var(--c-lime);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 /* Иконка отправки: стрелка → спиннер → галочка (js/form.js) */

@@ -9,6 +9,8 @@
 
   var modal, form, closeBtn, backdrop, titleEl;
   var formController = null;
+  var formNameInput = null;
+  var closeTimer = null;
   var lastFocusedEl = null;
   var TITLE_DEFAULT = 'Обсудить мероприятие';
   var TITLE_SUCCESS = 'Спасибо, заявка отправлена!';
@@ -42,10 +44,16 @@
     }
   }
 
-  function openModal(triggerEl) {
+  // source — откуда открыли форму (кнопка в шапке, на первом экране,
+  // в кейсе…): уходит в заявку полем «Форма»
+  function openModal(triggerEl, source) {
     lastFocusedEl = triggerEl || document.activeElement;
+    clearTimeout(closeTimer);
 
     form.reset();
+    var label = source || (triggerEl && triggerEl.getAttribute('data-form-source')) || '';
+    formNameInput.value = label ? 'Окно «Обсудить мероприятие» · ' + label : 'Окно «Обсудить мероприятие»';
+    if (formController && formController.reset) formController.reset();
     form.classList.remove('is-sending', 'is-success', 'is-error');
     modal.classList.remove('request-modal--success');
     titleEl.textContent = TITLE_DEFAULT;
@@ -89,6 +97,7 @@
     closeBtn = document.getElementById('requestModalClose');
     form = document.getElementById('requestForm');
     titleEl = document.getElementById('requestModalTitle');
+    formNameInput = form.querySelector('[name="form_name"]');
 
     document.querySelectorAll('a.hero__cta').forEach(function (btn) {
       btn.addEventListener('click', function (event) {
@@ -108,6 +117,8 @@
         onSuccess: function () {
           titleEl.textContent = TITLE_SUCCESS;
           modal.classList.add('request-modal--success');
+          // Окно закрывается само через 2,5 секунды после успеха
+          closeTimer = setTimeout(closeModal, 2500);
         },
       });
     }

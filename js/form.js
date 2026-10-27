@@ -1,11 +1,44 @@
-// Форма обратной связи — маска телефона, валидация, состояния.
-// Отправка не подключена: console.log + экран успеха (TZ, секция 08).
+// Формы заявок — маска телефона, проверка полей, отправка в Telegram
+// через Cloudflare Worker «stevent-relay» (server/stevent-relay/worker.js;
+// fetch, без перезагрузки страницы).
 // Общая логика для двух форм на странице (инлайн-форма в разделе
 // «Контакты» и модалка заявки, docs/08-REVISION-05.md R27) — поля
 // ищутся по [name=...] внутри переданной формы, а не по хардкоженным
 // id, чтобы не дублировать эту функцию для каждой формы отдельно.
 (function () {
   'use strict';
+
+  // Адрес Worker после `npx wrangler deploy`. Токен бота хранится секретом
+  // в Cloudflare — на сайт он не попадает
+  var ENDPOINT = 'https://stevent-relay.REPLACE_ME.workers.dev'; // TODO: вставить адрес после деплоя
+  var CONTACT_TG = 'https://t.me/st_stevent';
+
+  /* ---------- UTM-метки: запоминаем при входе на сайт ---------- */
+
+  var UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+
+  function storeUtm() {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var found = {};
+      UTM_KEYS.forEach(function (key) {
+        var value = params.get(key);
+        if (value) found[key] = value.slice(0, 150);
+      });
+      // Пустой заход не затирает метки, с которыми человек пришёл раньше
+      if (Object.keys(found).length) sessionStorage.setItem('st-utm', JSON.stringify(found));
+    } catch (err) { /* sessionStorage может быть недоступен — без меток */ }
+  }
+
+  function readUtm() {
+    try {
+      return JSON.parse(sessionStorage.getItem('st-utm') || '{}');
+    } catch (err) {
+      return {};
+    }
+  }
+
+  storeUtm();
 
   function formatPhone(value) {
     var digits = value.replace(/\D/g, '');
@@ -84,11 +117,43 @@
     var submitBtn = form.querySelector('button[type="submit"]');
     var submitText = submitBtn.querySelector('.btn__text');
     var submitIcon = submitBtn.querySelector('.btn__icon');
+    var submitLabel = submitText.textContent;
     var statusEl = form.querySelector('[role="status"]');
 
     function errorElFor(input) {
       return input && input.id ? document.getElementById(input.id + 'Error') : null;
     }
+    // Статус под кнопкой: «стеклянная» плашка в стиле сайта
+    function setStatus(kind, text, isHtml) {
+      statusEl.classList.remove('is-success', 'is-error', 'is-visible');
+      if (!text) {
+        statusEl.textContent = '';
+        return;
+      }
+      if (isHtml) statusEl.innerHTML = text;
+      else statusEl.textContent = text;
+      if (kind) statusEl.classList.add('is-' + kind);
+      requestAnimationFrame(function () { statusEl.classList.add('is-visible'); });
+    }
+
+    function send(body) {
+      var controller = window.AbortController ? new AbortController() : null;
+      var timer = controller ? setTimeout(function () { controller.abort(); }, 15000) : null;
+      return fetch(ENDPOINT, {
+        method: 'POST',
+        body: JSON.stringify(body),
+        headers: { 'Content-Type': 'application/json' },
+        signal: controller ? controller.signal : undefined
+      })
+        .then(function (response) { return response.json(); })
+        .then(function (json) { return json && json.ok ? { ok: true } : { ok: false }; })
+        .catch(function () { return { ok: false }; })
+        .then(function (result) {
+          if (timer) clearTimeout(timer);
+          return result;
+        });
+    }
+
     var nameError = errorElFor(nameInput);
     var phoneError = errorElFor(phoneInput);
     var emailError = errorElFor(emailInput);
@@ -138,37 +203,42 @@
       if (!validate()) {
         form.classList.remove('is-success');
         form.classList.add('is-error');
-        statusEl.textContent = 'Проверьте поля, отмеченные ошибкой.';
+        setStatus('error', consentInput.checked ? 'Проверьте поля, отмеченные ошибкой.' : 'Отметьте согласие на обработку персональных данных.');
         return;
       }
 
       form.classList.remove('is-error');
       form.classList.add('is-sending');
       submitBtn.disabled = true;
-      submitText.textContent = 'ОТПРАВЛЯЕМ…';
-      statusEl.textContent = '';
+      submitText.textContent = 'Отправляем…';
+      setStatus('', '');
       setSubmitIcon(submitIcon, 'sending');
 
-      var payload = {
-        name: nameInput.value.trim(),
-        phone: phoneInput.value,
-        email: emailInput.value.trim(),
-        message: messageInput ? messageInput.value.trim() : '',
-      };
+      var body = {};
+      new FormData(form).forEach(function (value, key) { body[key] = value; });
+      delete body.consent;
+      body.page_url = window.location.href.split('#')[0];
+      var utm = readUtm();
+      UTM_KEYS.forEach(function (key) { if (utm[key]) body[key] = utm[key]; });
 
-      // Реальной отправки нет — подключим бэкенд позже
-      window.setTimeout(function () {
-        console.log('Заявка ST EVENT:', payload);
-
+      // Скрытое поле-ловушку заполняют только боты — им «успех» без отправки
+      var request = body.site ? Promise.resolve({ ok: true }) : send(body);
+      request.then(function (result) {
         form.classList.remove('is-sending');
-        form.classList.add('is-success');
         submitBtn.disabled = false;
-        submitText.textContent = 'ОТПРАВИТЬ';
-        statusEl.textContent = 'Заявка отправлена. Мы свяжемся с вами в ближайшее время.';
-        setSubmitIcon(submitIcon, 'success');
-        form.reset();
-        if (options.onSuccess) options.onSuccess();
-      }, 800);
+        submitText.textContent = submitLabel;
+        if (result.ok) {
+          form.classList.add('is-success');
+          setSubmitIcon(submitIcon, 'success');
+          setStatus('success', 'Спасибо, заявка отправлена — мы скоро свяжемся');
+          form.reset();
+          if (options.onSuccess) options.onSuccess();
+        } else {
+          form.classList.add('is-error');
+          setSubmitIcon(submitIcon, 'idle');
+          setStatus('error', 'Не получилось отправить заявку. Напишите нам в <a href="' + CONTACT_TG + '" target="_blank" rel="noopener noreferrer">Telegram</a> или позвоните <a href="tel:+73422774812">+7&nbsp;(342)&nbsp;277-48-12</a>.', true);
+        }
+      });
     });
 
     // js/request-modal.js вызывает это при каждом открытии модалки —
@@ -177,6 +247,10 @@
     return {
       resetIcon: function () {
         setSubmitIcon(submitIcon, 'idle');
+      },
+      // Сброс статуса — при каждом открытии модалки
+      reset: function () {
+        setStatus('', '');
       },
     };
   }

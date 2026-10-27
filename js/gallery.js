@@ -533,8 +533,9 @@
         if (!window.ST_openRequestModal) return;
         event.preventDefault();
         var returnEl = lastFocusedEl;
+        var source = 'Кейс «' + modalTitle.textContent + '» — «Обсудить мероприятие»';
         closeModal();
-        window.ST_openRequestModal(returnEl);
+        window.ST_openRequestModal(returnEl, source);
       });
     }
     modal.addEventListener('click', function (event) {

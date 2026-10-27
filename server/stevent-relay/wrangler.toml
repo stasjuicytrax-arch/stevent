@@ -1,0 +1,9 @@
+name = "stevent-relay"
+main = "worker.js"
+compatibility_date = "2024-11-01"
+
+# Канал, куда уходят заявки. Бот должен быть администратором канала.
+[vars]
+TELEGRAM_CHAT_ID = "@helpppevent"
+
+# Секрет (не в этом файле!): wrangler secret put TELEGRAM_BOT_TOKEN
