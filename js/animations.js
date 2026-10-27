@@ -134,8 +134,10 @@
       });
     }
 
-    initHeroTrail();
-    if (fine) initHeroParallax();
+    if (fine) {
+      initHeroTrail();
+      initHeroParallax();
+    }
   }
 
   // Моушн-шлейф (приём addco/kozyuk, §5): 3 копии фото позади смещаются
@@ -157,16 +159,39 @@
     var setters = trails.map(function (el) {
       return { x: gsap.quickSetter(el, 'x', 'px'), o: gsap.quickSetter(el, 'opacity') };
     });
+    var resting = true;
 
-    gsap.ticker.add(function () {
+    function tick() {
       var v = mouseV * 0.6 + scrollVelocity() * 1.4;
       mouseV *= 0.82;
       energy += (v - energy) * 0.12;
+      // В покое ничего не пишем: каждая запись перерисовывала фото и
+      // заставляла пересчитывать стекло поверх него
+      if (Math.abs(energy) < 0.05 && Math.abs(v) < 0.05) {
+        if (!resting) {
+          energy = 0;
+          setters.forEach(function (s) { s.x(0); s.o(0); });
+          resting = true;
+        }
+        return;
+      }
+      resting = false;
       var mag = Math.min(1, Math.abs(energy) / 40);
       setters.forEach(function (s, i) {
         s.x(-energy * (i + 1) * 1.6);
         s.o(mag * (0.42 - i * 0.12));
       });
+    }
+
+    // Считаем только пока hero виден
+    ScrollTrigger.create({
+      trigger: '#hero',
+      start: 'top bottom',
+      end: 'bottom top',
+      onToggle: function (self) {
+        if (self.isActive) gsap.ticker.add(tick);
+        else gsap.ticker.remove(tick);
+      }
     });
   }
 
@@ -211,17 +236,27 @@
     var x = 0;
     var skewTo = opts.skew ? gsap.quickTo(track, 'skewX', { duration: 0.4, ease: 'power3.out' }) : null;
     var setX = gsap.quickSetter(track, 'x', 'px');
+    // Ширина группы меряется на ресайзе, а не на каждом кадре — чтение
+    // offsetWidth в тикере форсировало перерасчёт раскладки 60 раз в секунду
+    var width = group.offsetWidth || 1;
+    window.addEventListener('resize', function () { width = group.offsetWidth || 1; });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { width = group.offsetWidth || 1; });
 
-    gsap.ticker.add(function (time, delta) {
+    function tick(time, delta) {
       var v = opts.react ? scrollVelocity() : 0;
       if (opts.react && Math.abs(v) > 0.5) dir = (v > 0 ? 1 : -1) * (opts.reverse ? -1 : 1);
       var speed = base + Math.min(Math.abs(v) * 0.6, 24);
-      var width = group.offsetWidth || 1;
       x -= speed * dir * (delta / 16.67);
       x = ((x % width) - width) % width; // бесшовный цикл в [-width, 0)
       setX(x);
       if (skewTo) skewTo(Math.max(-12, Math.min(12, -v * 0.35)));
-    });
+    }
+
+    // Лента вне экрана не крутится
+    new IntersectionObserver(function (entries) {
+      if (entries[0].isIntersecting) gsap.ticker.add(tick);
+      else gsap.ticker.remove(tick);
+    }).observe(root);
   }
 
   function initMarquees() {

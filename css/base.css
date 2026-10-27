@@ -194,7 +194,10 @@ body::after {
   position: fixed;
   inset: 0;
   z-index: var(--z-grain);
-  background-image: url('../assets/brand/texture-noise.gif');
+  /* Статичный PNG (первый кадр texture-noise.gif): анимированная гифка на
+     весь экран заставляла браузер перерисовывать страницу на каждом кадре
+     и пересчитывать стекло под ней — первый экран тормозил */
+  background-image: url('../assets/brand/texture-noise.png');
   opacity: var(--grain-opacity);
   pointer-events: none;
 }

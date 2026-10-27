@@ -28,7 +28,11 @@
   // url()-фильтры в backdrop-filter стабильно работают только в Chromium
   var ua = navigator.userAgent;
   var chromium = /Chrome\/|Edg\/|YaBrowser\//.test(ua) && !/Firefox\//.test(ua);
-  if (chromium && window.CSS && CSS.supports('backdrop-filter', 'url(#st-liquid)')) {
+  // На тач-устройствах преломление не включаем: SVG-фильтр в backdrop-
+  // filter на телефоне заметно тормозил первый экран — там остаётся
+  // обычное размытое стекло (.glass без .glass-svg)
+  var finePointer = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  if (chromium && finePointer && window.CSS && CSS.supports('backdrop-filter', 'url(#st-liquid)')) {
     document.documentElement.classList.add('glass-svg');
   }
 })();

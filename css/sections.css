@@ -332,8 +332,9 @@
   width: 128%;
   aspect-ratio: 1.3;
   border-radius: var(--r-full);
-  background: var(--lime-glow);
-  filter: blur(90px);
+  /* Размытый круг рисуется переходом к прозрачному, а не filter: blur(90px):
+     большой blur пересчитывался при каждом движении фото — тормоза hero */
+  background: radial-gradient(closest-side, var(--lime-glow), color-mix(in srgb, var(--lime-glow) 55%, transparent) 50%, rgb(212 255 42 / 0));
   pointer-events: none;
 }
 
@@ -364,6 +365,13 @@
   z-index: 0;
   opacity: 0;
   mix-blend-mode: screen;
+}
+
+/* Шлейф работает только с мышью — на тач-устройствах копий нет */
+@media (hover: none), (pointer: coarse) {
+  .hero__trail {
+    display: none;
+  }
 }
 
 /* Стеклянная мини-карточка в углу фото (addco) — строго внутри фото,
