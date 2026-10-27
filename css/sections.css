@@ -1311,6 +1311,7 @@
 }
 
 .fan-gallery__arrow {
+  flex: none;
   display: grid;
   place-items: center;
   width: var(--s-7);
@@ -1353,6 +1354,30 @@
 .fan-gallery__dot--active {
   background: var(--c-lime);
   transform: scaleX(1);
+}
+
+/* Горизонтальный свайп по вееру не должен скроллить страницу вбок */
+.fan-gallery__stage {
+  touch-action: pan-y;
+}
+
+.fan-gallery__card--active {
+  cursor: zoom-in;
+}
+
+@media (max-width: 639px) {
+  .fan-gallery__controls {
+    gap: var(--s-3);
+  }
+
+  .fan-gallery__arrow {
+    width: var(--s-6);
+    height: var(--s-6);
+  }
+
+  .fan-gallery__dot {
+    width: 18px;
+  }
 }
 
 /* ======================================================================

@@ -423,8 +423,38 @@
     lightboxClose.focus();
   }
 
+  // Лайтбокс без модалки кейса — для галереи-веера (js/fan-gallery.js):
+  // тап по центральной карточке открывает фото на весь экран
+  var standalone = false;
+  var standaloneReturn = null;
+
+  function standaloneKeydown(event) {
+    if (event.key === 'Escape') closeLightbox();
+    else if (event.key === 'ArrowLeft') showPrevPhoto();
+    else if (event.key === 'ArrowRight') showNextPhoto();
+  }
+
+  window.ST_openPhotos = function (photos, index, returnEl) {
+    if (!lightbox || !photos.length) return;
+    currentPhotos = photos;
+    standalone = true;
+    standaloneReturn = returnEl || null;
+    document.body.classList.add('no-scroll');
+    if (window.ST_LENIS) window.ST_LENIS.stop();
+    document.addEventListener('keydown', standaloneKeydown);
+    openLightbox(index);
+  };
+
   function closeLightbox() {
     lightbox.hidden = true;
+    if (standalone) {
+      standalone = false;
+      document.body.classList.remove('no-scroll');
+      if (window.ST_LENIS) window.ST_LENIS.start();
+      document.removeEventListener('keydown', standaloneKeydown);
+      if (standaloneReturn) standaloneReturn.focus({ preventScroll: true });
+      return;
+    }
     modalClose.focus();
   }
 

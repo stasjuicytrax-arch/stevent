@@ -47,11 +47,16 @@
         '<img src="assets/portfolio/' + c.slug + '/cover.' + c.ext + '" alt="' + c.name + '" loading="lazy">' +
         '<div class="fan-gallery__card-overlay"><span class="fan-gallery__card-name">' + c.name + '</span></div>';
 
-      card.addEventListener('click', function () { goTo(i); });
+      // Боковая карточка — встаёт в центр, центральная — открывается
+      // на весь экран (лайтбокс из js/gallery.js)
+      card.addEventListener('click', function () {
+        if (swiped) return;
+        activate(i, card);
+      });
       card.addEventListener('keydown', function (event) {
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
-          goTo(i);
+          activate(i, card);
         }
       });
       card.addEventListener('mouseenter', function () {
@@ -173,6 +178,37 @@
       activeIndex = ((i % total) + total) % total;
       layout();
     }
+
+    var photos = CASES.map(function (c) {
+      return { src: 'assets/portfolio/' + c.slug + '/cover.' + c.ext, alt: c.name };
+    });
+
+    function activate(i, card) {
+      if (i === activeIndex && window.ST_openPhotos) window.ST_openPhotos(photos, i, card);
+      else goTo(i);
+    }
+
+    // Свайп пальцем по сцене — листание (раньше были только мелкие стрелки)
+    var touchX = null;
+    var touchY = null;
+    var swiped = false;
+    stage.addEventListener('touchstart', function (event) {
+      touchX = event.changedTouches[0].clientX;
+      touchY = event.changedTouches[0].clientY;
+      swiped = false;
+    }, { passive: true });
+    stage.addEventListener('touchend', function (event) {
+      if (touchX === null) return;
+      var dx = event.changedTouches[0].clientX - touchX;
+      var dy = event.changedTouches[0].clientY - touchY;
+      touchX = null;
+      // Горизонтальный жест длиннее 40px — листаем, вертикальный — это скролл
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+        swiped = true;
+        goTo(activeIndex + (dx < 0 ? 1 : -1));
+        setTimeout(function () { swiped = false; }, 350);
+      }
+    }, { passive: true });
 
     prevBtn.addEventListener('click', function () { goTo(activeIndex - 1); });
     nextBtn.addEventListener('click', function () { goTo(activeIndex + 1); });
