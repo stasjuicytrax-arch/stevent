@@ -315,7 +315,7 @@
     });
   }
 
-  /* ---------- УСЛУГИ: строки «прочерчиваются», картинка за курсором ---------- */
+  /* ---------- УСЛУГИ: строки «прочерчиваются» ---------- */
 
   function initServices() {
     var rows = $$('.service');
@@ -325,32 +325,6 @@
         .fromTo($$('.service__num, .service__name, .service__count', row), { x: -60, autoAlpha: 0 }, {
           x: 0, autoAlpha: 1, duration: 1, ease: EASE, stagger: 0.06
         }, 0.1 + i * 0.03);
-    });
-
-    if (!fine || mobile) return;
-    var follow = $('#followImg');
-    var list = $('#servicesList');
-    if (!follow || !list) return;
-    var img = $('img', follow);
-    var fx = gsap.quickTo(follow, 'x', { duration: 0.6, ease: 'power3.out' });
-    var fy = gsap.quickTo(follow, 'y', { duration: 0.6, ease: 'power3.out' });
-    var fr = gsap.quickTo(follow, 'rotate', { duration: 0.8, ease: 'power3.out' });
-    var lastX = 0;
-
-    list.addEventListener('mousemove', function (event) {
-      fx(event.clientX);
-      fy(event.clientY);
-      fr(Math.max(-14, Math.min(14, (event.clientX - lastX) * 0.6)));
-      lastX = event.clientX;
-    });
-    rows.forEach(function (row) {
-      row.addEventListener('mouseenter', function () {
-        img.src = row.dataset.followImg;
-        follow.classList.add('is-visible');
-      });
-      row.addEventListener('mouseleave', function () {
-        follow.classList.remove('is-visible');
-      });
     });
   }
 

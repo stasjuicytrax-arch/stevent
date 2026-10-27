@@ -717,7 +717,7 @@
 }
 
 /* ======================================================================
-   УСЛУГИ — строки во всю ширину, лаймовый квадрат и картинка за курсором
+   УСЛУГИ — строки во всю ширину, лаймовый квадрат со стрелкой
    ====================================================================== */
 
 .services {
@@ -876,32 +876,6 @@
   color: var(--c-lime);
 }
 
-/* Картинка, летящая за курсором — js/animations.js двигает контейнер */
-.follow-img {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 50;
-  width: clamp(220px, 20vw, 320px);
-  aspect-ratio: 4 / 3;
-  margin: calc(clamp(220px, 20vw, 320px) * -.375) 0 0 calc(clamp(220px, 20vw, 320px) * -.5);
-  pointer-events: none;
-}
-
-.follow-img img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: var(--r-photo);
-  filter: grayscale(1) contrast(1.15);
-  transform: scale(0);
-  transition: transform var(--dur) var(--ease-out);
-}
-
-.follow-img.is-visible img {
-  transform: scale(1);
-}
-
 @media (max-width: 767px) {
   .service__head {
     grid-template-columns: var(--s-5) minmax(0, 1fr) var(--s-6);
@@ -932,10 +906,6 @@
 
   .service__list {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .follow-img {
-    display: none;
   }
 }
 
