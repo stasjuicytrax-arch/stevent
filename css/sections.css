@@ -1038,17 +1038,22 @@
   opacity: 0;
 }
 
+/* Раскрытие через grid-template-rows 0fr → 1fr — без анимации высоты */
 .why-card__text {
   display: grid;
-  max-height: 0;
-  overflow: hidden;
+  grid-template-rows: 0fr;
   opacity: 0;
-  transition: max-height var(--dur) var(--ease-out), opacity var(--dur) var(--ease-out), margin-top var(--dur) var(--ease-out);
+  transition: grid-template-rows var(--dur) var(--ease-out), opacity var(--dur) var(--ease-out);
+}
+
+.why-card__text-inner {
+  min-height: 0;
+  overflow: hidden;
+  padding-top: var(--s-3);
 }
 
 .why-card.is-open .why-card__text {
-  max-height: 12em;
-  margin-top: var(--s-3);
+  grid-template-rows: 1fr;
   opacity: .8;
 }
 
@@ -1074,18 +1079,16 @@
   margin-top: var(--s-5);
 }
 
-/* Фильтр липнет к верху и едет поверх карточек */
+/* Фильтр — сразу под заголовком «Портфолио», слева, без прилипания
+   (правка заказчика 27.10.2026) */
 .portfolio__filters {
-  position: sticky;
-  top: calc(var(--s-8) + var(--s-2));
-  z-index: 5;
+  position: relative;
   display: flex;
   width: fit-content;
   gap: var(--s-1);
-  margin: var(--s-5) 0 calc(var(--s-5) * -1) auto;
+  margin-top: var(--s-5);
   padding: 6px;
   border-radius: var(--r-full);
-  transform: translateY(calc(var(--s-6) + var(--s-3)));
 }
 
 .portfolio__filter.is-active {
@@ -1216,8 +1219,8 @@
     font-size: var(--fs-title);
   }
 
-  /* На тач-экранах ховера нет — стрелка видна сразу; внизу справа,
-     потому что вверху карточки едет липкий фильтр */
+  /* На тач-экранах ховера нет — стрелка видна сразу, внизу справа
+     рядом с подписью */
   .case-card__arrow {
     top: auto;
     bottom: var(--s-3);
@@ -1228,14 +1231,7 @@
     right: calc(var(--s-7) + var(--s-4));
   }
 
-  /* На телефоне фильтр стоит в начале блока и не едет за скроллом
-     (правка заказчика 26.10.2026) */
-  .portfolio__filters {
-    position: relative;
-    top: auto;
-    margin: var(--s-5) 0 0;
-    transform: none;
-  }
+  
 }
 
 /* ======================================================================

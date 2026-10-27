@@ -262,7 +262,7 @@
               <span class="why-card__title">ОПЫТ</span>
               <span class="why-card__more mono">Подробнее +</span>
             </button>
-            <p class="why-card__text" id="why-text-01">Мы работаем в этой сфере с 2008 года, следовательно мы хорошо знаем рынок event-индустрии.</p>
+            <div class="why-card__text" id="why-text-01"><p class="why-card__text-inner">Мы работаем в этой сфере с 2008 года, следовательно мы хорошо знаем рынок event-индустрии.</p></div>
           </article>
           <article class="why-card" data-why="02">
             <button class="why-card__face" type="button" aria-expanded="false" aria-controls="why-text-02">
@@ -271,7 +271,7 @@
               <span class="why-card__title">ЛОЯЛЬНОСТЬ</span>
               <span class="why-card__more mono">Подробнее +</span>
             </button>
-            <p class="why-card__text" id="why-text-02">96% заказчиков, которые обращаются к нам, остаются в числе постоянных клиентов.</p>
+            <div class="why-card__text" id="why-text-02"><p class="why-card__text-inner">96% заказчиков, которые обращаются к нам, остаются в числе постоянных клиентов.</p></div>
           </article>
           <article class="why-card" data-why="03">
             <button class="why-card__face" type="button" aria-expanded="false" aria-controls="why-text-03">
@@ -280,7 +280,7 @@
               
               <span class="why-card__more mono">Подробнее +</span>
             </button>
-            <p class="why-card__text" id="why-text-03">При реализации event-проектов мы выделяем KPI.</p>
+            <div class="why-card__text" id="why-text-03"><p class="why-card__text-inner">При реализации event-проектов мы выделяем KPI.</p></div>
           </article>
         </div>
       </div>
@@ -299,8 +299,7 @@
                тексты в docs/12-REVISION-09.md -->
         </div>
 
-        <!-- Фильтр липнет к верху и едет поверх карточек — стекло всегда
-             лежит на фото, а не на пустом чёрном (docs/13 §7) -->
+        <!-- Фильтр — сразу под заголовком (правка заказчика 27.10.2026) -->
         <div class="portfolio__filters" role="group" aria-label="Фильтр кейсов">
           <span class="glass" aria-hidden="true"></span>
           <button class="pill portfolio__filter is-active" type="button" data-filter="business" aria-pressed="true">Для бизнеса</button>
