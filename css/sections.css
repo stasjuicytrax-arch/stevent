@@ -54,6 +54,10 @@
   top: calc(var(--island-inset) + var(--s-2));
   left: 50%;
   z-index: var(--z-header);
+  /* max-content: при left:50% браузер давал шапке ширину лишь до правого
+     края экрана — на узких экранах пилюля сжималась и кнопка вылезала */
+  width: max-content;
+  max-width: calc(100vw - var(--island-inset) * 2);
   transform: translateX(-50%);
 }
 
