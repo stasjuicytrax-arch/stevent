@@ -1868,6 +1868,12 @@
   text-align: right;
 }
 
+/* Подпись разработчика сайта */
+.footer__credit {
+  margin-top: var(--s-2);
+  color: var(--c-text-dim);
+}
+
 /* Реквизиты ИП — мелко; --c-text-dim, а не faint: должны читаться */
 .footer__legal {
   color: var(--c-text-dim);
