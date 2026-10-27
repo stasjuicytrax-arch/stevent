@@ -1890,6 +1890,7 @@
 /* Реквизиты ИП — мелко; --c-text-dim, а не faint: должны читаться */
 .footer__legal {
   color: var(--c-text-dim);
+  text-transform: none;
   line-height: 1.6;
 }
 
