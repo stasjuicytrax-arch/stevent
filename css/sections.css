@@ -92,6 +92,7 @@
 
 .nav-pill__link {
   padding: var(--s-2) 12px;
+  white-space: nowrap;
   border-radius: var(--r-full);
   font-family: var(--font-mono);
   font-weight: 500;
@@ -1884,6 +1885,12 @@
 .footer__col--end {
   align-items: flex-end;
   text-align: right;
+}
+
+/* Реквизиты ИП — мелко; --c-text-dim, а не faint: должны читаться */
+.footer__legal {
+  color: var(--c-text-dim);
+  line-height: 1.6;
 }
 
 /* Буквы — маска overflow, js/animations.js выдвигает их снизу */
