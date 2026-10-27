@@ -10,7 +10,7 @@
 
   // Адрес Worker после `npx wrangler deploy`. Токен бота хранится секретом
   // в Cloudflare — на сайт он не попадает
-  var ENDPOINT = 'https://stevent-relay.REPLACE_ME.workers.dev'; // TODO: вставить адрес после деплоя
+  var ENDPOINT = 'https://stevent-relay.ngperm.workers.dev';
   var CONTACT_TG = 'https://t.me/st_stevent';
 
   /* ---------- UTM-метки: запоминаем при входе на сайт ---------- */
