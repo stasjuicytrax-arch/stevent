@@ -177,7 +177,7 @@
 
   function initServices() {
     var list = document.getElementById('servicesList');
-    document.querySelectorAll('.service').forEach(function (item) {
+    document.querySelectorAll('.service:not(.service--static)').forEach(function (item) {
       var head = item.querySelector('.service__head');
       head.addEventListener('click', function () {
         var open = !item.classList.contains('is-open');

@@ -2498,3 +2498,160 @@
 .legal__section a:hover {
   color: var(--c-lime);
 }
+
+/* ======================================================================
+   ТЗ 2026: главная с выбором направления, страницы направлений,
+   форма «Давайте знакомиться». Те же токены и компоненты, без нового стиля
+   ====================================================================== */
+
+/* Карточки направлений на главной — на базе обложек портфолио */
+.directions {
+  padding-top: var(--s-6);
+}
+
+.directions__grid {
+  margin-top: 0;
+}
+
+.direction-card::after {
+  inset: 25% 0 0;
+}
+
+.direction-card__line {
+  max-width: 34ch;
+  font-size: var(--fs-body-l);
+  line-height: var(--lh-body);
+  color: var(--c-bone);
+}
+
+.direction-card__kinds {
+  color: var(--c-text-dim);
+}
+
+.direction-card__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin-top: var(--s-2);
+  font-weight: 600;
+  color: var(--c-lime);
+}
+
+.direction-card__cta-arrow svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Плашка текущего направления в переключателе */
+.hero__plaque.is-current .hero__plaque-label {
+  color: var(--c-lime);
+}
+
+/* Частные события: вступление и «Для каждого важного повода» */
+.private-intro__title {
+  max-width: 22ch;
+  margin-top: var(--s-6);
+}
+
+.private-intro__text {
+  margin-top: var(--s-4);
+}
+
+.private-intro .services__title {
+  margin-top: var(--s-8);
+}
+
+.service--static .service__head {
+  grid-template-columns: var(--s-6) minmax(0, 1fr);
+  cursor: default;
+}
+
+.service--static .service__desc {
+  padding-left: calc(var(--s-6) + var(--s-4) * 2);
+}
+
+.service--static::after {
+  display: none;
+}
+
+/* Контакты: «Удобнее напрямую?» */
+.contacts__direct {
+  font-family: var(--font-display);
+  font-weight: var(--fw-display);
+  font-size: var(--fs-title);
+  text-transform: uppercase;
+}
+
+.contacts__direct-text {
+  max-width: 40ch;
+  color: var(--c-on-lime-dim);
+}
+
+/* Форма: заголовок и выбор «Что планируете» */
+.form-card__title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-display);
+  font-size: var(--fs-title);
+  text-transform: uppercase;
+}
+
+.form-field--choice {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.form-choice__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+.form-choice {
+  position: relative;
+  cursor: pointer;
+}
+
+.form-choice input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.form-choice span {
+  display: inline-flex;
+  align-items: center;
+  height: var(--btn-h-s);
+  padding-inline: var(--s-4);
+  border: 1px solid var(--c-steel);
+  border-radius: var(--r-full);
+  font-size: var(--fs-small);
+  transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+
+.form-choice input:checked + span {
+  border-color: var(--c-lime);
+  background: var(--c-lime);
+  color: var(--c-on-lime);
+}
+
+.form-choice input:focus-visible + span {
+  outline: 2px solid var(--c-lime);
+  outline-offset: 2px;
+}
+
+@media (max-width: 767px) {
+  .direction-card {
+    aspect-ratio: 4 / 5;
+  }
+
+  /* На телефоне текст занимает больше высоты — затемнение сильнее */
+  .direction-card::after {
+    inset: 0;
+    background: linear-gradient(to top, rgb(10 10 10 / .92) 45%, rgb(10 10 10 / .2));
+  }
+
+  .direction-card__line {
+    font-size: var(--fs-body);
+  }
+}

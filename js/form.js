@@ -64,6 +64,17 @@
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   }
 
+  // Поле «Телефон или Telegram» (ТЗ 2026): похоже на номер — маска и
+  // 11 цифр; иначе ник Telegram: @username или ссылка t.me/username
+  function looksLikePhone(value) {
+    return /^[\s+(]*\d/.test(value) && !/[A-Za-z@_]/.test(value);
+  }
+
+  function isTelegram(value) {
+    var nick = value.trim().replace(/^(https?:\/\/)?(t\.me|telegram\.me)\//i, '').replace(/^@/, '');
+    return /^[A-Za-z][A-Za-z0-9_]{4,31}$/.test(nick);
+  }
+
   function setFieldError(input, errorEl, message) {
     if (message) {
       input.setAttribute('aria-invalid', 'true');
@@ -110,7 +121,7 @@
     options = options || {};
 
     var nameInput = form.querySelector('[name="name"]');
-    var phoneInput = form.querySelector('[name="phone"]');
+    var phoneInput = form.querySelector('[name="contact"]');
     var emailInput = form.querySelector('[name="email"]');
     var messageInput = form.querySelector('[name="message"]');
     var consentInput = form.querySelector('[name="consent"]');
@@ -158,12 +169,8 @@
     var phoneError = errorElFor(phoneInput);
     var emailError = errorElFor(emailInput);
 
-    phoneInput.addEventListener('focus', function () {
-      if (!phoneInput.value) phoneInput.value = '+7 (';
-    });
-
     phoneInput.addEventListener('input', function () {
-      phoneInput.value = formatPhone(phoneInput.value);
+      if (looksLikePhone(phoneInput.value)) phoneInput.value = formatPhone(phoneInput.value);
     });
 
     function validate() {
@@ -176,17 +183,19 @@
         setFieldError(nameInput, nameError, '');
       }
 
-      if (!isPhoneComplete(phoneInput.value)) {
-        setFieldError(phoneInput, phoneError, 'Укажите полный номер телефона');
+      var contact = phoneInput.value.trim();
+      var contactOk = looksLikePhone(contact) ? isPhoneComplete(contact) : isTelegram(contact);
+      if (!contactOk) {
+        setFieldError(phoneInput, phoneError, looksLikePhone(contact) ? 'Укажите полный номер телефона' : 'Укажите телефон или ник в Telegram');
         valid = false;
       } else {
         setFieldError(phoneInput, phoneError, '');
       }
 
-      if (emailInput.value.trim() && !isValidEmail(emailInput.value.trim())) {
+      if (emailInput && emailInput.value.trim() && !isValidEmail(emailInput.value.trim())) {
         setFieldError(emailInput, emailError, 'Проверьте формат email');
         valid = false;
-      } else {
+      } else if (emailInput) {
         setFieldError(emailInput, emailError, '');
       }
 

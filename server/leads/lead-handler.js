@@ -31,9 +31,21 @@ function validate(body) {
   if (clean(body.site, 50)) return { error: 'spam' };
 
   const name = clean(body.name, 80);
-  const phone = clean(body.phone, 30);
   if (name.length < 2) return { error: 'Укажите имя' };
-  if (phone.replace(/\D/g, '').length !== 11) return { error: 'Укажите телефон целиком' };
+
+  /* «Телефон или Telegram» (ТЗ 2026): номер — 11 цифр, иначе ник Telegram.
+     Старые формы присылают поле phone — его тоже принимаем */
+  const contact = clean(body.contact || body.phone, 64);
+  let phone = '';
+  let telegram = '';
+  if (/^[\s+(]*\d/.test(contact) && !/[A-Za-z@_]/.test(contact)) {
+    if (contact.replace(/\D/g, '').length !== 11) return { error: 'Укажите телефон целиком' };
+    phone = contact;
+  } else {
+    const nick = contact.replace(/^(https?:\/\/)?(t\.me|telegram\.me)\//i, '').replace(/^@/, '');
+    if (!/^[A-Za-z][A-Za-z0-9_]{4,31}$/.test(nick)) return { error: 'Укажите телефон или ник в Telegram' };
+    telegram = '@' + nick;
+  }
 
   const email = clean(body.email, 120);
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: 'Проверьте формат email' };
@@ -43,6 +55,8 @@ function validate(body) {
       form: clean(body.form_name, 150) || 'не указана',
       name,
       phone,
+      telegram,
+      plan: clean(body.plan, 60),
       email,
       message: cleanText(body.message, 2000),
       page: clean(body.page_url, 300),
@@ -60,10 +74,12 @@ function telegramText(l) {
     '',
     `<b>Форма:</b> ${esc(l.form)}`,
     `<b>Имя:</b> ${esc(l.name)}`,
-    `<b>Телефон:</b> ${esc(l.phone)}`,
   ];
+  if (l.phone) lines.push(`<b>Телефон:</b> ${esc(l.phone)}`);
+  if (l.telegram) lines.push(`<b>Telegram:</b> ${esc(l.telegram)}`);
+  if (l.plan) lines.push(`<b>Что планируют:</b> ${esc(l.plan)}`);
   if (l.email) lines.push(`<b>Email:</b> ${esc(l.email)}`);
-  if (l.message) lines.push(`<b>О мероприятии:</b> ${esc(l.message)}`);
+  if (l.message) lines.push(`<b>Пожелания:</b> ${esc(l.message)}`);
   lines.push('');
   lines.push(`<b>Страница:</b> ${esc(l.page || '—')} | <b>Время:</b> ${esc(time)} (МСК)`);
   if (l.utm.length) lines.push(`<b>UTM:</b> ${esc(l.utm.map(([k, v]) => `${k}: ${v}`).join(' / '))}`);
