@@ -39,10 +39,10 @@
   --font-text: 'Onest', system-ui, sans-serif;        /* 400–600 */
   --font-mono: 'JetBrains Mono', ui-monospace, monospace; /* 400–500 */
 
-  /* Шкала: заголовок hero — «до clamp(56px, 11vw, 200px)» (§3) */
-  --fs-hero: clamp(40px, 6.4vw, 132px);
-  /* Hero на телефоне: «РАБОТАЮТ» влезает в 288px колонку на 360px экране */
-  --fs-hero-m: clamp(32px, 9.6vw, 44px);
+  /* Заголовок hero уменьшен по просьбе заказчика 28.10.2026 */
+  --fs-hero: clamp(34px, 4.6vw, 92px);
+  /* Hero на телефоне */
+  --fs-hero-m: clamp(28px, 8.2vw, 36px);
   --fs-mega: clamp(64px, 20vw, 360px);  /* гигантские слова: фон hero, футер */
   --fs-h2: clamp(32px, 6.4vw, 112px);
   --fs-h3: clamp(26px, 3.4vw, 54px);
@@ -54,6 +54,8 @@
   --fs-body: 16px;
   --fs-small: 14px;
   --fs-mono: 12px;
+  /* Маркеры секций «[02] О НАС», «Основатели ST EVENT» — крупнее моно-подписей */
+  --fs-tag: clamp(15px, 1.25vw, 20px);
 
   --lh-display: .9;
   --lh-title: 1.15;

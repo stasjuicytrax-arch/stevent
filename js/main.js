@@ -176,38 +176,80 @@
   /* ---------- Услуги: раскрытие списка направлений (ТЗ 2026) ---------- */
 
   function initServices() {
+    var list = document.getElementById('servicesList');
     document.querySelectorAll('.service').forEach(function (item) {
       var head = item.querySelector('.service__head');
       head.addEventListener('click', function () {
         var open = !item.classList.contains('is-open');
         item.classList.toggle('is-open', open);
         head.setAttribute('aria-expanded', String(open));
+        // Человек понял, что строки раскрываются, — плюсы больше не «дышат»
+        if (list) list.classList.add('is-touched');
       });
     });
   }
 
-  /* ---------- «Почему мы»: текст карточки раскрывается по клику ---------- */
 
-  function initWhyCards() {
-    document.querySelectorAll('.why-card').forEach(function (card) {
-      var face = card.querySelector('.why-card__face');
-      face.addEventListener('click', function () {
-        var open = !card.classList.contains('is-open');
-        card.classList.toggle('is-open', open);
-        face.setAttribute('aria-expanded', String(open));
-      });
-    });
-  }
+  /* ---------- Портфолио: обложки-направления → кейсы направления ---------- */
 
-  /* ---------- Фильтр портфолио «Для бизнеса / Частные события» ---------- */
-
-  // Плашки «Корпоративный / Частный клиент» в hero ведут сюда же и
-  // включают свой фильтр (data-filter-link). Перестройка — GSAP Flip.
+  // Сначала две обложки «Для бизнеса / Частные события» (правка заказчика
+  // 28.10.2026). Клик — обложки прячутся, показываются кейсы направления;
+  // внутри работает прежний фильтр с перестройкой через GSAP Flip.
+  // Плашки «Корпоративный / Частный клиент» в hero (data-filter-link)
+  // сразу открывают своё направление.
   function initPortfolioFilter() {
     var buttons = document.querySelectorAll('.portfolio__filter');
     var cards = Array.prototype.slice.call(document.querySelectorAll('.case-card[data-type]'));
+    var dirsEl = document.getElementById('portfolioDirs');
+    var casesEl = document.getElementById('portfolioCases');
+    var backBtn = document.getElementById('portfolioBack');
     if (!buttons.length || !cards.length) return;
     var current = 'business';
+
+    function setFilter(type) {
+      current = type;
+      buttons.forEach(function (btn) {
+        var on = btn.dataset.filter === type;
+        btn.classList.toggle('is-active', on);
+        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      cards.forEach(function (card) {
+        card.hidden = card.dataset.type !== type;
+      });
+    }
+
+    function refreshScroll() {
+      if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
+    }
+
+    function openDir(type) {
+      if (!dirsEl || !casesEl) return;
+      setFilter(type);
+      dirsEl.hidden = true;
+      casesEl.hidden = false;
+      refreshScroll();
+      if (hasGsap && !reduceMotion) {
+        var shown = cards.filter(function (card) { return !card.hidden; });
+        gsap.fromTo(shown, { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.7, ease: 'expo.out', stagger: 0.06, clearProps: 'opacity,transform' });
+      }
+    }
+
+    function closeDirs() {
+      if (!dirsEl || !casesEl) return;
+      casesEl.hidden = true;
+      dirsEl.hidden = false;
+      refreshScroll();
+      var section = document.getElementById('portfolio');
+      if (window.ST_LENIS) window.ST_LENIS.scrollTo(section, { offset: 0, duration: 0.8 });
+      else section.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
+    }
+
+    if (dirsEl) {
+      dirsEl.querySelectorAll('[data-dir]').forEach(function (dir) {
+        dir.addEventListener('click', function () { openDir(dir.dataset.dir); });
+      });
+    }
+    if (backBtn) backBtn.addEventListener('click', closeDirs);
 
     function applyFilter(type) {
       if (type === current) return;
@@ -243,7 +285,7 @@
       btn.addEventListener('click', function () { applyFilter(btn.dataset.filter); });
     });
     document.querySelectorAll('[data-filter-link]').forEach(function (link) {
-      link.addEventListener('click', function () { applyFilter(link.dataset.filterLink); });
+      link.addEventListener('click', function () { openDir(link.dataset.filterLink); });
     });
   }
 
@@ -252,7 +294,6 @@
     initHeader();
     initAnchors();
     initServices();
-    initWhyCards();
     initPortfolioFilter();
   });
 })();

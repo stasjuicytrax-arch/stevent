@@ -232,6 +232,7 @@
     var group = $('.marquee__group', root);
     if (!track || !group) return;
     var base = opts.speed;
+    var boostCap = opts.boostCap || 24; // насколько скролл может разогнать ленту
     var dir = opts.reverse ? -1 : 1;
     var x = 0;
     var skewTo = opts.skew ? gsap.quickTo(track, 'skewX', { duration: 0.4, ease: 'power3.out' }) : null;
@@ -245,23 +246,28 @@
     function tick(time, delta) {
       var v = opts.react ? scrollVelocity() : 0;
       if (opts.react && Math.abs(v) > 0.5) dir = (v > 0 ? 1 : -1) * (opts.reverse ? -1 : 1);
-      var speed = base + Math.min(Math.abs(v) * 0.6, 24);
+      var speed = base + Math.min(Math.abs(v) * 0.6, boostCap);
       x -= speed * dir * (delta / 16.67);
       x = ((x % width) - width) % width; // бесшовный цикл в [-width, 0)
       setX(x);
       if (skewTo) skewTo(Math.max(-12, Math.min(12, -v * 0.35)));
     }
 
-    // Лента вне экрана не крутится
+    // Лента вне экрана не крутится. opts.restart — при первом появлении
+    // лента начинается с первого слова («Привет»), а не с середины
+    var seen = false;
     new IntersectionObserver(function (entries) {
-      if (entries[0].isIntersecting) gsap.ticker.add(tick);
-      else gsap.ticker.remove(tick);
+      if (entries[0].isIntersecting) {
+        if (opts.restart && !seen) { x = 0; dir = opts.reverse ? -1 : 1; setX(0); }
+        seen = true;
+        gsap.ticker.add(tick);
+      } else gsap.ticker.remove(tick);
     }).observe(root);
   }
 
   function initMarquees() {
-    $$('.tape--lime').forEach(function (el) { velocityMarquee(el, { speed: 1.4, react: true, skew: true }); });
-    $$('.tape--dark').forEach(function (el) { velocityMarquee(el, { speed: 1.1, react: true, skew: true, reverse: true }); });
+    // Приветствие — медленно и спокойно (правка заказчика 28.10.2026)
+    $$('.tape--lime').forEach(function (el) { velocityMarquee(el, { speed: 0.5, react: true, skew: true, boostCap: 6, restart: true }); });
     $$('.clients__row').forEach(function (el) {
       velocityMarquee(el, { speed: 0.7, reverse: el.classList.contains('clients__row--reverse') });
     });
@@ -387,26 +393,20 @@
     });
   }
 
-  /* ---------- ПОРТФОЛИО: плитки бенто «раскрываются» из центра ---------- */
+  /* ---------- ПОРТФОЛИО: обложки направлений «раскрываются» из центра ---------- */
 
+  // Кейсы спрятаны до клика по обложке — их появление анимирует js/main.js
   function initPortfolio() {
-    var cards = $$('.case-card');
-    gsap.set(cards, { clipPath: 'inset(14% 14% 14% 14% round 20px)' });
-    gsap.set($$('.case-card__media img'), { scale: 1.3 });
-    ScrollTrigger.batch(cards, {
+    var dirs = $$('.portfolio-dir');
+    if (!dirs.length) return;
+    gsap.set(dirs, { clipPath: 'inset(14% 14% 14% 14% round 20px)' });
+    gsap.set($$('.portfolio-dir__media img'), { scale: 1.3 });
+    ScrollTrigger.batch(dirs, {
       start: 'top 90%',
       once: true,
       onEnter: function (batch) {
-        gsap.to(batch, { clipPath: 'inset(0% 0% 0% 0% round 20px)', duration: 1.2, ease: EASE_SNAP, stagger: 0.1 });
-        gsap.to(batch.map(function (c) { return $('img', c); }), { scale: 1, duration: 1.6, ease: EASE, stagger: 0.1 });
-      }
-    });
-    // Скрытые фильтром карточки ScrollTrigger не видит — показываем их сразу,
-    // иначе после переключения фильтра они остались бы схлопнутыми
-    cards.forEach(function (card) {
-      if (card.hidden) {
-        gsap.set(card, { clipPath: 'inset(0% 0% 0% 0% round 20px)' });
-        gsap.set($('img', card), { scale: 1 });
+        gsap.to(batch, { clipPath: 'inset(0% 0% 0% 0% round 20px)', duration: 1.2, ease: EASE_SNAP, stagger: 0.12 });
+        gsap.to(batch.map(function (c) { return $('img', c); }), { scale: 1, duration: 1.6, ease: EASE, stagger: 0.12, clearProps: 'transform' });
       }
     });
   }

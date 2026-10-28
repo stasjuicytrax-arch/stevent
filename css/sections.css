@@ -500,47 +500,26 @@
    ЛЕНТЫ — лаймовая и чёрная, перекрещены под углом
    ====================================================================== */
 
+/* Одна лента-приветствие, без наклона (правка заказчика 28.10.2026) */
 .tapes {
   position: relative;
-  height: clamp(200px, 19vw, 300px);
-  margin-block: var(--s-4);
+  margin-block: var(--s-5);
   overflow: hidden;
 }
 
 .tape {
-  position: absolute;
-  top: 50%;
-  left: -5%;
-  width: 110%;
+  position: relative;
   padding-block: var(--s-3);
   font-family: var(--font-display);
   font-weight: var(--fw-display-max);
-  font-size: clamp(24px, 3.6vw, 54px);
+  font-size: clamp(14px, 1.8vw, 27px); /* вдвое меньше прежнего, правка 28.10.2026 */
   line-height: 1;
   text-transform: uppercase;
 }
 
-/* Ленты разнесены по высоте и перекрещиваются только по центру —
-   раньше обе стояли на 50% и серая почти целиком пряталась под лаймовой
-   (особенно на телефоне, где наклон даёт малый сдвиг) */
 .tape--lime {
-  z-index: 2;
-  top: 34%;
   background: var(--c-lime);
   color: var(--c-on-lime);
-  transform: translateY(-50%) rotate(-4deg);
-}
-
-.tape--dark {
-  z-index: 1;
-  top: 66%;
-  background: var(--c-steel);
-  color: var(--c-bone);
-  transform: translateY(-50%) rotate(4deg);
-}
-
-.tape--dark .star {
-  color: var(--c-lime);
 }
 
 .tape__item,
@@ -598,6 +577,7 @@
 }
 
 .about__label {
+  font-size: var(--fs-tag);
   color: var(--c-lime);
 }
 
@@ -777,7 +757,7 @@
 
 .service__head {
   display: grid;
-  grid-template-columns: var(--s-8) minmax(0, 1fr) auto var(--s-7);
+  grid-template-columns: var(--s-7) var(--s-6) minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--s-4);
   width: 100%;
@@ -810,8 +790,10 @@
   color: var(--c-text-dim);
 }
 
-/* Лаймовый квадрат со стрелкой выезжает справа (Das Grüne) */
-.service__arrow {
+/* Лаймовый квадрат с плюсом — слева и всегда виден, чтобы было понятно,
+   что строка раскрывается (правка заказчика 28.10.2026). Пока ни одну
+   строку не трогали, плюсы слегка «дышат»; открыто — крестик */
+.service__toggle {
   display: grid;
   place-items: center;
   width: var(--s-7);
@@ -819,31 +801,41 @@
   border-radius: var(--r-s);
   background: var(--c-lime);
   color: var(--c-on-lime);
-  opacity: 0;
-  transform: translateX(var(--s-4)) scale(.8);
-  transition: opacity var(--dur) var(--ease-out), transform var(--dur) var(--ease-out);
-}
-
-.service__arrow svg {
-  width: 36%;
-  height: 36%;
   transition: transform var(--dur) var(--ease-out);
 }
 
-.service:hover .service__arrow,
-.service.is-open .service__arrow {
-  opacity: 1;
-  transform: none;
+.service__toggle svg {
+  width: 42%;
+  height: 42%;
+  transition: transform var(--dur) var(--ease-out);
 }
 
-.service.is-open .service__arrow svg {
-  transform: rotate(90deg);
+.service:hover .service__toggle {
+  transform: scale(1.08);
+}
+
+.service.is-open .service__toggle svg {
+  transform: rotate(45deg);
+}
+
+.services__list:not(.is-touched) .service:not(.is-open) .service__toggle {
+  animation: service-hint 2.4s var(--ease-out) infinite;
+}
+
+@keyframes service-hint {
+  0%, 60%, 100% { transform: none; }
+  30% { transform: scale(1.12); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .services__list .service .service__toggle {
+    animation: none;
+  }
 }
 
 .service__desc {
   max-width: 62ch;
-  padding: 0 var(--s-4) var(--s-5) calc(var(--s-8) + var(--s-4) * 2);
-  color: var(--c-text-dim);
+  padding: 0 var(--s-4) var(--s-5) calc(var(--s-7) + var(--s-6) + var(--s-4) * 3);
 }
 
 .service__panel {
@@ -882,7 +874,7 @@
 
 @media (max-width: 767px) {
   .service__head {
-    grid-template-columns: var(--s-5) minmax(0, 1fr) var(--s-6);
+    grid-template-columns: var(--s-6) var(--s-5) minmax(0, 1fr);
     gap: var(--s-2);
     padding: var(--s-4) var(--s-2) var(--s-2);
   }
@@ -895,11 +887,9 @@
     font-size: var(--fs-service-m);
   }
 
-  .service__arrow {
+  .service__toggle {
     width: var(--s-6);
     height: var(--s-6);
-    opacity: 1;
-    transform: none;
   }
 
   .service__desc,
@@ -1098,6 +1088,136 @@
 .portfolio__filter.is-active {
   background: var(--c-lime);
   color: var(--c-on-lime);
+}
+
+/* Две обложки-направления (правка заказчика 28.10.2026) */
+.portfolio__dirs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--gutter);
+  margin-top: var(--s-6);
+}
+
+.portfolio__dirs[hidden],
+.portfolio__cases[hidden] {
+  display: none;
+}
+
+.portfolio-dir {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  max-height: 78vh;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-photo);
+  background: var(--c-carbon);
+  color: var(--c-bone);
+  text-align: left;
+  cursor: pointer;
+}
+
+.portfolio-dir__media {
+  position: absolute;
+  inset: 0;
+}
+
+.portfolio-dir__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.15);
+  transition: filter var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out);
+}
+
+.portfolio-dir:hover .portfolio-dir__media img,
+.portfolio-dir:focus-visible .portfolio-dir__media img {
+  filter: grayscale(0) contrast(1.05);
+  transform: scale(1.05);
+}
+
+.portfolio-dir::after {
+  content: '';
+  position: absolute;
+  inset: 35% 0 0;
+  background: linear-gradient(to top, rgb(10 10 10 / .85), transparent);
+  pointer-events: none;
+}
+
+.portfolio-dir__info {
+  position: absolute;
+  left: var(--s-5);
+  right: var(--s-5);
+  bottom: var(--s-5);
+  z-index: 1;
+  display: grid;
+  gap: var(--s-2);
+}
+
+.portfolio-dir__count {
+  color: var(--c-lime);
+}
+
+.portfolio-dir__title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-display-max);
+  font-size: var(--fs-h3);
+  line-height: 1;
+  letter-spacing: var(--ls-display);
+  text-transform: uppercase;
+}
+
+.portfolio-dir__arrow {
+  position: absolute;
+  top: var(--s-4);
+  right: var(--s-4);
+  z-index: 1;
+  width: var(--s-8);
+  height: var(--s-8);
+  transition: transform var(--dur) var(--ease-out);
+}
+
+.portfolio-dir:hover .portfolio-dir__arrow {
+  transform: rotate(45deg);
+}
+
+.portfolio__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3);
+  margin-top: var(--s-5);
+}
+
+.portfolio__bar .portfolio__filters {
+  margin-top: 0;
+}
+
+.portfolio__back {
+  border: 1px solid var(--c-line);
+  color: var(--c-bone);
+}
+
+.portfolio__back svg {
+  width: 14px;
+  height: 14px;
+}
+
+.portfolio__back:hover {
+  border-color: var(--c-lime);
+  color: var(--c-lime);
+}
+
+@media (max-width: 767px) {
+  .portfolio__dirs {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .portfolio-dir {
+    aspect-ratio: 4 / 3;
+  }
 }
 
 .portfolio__grid {
@@ -1876,7 +1996,7 @@
 
 .footer__top {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--s-5);
 }
 
@@ -1932,7 +2052,7 @@
   line-height: .78;
   letter-spacing: -.04em;
   text-transform: uppercase;
-  color: var(--c-bone);
+  color: var(--c-lime);
 }
 
 .footer__letter {

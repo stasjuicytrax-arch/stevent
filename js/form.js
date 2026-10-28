@@ -236,7 +236,7 @@
         } else {
           form.classList.add('is-error');
           setSubmitIcon(submitIcon, 'idle');
-          setStatus('error', 'Не получилось отправить заявку. Напишите нам в <a href="' + CONTACT_TG + '" target="_blank" rel="noopener noreferrer">Telegram</a> или позвоните <a href="tel:+73422774812">+7&nbsp;(342)&nbsp;277-48-12</a>.', true);
+          setStatus('error', 'Не получилось отправить заявку. Напишите нам в <a href="' + CONTACT_TG + '" target="_blank" rel="noopener noreferrer">Telegram</a> или позвоните <a href="tel:+79194459601">+7&nbsp;(919)&nbsp;445-96-01</a>.', true);
         }
       });
     });
