@@ -1,6 +1,6 @@
 // Формы заявок — маска телефона, проверка полей, отправка в Telegram
-// через Cloudflare Worker «stevent-relay» (server/stevent-relay/worker.js;
-// fetch, без перезагрузки страницы).
+// через функцию Яндекс.Облака stevent-leads (server/leads/, оттуда —
+// через релей server/stevent-relay/; fetch, без перезагрузки страницы).
 // Общая логика для двух форм на странице (инлайн-форма в разделе
 // «Контакты» и модалка заявки, docs/08-REVISION-05.md R27) — поля
 // ищутся по [name=...] внутри переданной формы, а не по хардкоженным
@@ -8,9 +8,9 @@
 (function () {
   'use strict';
 
-  // Адрес Worker после `npx wrangler deploy`. Токен бота хранится секретом
-  // в Cloudflare — на сайт он не попадает
-  var ENDPOINT = 'https://stevent-relay.ngperm.workers.dev';
+  // Функция в Яндекс.Облаке (доступна из России). Токен бота хранится в её
+  // секретах — на сайт он не попадает
+  var ENDPOINT = 'https://functions.yandexcloud.net/d4ec8ogs5jdsu2m1dadn';
   var CONTACT_TG = 'https://t.me/st_stevent';
 
   /* ---------- UTM-метки: запоминаем при входе на сайт ---------- */
