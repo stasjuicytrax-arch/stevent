@@ -2542,6 +2542,22 @@
   height: 14px;
 }
 
+/* Огромный круг со стрелкой убран (правка заказчика 28.10.2026) — переход
+   ведёт лаймовая ссылка внизу; на наведение её стрелка уходит по диагонали */
+.direction-card .portfolio-dir__arrow {
+  display: none;
+}
+
+.direction-card__cta-arrow {
+  display: inline-grid;
+  transition: transform var(--dur) var(--ease-out);
+}
+
+.direction-card:hover .direction-card__cta-arrow,
+.direction-card:focus-visible .direction-card__cta-arrow {
+  transform: translate(4px, -4px);
+}
+
 /* Плашка текущего направления в переключателе */
 .hero__plaque.is-current .hero__plaque-label {
   color: var(--c-lime);
@@ -2653,11 +2669,5 @@
 
   .direction-card__line {
     font-size: var(--fs-body);
-  }
-
-  /* Огромный круг со стрелкой на телефоне убран (правка заказчика
-     28.10.2026) — переход ведёт лаймовая ссылка внизу карточки */
-  .direction-card .portfolio-dir__arrow {
-    display: none;
   }
 }
