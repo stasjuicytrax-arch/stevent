@@ -2655,25 +2655,9 @@
     font-size: var(--fs-body);
   }
 
-  /* Вместо огромного круга со стрелкой — лаймовая кнопка-пилюля внизу
-     карточки (правка заказчика 28.10.2026, только телефон) */
+  /* Огромный круг со стрелкой на телефоне убран (правка заказчика
+     28.10.2026) — переход ведёт лаймовая ссылка внизу карточки */
   .direction-card .portfolio-dir__arrow {
     display: none;
-  }
-
-  .direction-card__cta {
-    justify-content: space-between;
-    min-height: var(--btn-h-s);
-    padding: var(--s-2) var(--s-4);
-    border-radius: var(--r-full);
-    background: var(--c-lime);
-    color: var(--c-on-lime);
-    font-size: var(--fs-small);
-    line-height: 1.25;
-  }
-
-  .direction-card__cta-arrow {
-    flex: none;
-    display: inline-grid;
   }
 }
