@@ -477,7 +477,8 @@
       yPercent: 0,
       ease: 'none',
       stagger: 0.06,
-      scrollTrigger: { trigger: '#footerGiant', start: 'top bottom', end: 'bottom bottom', scrub: 0.6 }
+      // end: 'max' — буквы полностью выезжают к самому низу страницы
+      scrollTrigger: { trigger: '#footerGiant', start: 'top bottom', end: 'max', scrub: 0.6 }
     });
   }
 
@@ -501,4 +502,8 @@
     initGeography();
     initFooter();
   });
+
+  // Картинки догружаются и меняют высоту страницы — пересчитываем точки
+  // анимаций, иначе надпись в футере не доезжала до конца
+  window.addEventListener('load', function () { ScrollTrigger.refresh(); });
 })();
