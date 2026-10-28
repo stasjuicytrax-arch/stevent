@@ -104,18 +104,22 @@
     var plaques = $$('.hero__plaque, .hero__card', hero);
     gsap.set(lead, { autoAlpha: 0, y: 30, filter: 'blur(8px)' });
     gsap.set(plaques, { autoAlpha: 0, y: 40 });
+    // На главной фото справа убрано (правка 28.10.2026) — фото, свечения
+    // и плашек может не быть, анимируем только то, что есть
+    var img = $('#heroImg');
+    var glow = $('.hero__glow', hero);
     if (photo) gsap.set(photo, { clipPath: 'inset(100% 0% 0% 0% round 24px)' });
-    gsap.set($('#heroImg'), { scale: 1.3 });
-    gsap.set($('.hero__glow', hero), { scale: 0.3, autoAlpha: 0 });
+    if (img) gsap.set(img, { scale: 1.3 });
+    if (glow) gsap.set(glow, { scale: 0.3, autoAlpha: 0 });
 
     onPreloaderDone(function () {
       var tl = gsap.timeline({ delay: 0.15 });
-      tl.to(chars, { yPercent: 0, duration: 1.2, ease: EASE, stagger: 0.025 }, 0)
-        .to(photo, { clipPath: 'inset(0% 0% 0% 0% round 24px)', duration: 1.4, ease: EASE_SNAP }, 0.1)
-        .to('#heroImg', { scale: 1, duration: 2, ease: EASE }, 0.1)
-        .to($('.hero__glow', hero), { scale: 1, autoAlpha: 1, duration: 1.8, ease: EASE }, 0.5)
-        .to(lead, { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: 1, ease: EASE, stagger: 0.1 }, 0.55)
-        .to(plaques, { autoAlpha: 1, y: 0, duration: 1, ease: EASE, stagger: 0.12 }, 0.85);
+      if (chars.length) tl.to(chars, { yPercent: 0, duration: 1.2, ease: EASE, stagger: 0.025 }, 0);
+      if (photo) tl.to(photo, { clipPath: 'inset(0% 0% 0% 0% round 24px)', duration: 1.4, ease: EASE_SNAP }, 0.1);
+      if (img) tl.to(img, { scale: 1, duration: 2, ease: EASE }, 0.1);
+      if (glow) tl.to(glow, { scale: 1, autoAlpha: 1, duration: 1.8, ease: EASE }, 0.5);
+      tl.to(lead, { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: 1, ease: EASE, stagger: 0.1 }, 0.55);
+      if (plaques.length) tl.to(plaques, { autoAlpha: 1, y: 0, duration: 1, ease: EASE, stagger: 0.12 }, 0.85);
     });
 
     // Фото уходит медленнее страницы — глубина
@@ -394,9 +398,11 @@
     if (!dirs.length) return;
     gsap.set(dirs, { clipPath: 'inset(14% 14% 14% 14% round 20px)' });
     gsap.set($$('.portfolio-dir__media img'), { scale: 1.3 });
+    // Без once: true — если карточки уже на экране при загрузке, once
+    // убивал триггер прямо во время расчёта, и ScrollTrigger падал целиком.
+    // Повторный onEnter безопасен: анимация к тем же конечным значениям
     ScrollTrigger.batch(dirs, {
       start: 'top 90%',
-      once: true,
       onEnter: function (batch) {
         gsap.to(batch, { clipPath: 'inset(0% 0% 0% 0% round 20px)', duration: 1.2, ease: EASE_SNAP, stagger: 0.12 });
         gsap.to(batch.map(function (c) { return $('img', c); }), { scale: 1, duration: 1.6, ease: EASE, stagger: 0.12, clearProps: 'transform' });

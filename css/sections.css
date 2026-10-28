@@ -658,12 +658,13 @@
 
 .goal__label {
   margin-top: var(--s-3);
+  font-size: var(--fs-tag);
 }
 
 .goal__text {
   max-width: 44ch;
   margin-top: var(--s-2);
-  font-size: var(--fs-small);
+  font-size: var(--fs-body-l);
   color: var(--c-text-dim);
 }
 
@@ -1680,11 +1681,12 @@
    КОНТАКТЫ — лаймовый остров во весь экран
    ====================================================================== */
 
+/* Контакты на чёрном (правка заказчика 28.10.2026, было — лаймовый остров) */
 .contacts {
   min-height: 100svh;
   margin-top: var(--s-6);
-  background: var(--c-lime);
-  color: var(--c-on-lime);
+  background: var(--c-graphite);
+  color: var(--c-text);
 }
 
 .contacts__inner {
@@ -1693,39 +1695,30 @@
   padding: var(--s-section) var(--pad-x);
 }
 
-.contacts .section-tag {
-  color: var(--c-on-lime-dim);
-}
 
-.contacts .section-tag__num {
-  color: var(--c-on-lime);
-}
 
-.contacts .section-tag::after {
-  background: var(--c-on-lime-line);
-}
-
+/* Заголовок меньше прежнего fs-h2 — «сильно крупный» (правка 28.10.2026) */
 .contacts__title {
-  max-width: 13ch;
+  max-width: 18ch;
   margin-top: var(--s-6);
   font-weight: var(--fw-display-max);
-  font-size: var(--fs-h2);
+  font-size: var(--fs-h3);
   /* 1, не .9: строки режутся маской (SplitText), иначе «Й» и «Ё»
      подрезает соседняя строка */
   line-height: 1;
-  color: var(--c-on-lime);
+  color: var(--c-text);
 }
 
 .contacts__lead {
   max-width: 46ch;
   margin-top: var(--s-5);
   font-size: var(--fs-body-l);
-  color: var(--c-on-lime-dim);
+  color: var(--c-text-dim);
 }
 
 .contacts__grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
   gap: var(--s-7);
   align-items: start;
   margin-top: var(--s-8);
@@ -1745,7 +1738,7 @@
 
 .contacts__label {
   margin-bottom: var(--s-1);
-  color: var(--c-on-lime-dim);
+  color: var(--c-text-dim);
 }
 
 .contacts__phone {
@@ -1768,7 +1761,7 @@
 
 .contacts__phone:hover,
 .contacts__link:hover {
-  opacity: .7;
+  color: var(--c-lime);
 }
 
 .contacts__socials {
@@ -2600,7 +2593,12 @@
 
 .contacts__direct-text {
   max-width: 40ch;
-  color: var(--c-on-lime-dim);
+  color: var(--c-text-dim);
+}
+
+/* Форма на чёрном острове — тонкая рамка, чтобы не сливалась с фоном */
+.contacts .form-card {
+  border: 1px solid var(--c-line);
 }
 
 /* Форма: заголовок и выбор «Что планируете» */
@@ -2779,5 +2777,62 @@
   /* На узком экране текст лежит на всём фото — затемнение ровнее и плотнее */
   .hero--dir::after {
     background: linear-gradient(to top, rgb(10 10 10 / .92), rgb(10 10 10 / .62) 55%, rgb(10 10 10 / .5));
+  }
+}
+
+/* ======================================================================
+   ГЛАВНАЯ: первый экран без фото, направления раскрываются под
+   карточками (правки заказчика 28.10.2026)
+   ====================================================================== */
+
+.hero--solo {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.hero--solo .hero__copy {
+  max-width: 1100px;
+}
+
+/* Свёрнутый блок — нулевая высота, а не display: none: на элементах
+   с display: none ScrollTrigger (js/animations.js) падал при запуске.
+   inert убирает свёрнутое содержимое из фокуса и от кликов */
+.dir-panel[inert] {
+  height: 0;
+  overflow: hidden;
+}
+
+.dir-panel {
+  scroll-margin-top: 96px;
+}
+
+/* Фото-шапка направления — тот же приём, что был у первого экрана
+   страниц направлений, но не на весь экран */
+.dir-panel__banner {
+  min-height: min(88svh, 860px);
+  margin-top: var(--s-6);
+}
+
+.dir-switch__btn {
+  color: var(--c-text);
+}
+
+.dir-switch__btn.is-active {
+  background: var(--c-lime);
+  color: var(--c-on-lime);
+}
+
+/* В шапке направления переключатель стоит у верхнего края острова, а не
+   под шапкой сайта */
+.dir-panel__banner .hero-dir__switch {
+  top: var(--s-6);
+}
+
+@media (max-width: 767px) {
+  .dir-panel__banner .hero-dir__switch {
+    top: var(--s-4);
+  }
+
+  .dir-panel__banner {
+    padding-top: calc(var(--s-6) + var(--btn-h-s) + var(--s-4));
   }
 }

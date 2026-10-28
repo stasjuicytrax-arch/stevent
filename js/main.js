@@ -190,103 +190,65 @@
   }
 
 
-  /* ---------- Портфолио: обложки-направления → кейсы направления ---------- */
+  /* ---------- Направления на главной: «Для бизнеса / Частные события» ---------- */
 
-  // Сначала две обложки «Для бизнеса / Частные события» (правка заказчика
-  // 28.10.2026). Клик — обложки прячутся, показываются кейсы направления;
-  // внутри работает прежний фильтр с перестройкой через GSAP Flip.
-  // Плашки «Корпоративный / Частный клиент» в hero (data-filter-link)
-  // сразу открывают своё направление.
-  function initPortfolioFilter() {
-    var buttons = document.querySelectorAll('.portfolio__filter');
-    var cards = Array.prototype.slice.call(document.querySelectorAll('.case-card[data-type]'));
-    var dirsEl = document.getElementById('portfolioDirs');
-    var casesEl = document.getElementById('portfolioCases');
-    var backBtn = document.getElementById('portfolioBack');
-    if (!buttons.length || !cards.length) return;
-    var current = 'business';
+  // Правка заказчика 28.10.2026: направления не на отдельных страницах,
+  // а раскрываются под карточками на главной. Открыт один блок; карточки
+  // и переключатель в шапке блока — [data-open-dir]. Ссылка с #business /
+  // #private (в т. ч. со старых business.html / private.html) открывает сразу.
+  function initDirections() {
+    var panels = {
+      business: document.getElementById('business'),
+      private: document.getElementById('private')
+    };
+    if (!panels.business || !panels.private) return;
 
-    function setFilter(type) {
-      current = type;
-      buttons.forEach(function (btn) {
-        var on = btn.dataset.filter === type;
-        btn.classList.toggle('is-active', on);
-        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-      });
-      cards.forEach(function (card) {
-        card.hidden = card.dataset.type !== type;
-      });
+    // Отступ под стеклянную шапку сайта, чтобы она не закрывала переключатель
+    function scrollToPanel(panel) {
+      if (window.ST_LENIS) window.ST_LENIS.scrollTo(panel, { offset: -96, duration: 1.2 });
+      else panel.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
     }
 
-    function refreshScroll() {
-      if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
-    }
-
-    function openDir(type) {
-      if (!dirsEl || !casesEl) return;
-      setFilter(type);
-      dirsEl.hidden = true;
-      casesEl.hidden = false;
-      refreshScroll();
-      if (hasGsap && !reduceMotion) {
-        var shown = cards.filter(function (card) { return !card.hidden; });
-        gsap.fromTo(shown, { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.7, ease: 'expo.out', stagger: 0.06, clearProps: 'opacity,transform' });
-      }
-    }
-
-    function closeDirs() {
-      if (!dirsEl || !casesEl) return;
-      casesEl.hidden = true;
-      dirsEl.hidden = false;
-      refreshScroll();
-      var section = document.getElementById('portfolio');
-      if (window.ST_LENIS) window.ST_LENIS.scrollTo(section, { offset: 0, duration: 0.8 });
-      else section.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
-    }
-
-    if (dirsEl) {
-      dirsEl.querySelectorAll('[data-dir]').forEach(function (dir) {
-        dir.addEventListener('click', function () { openDir(dir.dataset.dir); });
+    function open(type, scroll) {
+      var panel = panels[type];
+      if (!panel) return;
+      // inert + нулевая высота (css) вместо hidden — см. .dir-panel[inert]
+      Object.keys(panels).forEach(function (key) {
+        panels[key].inert = key !== type;
       });
-    }
-    if (backBtn) backBtn.addEventListener('click', closeDirs);
-
-    function applyFilter(type) {
-      if (type === current) return;
-      current = type;
-      buttons.forEach(function (btn) {
-        var on = btn.dataset.filter === type;
-        btn.classList.toggle('is-active', on);
-        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-      });
-
-      var canFlip = hasGsap && typeof Flip !== 'undefined' && !reduceMotion;
-      var state = canFlip ? Flip.getState(cards) : null;
-      cards.forEach(function (card) {
-        card.hidden = card.dataset.type !== type;
-      });
-      if (!canFlip) return;
-
-      Flip.from(state, {
-        duration: 0.8,
-        ease: 'power3.inOut',
-        stagger: 0.04,
-        absolute: true,
-        onEnter: function (els) {
-          return gsap.fromTo(els, { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.7, ease: 'expo.out', delay: 0.2 });
-        },
-        onLeave: function (els) {
-          return gsap.to(els, { opacity: 0, scale: 0.85, duration: 0.4, ease: 'power2.in' });
+      document.querySelectorAll('[data-open-dir]').forEach(function (el) {
+        var on = el.dataset.openDir === type;
+        if (el.classList.contains('dir-switch__btn')) {
+          el.classList.toggle('is-active', on);
+          el.setAttribute('aria-pressed', on ? 'true' : 'false');
+        } else {
+          el.setAttribute('aria-expanded', on ? 'true' : 'false');
         }
       });
+      // Форма заявки: заранее отмечаем, что планируют
+      var plan = document.querySelector('#contactForm input[name="plan"][value="' + (type === 'business' ? 'Событие для компании' : 'Частный праздник') + '"]');
+      if (plan) plan.checked = true;
+      if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
+      if (hasGsap && !reduceMotion) {
+        gsap.fromTo(panel, { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.8, ease: 'expo.out', clearProps: 'opacity,visibility,transform' });
+      }
+      if (scroll) scrollToPanel(panel);
     }
 
-    buttons.forEach(function (btn) {
-      btn.addEventListener('click', function () { applyFilter(btn.dataset.filter); });
+    document.querySelectorAll('[data-open-dir]').forEach(function (el) {
+      el.addEventListener('click', function (event) {
+        event.preventDefault();
+        open(el.dataset.openDir, true);
+        if (history.replaceState) history.replaceState(null, '', '#' + el.dataset.openDir);
+      });
     });
-    document.querySelectorAll('[data-filter-link]').forEach(function (link) {
-      link.addEventListener('click', function () { openDir(link.dataset.filterLink); });
-    });
+
+    var hash = location.hash.replace('#', '');
+    if (panels[hash]) {
+      open(hash, false);
+      // Ждём раскладку и шрифты — иначе прокрутка промахивается
+      setTimeout(function () { scrollToPanel(panels[hash]); }, 400);
+    }
   }
 
   document.addEventListener('DOMContentLoaded', function () {
@@ -294,6 +256,6 @@
     initHeader();
     initAnchors();
     initServices();
-    initPortfolioFilter();
+    initDirections();
   });
 })();
