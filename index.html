@@ -6,11 +6,11 @@
   <title>ST EVENT — важные события, сильные впечатления</title>
   <meta name="description" content="Event-агентство ST EVENT, Пермь, с 2008 года. Мероприятия для компаний и личных поводов — с идеей, вниманием к деталям и полной организацией.">
   <meta name="theme-color" content="#0A0A0A">
-  <link rel="stylesheet" href="css/reset.css?v=20261028f">
-  <link rel="stylesheet" href="css/tokens.css?v=20261028f">
-  <link rel="stylesheet" href="css/base.css?v=20261028f">
-  <link rel="stylesheet" href="css/components.css?v=20261028f">
-  <link rel="stylesheet" href="css/sections.css?v=20261028f">
+  <link rel="stylesheet" href="css/reset.css?v=20261028h">
+  <link rel="stylesheet" href="css/tokens.css?v=20261028h">
+  <link rel="stylesheet" href="css/base.css?v=20261028h">
+  <link rel="stylesheet" href="css/components.css?v=20261028h">
+  <link rel="stylesheet" href="css/sections.css?v=20261028h">
 </head>
 <body>
   <!-- Жидкое стекло: одна SVG-карта смещения на страницу (references/
@@ -113,8 +113,14 @@
       </div>
     </section>
 
-    <!-- Выбор направления — сразу под слоганом (ТЗ 2026): две равнозначные
-         карточки с фото, кликабельна вся карточка -->
+    <!-- Бегущая строка: «привет» на 12 языках (правка заказчика 28.10.2026).
+         Скорость и наклон — от скорости скролла (js/animations.js) -->
+    <div class="tapes" aria-hidden="true">
+      <div class="tape tape--lime" aria-label="Привет на разных языках"><div class="marquee"><div class="marquee__track"><div class="marquee__group"><span class="tape__item">Привет</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Hello</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Hola</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Bonjour</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Ciao</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Hallo</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Olá</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Hej</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Merhaba</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Ahoj</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Aloha</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Hei</span><span class="star" aria-hidden="true">✦</span></div><div class="marquee__group" aria-hidden="true"><span class="tape__item">Привет</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Hello</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Hola</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Bonjour</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Ciao</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Hallo</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Olá</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Hej</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Merhaba</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Ahoj</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Aloha</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Hei</span><span class="star" aria-hidden="true">✦</span></div><div class="marquee__group" aria-hidden="true"><span class="tape__item">Привет</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Hello</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Hola</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Bonjour</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Ciao</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Hallo</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Olá</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Hej</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Merhaba</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Ahoj</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Aloha</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Hei</span><span class="star" aria-hidden="true">✦</span></div></div></div></div>
+    </div>
+
+    <!-- Выбор направления — под бегущей строкой (ТЗ 2026, правка заказчика
+         28.10.2026): две равнозначные карточки с фото, кликабельна вся карточка -->
     <section class="directions" id="directions" aria-label="Направления">
       <div class="container">
         <div class="portfolio__dirs directions__grid">
@@ -141,12 +147,6 @@
         </div>
       </div>
     </section>
-
-    <!-- Бегущая строка: «привет» на 12 языках (правка заказчика 28.10.2026).
-         Скорость и наклон — от скорости скролла (js/animations.js) -->
-    <div class="tapes" aria-hidden="true">
-      <div class="tape tape--lime" aria-label="Привет на разных языках"><div class="marquee"><div class="marquee__track"><div class="marquee__group"><span class="tape__item">Привет</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Hello</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Hola</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Bonjour</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Ciao</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Hallo</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Olá</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Hej</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Merhaba</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Ahoj</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Aloha</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Hei</span><span class="star" aria-hidden="true">✦</span></div><div class="marquee__group" aria-hidden="true"><span class="tape__item">Привет</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Hello</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Hola</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Bonjour</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Ciao</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Hallo</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Olá</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Hej</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Merhaba</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Ahoj</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Aloha</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Hei</span><span class="star" aria-hidden="true">✦</span></div><div class="marquee__group" aria-hidden="true"><span class="tape__item">Привет</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Hello</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Hola</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Bonjour</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Ciao</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Hallo</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Olá</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Hej</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Merhaba</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Ahoj</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Aloha</span><span class="star" aria-hidden="true">✦</span><span class="tape__item">Hei</span><span class="star" aria-hidden="true">✦</span></div></div></div></div>
-    </div>
 
     <!-- 02 — О нас -->
     <section class="about" id="about">
@@ -248,7 +248,7 @@
     <section class="contacts island" id="contacts">
       <div class="contacts__inner">
         <p class="section-tag mono contacts__tag"><span class="section-tag__num">[05]</span><span>Контакты</span></p>
-        <h2 class="contacts__title">У вас есть повод. У нас – идеи.</h2>
+        <h2 class="contacts__title">У&nbsp;вас есть повод. У&nbsp;нас&nbsp;– идеи.</h2>
         <p class="contacts__lead">Расскажите, кого хотите собрать и какое впечатление оставить. Мы поможем продумать событие и возьмём организацию на себя.</p>
 
         <div class="contacts__grid">
@@ -454,13 +454,13 @@
   <script src="assets/vendor/Flip.min.js" defer></script>
   <script src="assets/vendor/lenis.min.js" defer></script>
   <script src="assets/data/russia-110m.js" defer></script>
-  <script src="js/liquid-glass.js?v=20261028f" defer></script>
-  <script src="js/cursor.js?v=20261028f" defer></script>
-  <script src="js/main.js?v=20261028f" defer></script>
-  <script src="js/gallery.js?v=20261028f" defer></script>
-  <script src="js/form.js?v=20261028f" defer></script>
-  <script src="js/request-modal.js?v=20261028f" defer></script>
-  <script src="js/fan-gallery.js?v=20261028f" defer></script>
-  <script src="js/animations.js?v=20261028f" defer></script>
+  <script src="js/liquid-glass.js?v=20261028h" defer></script>
+  <script src="js/cursor.js?v=20261028h" defer></script>
+  <script src="js/main.js?v=20261028h" defer></script>
+  <script src="js/gallery.js?v=20261028h" defer></script>
+  <script src="js/form.js?v=20261028h" defer></script>
+  <script src="js/request-modal.js?v=20261028h" defer></script>
+  <script src="js/fan-gallery.js?v=20261028h" defer></script>
+  <script src="js/animations.js?v=20261028h" defer></script>
 </body>
 </html>

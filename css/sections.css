@@ -490,10 +490,10 @@
 
 .tape {
   position: relative;
-  padding-block: var(--s-3);
+  padding-block: var(--s-2);
   font-family: var(--font-display);
   font-weight: var(--fw-display-max);
-  font-size: clamp(14px, 1.8vw, 27px); /* вдвое меньше прежнего, правка 28.10.2026 */
+  font-size: clamp(11px, .9vw, 14px); /* ещё вдвое меньше, правка 28.10.2026 */
   line-height: 1;
   text-transform: uppercase;
 }

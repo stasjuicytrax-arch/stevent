@@ -457,7 +457,9 @@
 
     var title = $('.contacts__title', island);
     if (title && typeof SplitText !== 'undefined') {
-      var split = new SplitText(title, { type: 'lines', mask: 'lines', linesClass: 'contacts__line' });
+      // reduceWhiteSpace: false — иначе SplitText превращает неразрывные
+      // пробелы в обычные и предлог «У» повисает в конце строки
+      var split = new SplitText(title, { type: 'lines', mask: 'lines', linesClass: 'contacts__line', reduceWhiteSpace: false });
       gsap.fromTo(split.lines, { yPercent: 110 }, {
         yPercent: 0,
         duration: 1.2,
