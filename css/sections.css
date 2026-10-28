@@ -2671,3 +2671,113 @@
     font-size: var(--fs-body);
   }
 }
+
+/* ======================================================================
+   ПЕРВЫЙ ЭКРАН НАПРАВЛЕНИЯ (business.html, private.html) — свой, не как
+   на главной (правка заказчика 28.10.2026): фото во весь остров,
+   переключатель сверху, заголовок внизу слева, плашка с поводами справа
+   ====================================================================== */
+
+.hero--dir {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: var(--s-6);
+}
+
+/* Фото шире острова: параллакс мыши (js/animations.js) сдвигает его
+   на десяток пикселей — края не должны показываться */
+.hero-dir__media {
+  position: absolute;
+  inset: calc(var(--s-4) * -1);
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* Затемнение под текст: снизу и слева плотнее */
+.hero--dir::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(to top, rgb(10 10 10 / .92), rgb(10 10 10 / .25) 60%, rgb(10 10 10 / .55)),
+    linear-gradient(to right, rgb(10 10 10 / .6), transparent 65%);
+  pointer-events: none;
+}
+
+.hero--dir .hero__glow {
+  top: auto;
+  bottom: -60%;
+  left: 35%;
+  width: 90%;
+  z-index: 1;
+  opacity: .45;
+}
+
+.hero-dir__switch {
+  position: absolute;
+  top: calc(var(--s-9) + var(--s-3));
+  left: var(--s-6);
+  z-index: 3;
+  margin-top: 0;
+}
+
+.hero-dir__switch .portfolio__filter {
+  color: var(--c-text);
+}
+
+.hero-dir__switch .portfolio__filter.is-active {
+  color: var(--c-on-lime);
+}
+
+.hero-dir__copy {
+  max-width: min(62%, 980px);
+}
+
+.hero--dir .hero__lead {
+  color: var(--c-bone);
+}
+
+.hero-dir__kinds {
+  top: auto;
+  left: auto;
+  right: var(--s-6);
+  bottom: var(--s-6);
+  max-width: 34ch;
+}
+
+.hero-dir__kinds .mono {
+  line-height: 1.7;
+}
+
+@media (max-width: 1023px) {
+  .hero-dir__copy {
+    max-width: none;
+  }
+
+  .hero-dir__kinds {
+    position: relative;
+    right: auto;
+    bottom: auto;
+    max-width: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .hero-dir__switch {
+    left: var(--s-4);
+    right: var(--s-4);
+    width: auto;
+  }
+
+  .hero-dir__switch .portfolio__filter {
+    flex: 1;
+    justify-content: center;
+  }
+
+  /* На узком экране текст лежит на всём фото — затемнение ровнее и плотнее */
+  .hero--dir::after {
+    background: linear-gradient(to top, rgb(10 10 10 / .92), rgb(10 10 10 / .62) 55%, rgb(10 10 10 / .5));
+  }
+}

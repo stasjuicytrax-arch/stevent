@@ -6,11 +6,11 @@
   <title>Для бизнеса — ST EVENT</title>
   <meta name="description" content="Корпоративы, юбилеи компаний, конференции, презентации и тимбилдинги. Организация мероприятий для бизнеса, Пермь.">
   <meta name="theme-color" content="#0A0A0A">
-  <link rel="stylesheet" href="css/reset.css?v=20261028m">
-  <link rel="stylesheet" href="css/tokens.css?v=20261028m">
-  <link rel="stylesheet" href="css/base.css?v=20261028m">
-  <link rel="stylesheet" href="css/components.css?v=20261028m">
-  <link rel="stylesheet" href="css/sections.css?v=20261028m">
+  <link rel="stylesheet" href="css/reset.css?v=20261028o">
+  <link rel="stylesheet" href="css/tokens.css?v=20261028o">
+  <link rel="stylesheet" href="css/base.css?v=20261028o">
+  <link rel="stylesheet" href="css/components.css?v=20261028o">
+  <link rel="stylesheet" href="css/sections.css?v=20261028o">
 </head>
 <body>
   <!-- Жидкое стекло: одна SVG-карта смещения на страницу (references/
@@ -66,11 +66,20 @@
 
   <main>
 
-    <!-- 01 — Hero. Тексты — ТЗ 2026 (docs/12-REVISION-09.md). Фото —
-         сцена СП-Крон (выбор заказчика 19.10.2026), Ч/Б + лаймовое
-         свечение + моушн-шлейф (docs/13 §5) -->
-    <section class="hero island" id="hero">
-      <div class="hero__copy">
+    <!-- 01 — Первый экран направления: фото во весь остров -->
+    <section class="hero hero--dir island" id="hero">
+      <div class="hero-dir__media" id="heroPhoto">
+        <img class="hero__img" id="heroImg" src="assets/portfolio/kron/cover.jpg" alt="Сцена юбилея компании «СП-Крон»: световые конструкции, экран с логотипом, накрытые столы">
+      </div>
+      <span class="hero__glow" aria-hidden="true"></span>
+
+      <nav class="portfolio__filters hero-dir__switch" aria-label="Направления">
+        <span class="glass" aria-hidden="true"></span>
+        <a class="pill portfolio__filter is-active" href="business.html" aria-current="page">Для бизнеса</a>
+        <a class="pill portfolio__filter" href="private.html">Частные события</a>
+      </nav>
+
+      <div class="hero__copy hero-dir__copy">
         <h1 class="hero__title">События, которые работают на&nbsp;ваш бизнес.</h1>
         <p class="hero__lead">Посмотрите наши проекты и представьте, каким может стать ваше событие.</p>
         <div class="hero__actions">
@@ -83,38 +92,10 @@
         </div>
       </div>
 
-      <div class="hero__visual" id="heroVisual">
-        <span class="hero__glow" aria-hidden="true"></span>
-        <div class="hero__photo" id="heroPhoto">
-          <img class="hero__trail" src="assets/common/hero-stage.jpg" alt="" aria-hidden="true">
-          <img class="hero__trail" src="assets/common/hero-stage.jpg" alt="" aria-hidden="true">
-          <img class="hero__trail" src="assets/common/hero-stage.jpg" alt="" aria-hidden="true">
-          <img class="hero__img" id="heroImg" src="assets/common/hero-stage.jpg" alt="Барабанное шоу на сцене корпоративного юбилея: силуэты музыкантов на фоне светящихся экранов, гости за столами">
-
-          <div class="hero__card">
-            <span class="glass" aria-hidden="true"></span>
-            <p class="hero__card-brand">ST EVENT</p>
-            <p class="mono">событие // искусство // видео</p>
-            <p class="mono hero__card-meta">С 2008 · Пермь</p>
-          </div>
-
-          <!-- Две плашки (ТЗ 2026): на главной — входы в направления,
-               на страницах направлений — переключатель между ними -->
-          <div class="hero__plaques">
-            <a href="business.html" class="hero__plaque is-current" aria-current="page">
-              <span class="glass" aria-hidden="true"></span>
-              <span class="mono hero__plaque-num">#01</span>
-              <span class="hero__plaque-label">Для бизнеса</span>
-              <span class="hero__plaque-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 11L11 5M11 5H6.5M11 5V9.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-            </a>
-            <a href="private.html" class="hero__plaque">
-              <span class="glass" aria-hidden="true"></span>
-              <span class="mono hero__plaque-num">#02</span>
-              <span class="hero__plaque-label">Частные события</span>
-              <span class="hero__plaque-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 11L11 5M11 5H6.5M11 5V9.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-            </a>
-          </div>
-        </div>
+      <div class="hero__card hero-dir__kinds">
+        <span class="glass" aria-hidden="true"></span>
+        <p class="hero__card-brand">Для бизнеса</p>
+        <p class="mono">Корпоративы · Юбилеи компаний · Конференции · Презентации · Тимбилдинги</p>
       </div>
     </section>
 
@@ -468,13 +449,13 @@
   <script src="assets/vendor/Flip.min.js" defer></script>
   <script src="assets/vendor/lenis.min.js" defer></script>
   <script src="assets/data/russia-110m.js" defer></script>
-  <script src="js/liquid-glass.js?v=20261028m" defer></script>
-  <script src="js/cursor.js?v=20261028m" defer></script>
-  <script src="js/main.js?v=20261028m" defer></script>
-  <script src="js/gallery.js?v=20261028m" defer></script>
-  <script src="js/form.js?v=20261028m" defer></script>
-  <script src="js/request-modal.js?v=20261028m" defer></script>
-  <script src="js/fan-gallery.js?v=20261028m" defer></script>
-  <script src="js/animations.js?v=20261028m" defer></script>
+  <script src="js/liquid-glass.js?v=20261028o" defer></script>
+  <script src="js/cursor.js?v=20261028o" defer></script>
+  <script src="js/main.js?v=20261028o" defer></script>
+  <script src="js/gallery.js?v=20261028o" defer></script>
+  <script src="js/form.js?v=20261028o" defer></script>
+  <script src="js/request-modal.js?v=20261028o" defer></script>
+  <script src="js/fan-gallery.js?v=20261028o" defer></script>
+  <script src="js/animations.js?v=20261028o" defer></script>
 </body>
 </html>
