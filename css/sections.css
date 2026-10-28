@@ -638,11 +638,39 @@
   border-top: 1px solid var(--c-line);
 }
 
+/* Три колонки выровнены по рядам: цифры — подписи — тексты, даже если
+   в колонке нет подписи или вместо цифры слово (правка 28.10.2026) */
+@supports (grid-template-rows: subgrid) {
+  .goals__grid {
+    grid-template-rows: auto auto auto;
+  }
+
+  .goal {
+    display: grid;
+    grid-row: span 3;
+    grid-template-rows: subgrid;
+    align-content: start;
+  }
+
+  .goal__num {
+    grid-row: 1;
+    align-self: end;
+  }
+
+  .goal__label {
+    grid-row: 2;
+  }
+
+  .goal__text {
+    grid-row: 3;
+  }
+}
+
 .goal__num {
   display: block;
   font-family: var(--font-display);
   font-weight: var(--fw-display-max);
-  font-size: clamp(56px, 7vw, 120px);
+  font-size: clamp(48px, 5.6vw, 96px);
   line-height: 1;
   letter-spacing: var(--ls-display);
   color: var(--c-lime);
@@ -678,7 +706,14 @@
 @media (max-width: 639px) {
   .goals__grid {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
     gap: var(--s-5);
+  }
+
+  /* В одну колонку выравнивать нечего — обычный поток */
+  .goal {
+    display: block;
+    grid-row: auto;
   }
 }
 
@@ -2343,6 +2378,7 @@
   position: relative;
   width: min(540px, 100%);
   max-height: calc(100svh - var(--s-5));
+  overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: var(--s-6);
@@ -2379,11 +2415,14 @@
   height: 16px;
 }
 
+/* Заголовок меньше: «МЕРОПРИЯТИЕ» не влезало в окно и давало
+   горизонтальную прокрутку (правка 28.10.2026) */
 .request-modal__title {
-  max-width: 12ch;
+  max-width: none;
+  padding-right: var(--s-7);
   font-weight: var(--fw-display-max);
-  font-size: var(--fs-h3);
-  line-height: 1;
+  font-size: clamp(22px, 2.2vw, 32px);
+  line-height: 1.05;
 }
 
 .request-modal__form {
@@ -2785,17 +2824,53 @@
    карточками (правки заказчика 28.10.2026)
    ====================================================================== */
 
-.hero--solo {
-  grid-template-columns: minmax(0, 1fr);
+/* Первый экран главной: справа вместо фото — две карточки направлений
+   друг над другом (правки заказчика 28.10.2026) */
+.hero--dirs {
+  align-items: stretch;
 }
 
-.hero--solo .hero__copy {
-  max-width: 1100px;
+.hero__dirs {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: var(--gutter);
 }
 
-/* Свёрнутый блок — нулевая высота, а не display: none: на элементах
-   с display: none ScrollTrigger (js/animations.js) падал при запуске.
-   inert убирает свёрнутое содержимое из фокуса и от кликов */
+.hero__dirs .direction-card {
+  aspect-ratio: auto;
+  max-height: none;
+  min-height: 260px;
+}
+
+.hero__dirs .portfolio-dir__info {
+  left: var(--s-4);
+  right: var(--s-4);
+  bottom: var(--s-4);
+  gap: var(--s-1);
+}
+
+.hero__dirs .portfolio-dir__title {
+  font-size: clamp(22px, 2.2vw, 34px);
+}
+
+.hero__dirs .direction-card__line {
+  font-size: var(--fs-body);
+}
+
+.hero__dirs .direction-card::after {
+  inset: 0;
+  background: linear-gradient(to top, rgb(10 10 10 / .9) 20%, rgb(10 10 10 / .15));
+}
+
+@media (max-width: 1023px) {
+  .hero__dirs .direction-card {
+    min-height: 0;
+    aspect-ratio: 4 / 3;
+  }
+}
+
 .dir-panel[inert] {
   height: 0;
   overflow: hidden;
