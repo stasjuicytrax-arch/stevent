@@ -118,13 +118,6 @@
         .to(plaques, { autoAlpha: 1, y: 0, duration: 1, ease: EASE, stagger: 0.12 }, 0.85);
     });
 
-    // Гигантская контурная надпись едет при скролле
-    gsap.to('.hero__outline', {
-      xPercent: -18,
-      ease: 'none',
-      scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true }
-    });
-
     // Фото уходит медленнее страницы — глубина
     if (visual) {
       gsap.to(visual, {

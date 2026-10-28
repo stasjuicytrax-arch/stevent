@@ -268,32 +268,13 @@
   background: var(--c-graphite);
 }
 
-/* Гигантская контурная надпись на фоне — stroke без заливки */
-.hero__outline {
-  position: absolute;
-  left: 0;
-  bottom: -.12em;
-  z-index: 0;
-  font-family: var(--font-display);
-  font-weight: var(--fw-display-max);
-  font-size: var(--fs-mega);
-  line-height: 1;
-  letter-spacing: -.03em;
-  white-space: nowrap;
-  /* paint-order — как у названий городов: без внутренних линий */
-  color: var(--c-graphite);
-  -webkit-text-stroke: 2px rgb(242 241 234 / .12);
-  paint-order: stroke fill;
-  pointer-events: none;
-  user-select: none;
-}
-
+/* Текст — по центру по вертикали (правка заказчика 28.10.2026) */
 .hero__copy {
   position: relative;
   z-index: 2;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: center;
 }
 
 .hero__title {
