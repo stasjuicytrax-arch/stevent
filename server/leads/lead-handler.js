@@ -67,10 +67,13 @@ function validate(body) {
   };
 }
 
-function telegramText(l) {
+function telegramText(l, source) {
   const time = new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' });
+  const heading = source === 'karaokerave'
+    ? '#karaokerave 🔔 <b>Новая заявка — Караоке Рейв</b>'
+    : '#stevent 🔔 <b>Новая заявка — ST Event</b>';
   const lines = [
-    '#stevent 🔔 <b>Новая заявка — ST Event</b>',
+    heading,
     '',
     `<b>Форма:</b> ${esc(l.form)}`,
     `<b>Имя:</b> ${esc(l.name)}`,
@@ -133,7 +136,7 @@ async function handleLead(body, meta) {
 
   const chat = env('TELEGRAM_CHAT_ID');
   const tg = chat
-    ? await tgCall('sendMessage', { chat_id: chat, text: telegramText(checked.lead), parse_mode: 'HTML', disable_web_page_preview: true })
+    ? await tgCall('sendMessage', { chat_id: chat, text: telegramText(checked.lead, meta.source), parse_mode: 'HTML', disable_web_page_preview: true })
     : { ok: false, reason: 'Telegram не настроен' };
   if (!tg.ok) {
     console.error('Telegram не отправлен:', tg.reason); // видно в логах функции, не посетителю

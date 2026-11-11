@@ -5,7 +5,8 @@
 
 const { handleLead } = require('./lead-handler');
 
-const ORIGINS = ['https://st-event.com', 'https://www.st-event.com', 'https://stasjuicytrax-arch.github.io'];
+const KARAOKE_ORIGIN = 'https://karaokerave.ru';
+const ORIGINS = ['https://st-event.com', 'https://www.st-event.com', 'https://stasjuicytrax-arch.github.io', KARAOKE_ORIGIN];
 const json = (statusCode, headers, body) => ({ statusCode, headers, body: JSON.stringify(body) });
 
 module.exports.handler = async (event) => {
@@ -35,6 +36,7 @@ module.exports.handler = async (event) => {
   }
 
   const ip = String(h['X-Forwarded-For'] || h['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
-  const result = await handleLead(data, { ip });
+  const source = origin === KARAOKE_ORIGIN ? 'karaokerave' : 'stevent';
+  const result = await handleLead(data, { ip, source });
   return json(result.status, headers, result.body);
 };
